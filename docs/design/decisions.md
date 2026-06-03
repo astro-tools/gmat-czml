@@ -109,12 +109,18 @@ Core runtime dependencies:
 | Dependency | Constraint | Role |
 |-----------|-----------|------|
 | `czml3` | `>=3.3,<4` | CZML serialization backend (pydantic-2) |
-| `orbit-formats` | `>=0.5` | canonical schema, frame rotation, geodetic projection, file readers |
+| `orbit-formats` | `>=0.4` (target `>=0.5`) | canonical schema, frame rotation, geodetic projection, file readers |
 | `pandas` | `>=2.0` | the canonical DataFrame |
 | `numpy` | `>=1.24` | sampling / decimation / frame arrays |
 
 The exact versions are locked in `uv.lock`; the golden-output regression suite is the drift
 detector for a `czml3` bump (goldens are regenerated deliberately, never silently).
+
+The intended `orbit-formats` floor is `>=0.5` — the line where the ECEF↔geodetic helper the ground
+track delegates to first appears. It is held at `>=0.4` until that release ships, because the
+current surface calls nothing `0.5`-only; it tightens to `>=0.5` with the ground-track work. This
+keeps the package installable from PyPI today (a published library cannot depend on an unreleased
+version, nor on a git URL).
 
 **Install-weight tradeoff (accepted).** Depending on orbit-formats pulls its own dependencies
 (including astropy) into the tree, so the base install is heavier than the charter's
