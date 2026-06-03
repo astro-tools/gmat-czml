@@ -31,6 +31,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
+from typing import cast
 
 import numpy as np
 import pandas as pd
@@ -126,6 +127,17 @@ class CanonicalInput:
     def central_body(self) -> str | None:
         """The central body (e.g. ``"Earth"``), from ``attrs['central_body']`` if declared."""
         return self.ephemeris.metadata.central_body
+
+    @property
+    def time_scale(self) -> str:
+        """The time scale (one of ``UTC TAI TT TDB GPS UT1``), from ``attrs['time_scale']``.
+
+        Unlike :attr:`object_name` / :attr:`central_body`, the scale is required: validation
+        resolves it (falling back to ``attrs['epoch_scales']['Epoch']``) and rejects an absent or
+        unrecognised one, so a constructed :class:`CanonicalInput` always carries a recognised,
+        non-``None`` scale. The ``cast`` records that established guarantee for the type checker.
+        """
+        return cast(str, self.ephemeris.metadata.time_scale)
 
 
 def validate(df: pd.DataFrame) -> CanonicalInput:
