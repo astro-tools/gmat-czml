@@ -12,6 +12,38 @@ This module is the public surface. The conversion internals live under
 
 from __future__ import annotations
 
-__all__ = ["__version__"]
+from gmat_czml.errors import (
+    DuplicateObjectNameError,
+    EmptyTrajectoryError,
+    GmatCzmlError,
+    InvalidUnitsError,
+    MalformedStateError,
+    MissingColumnError,
+    MissingFrameError,
+    MissingTimeScaleError,
+    SchemaError,
+    UnknownFrameError,
+    UnknownTimeScaleError,
+)
+from gmat_czml.schema import CanonicalInput, normalize_inputs, recognised_frame, validate
+
+__all__ = [
+    "CanonicalInput",
+    "DuplicateObjectNameError",
+    "EmptyTrajectoryError",
+    "GmatCzmlError",
+    "InvalidUnitsError",
+    "MalformedStateError",
+    "MissingColumnError",
+    "MissingFrameError",
+    "MissingTimeScaleError",
+    "SchemaError",
+    "UnknownFrameError",
+    "UnknownTimeScaleError",
+    "__version__",
+    "normalize_inputs",
+    "recognised_frame",
+    "validate",
+]
 
 __version__ = "0.1.0"

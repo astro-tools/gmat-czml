@@ -144,6 +144,38 @@ it.
 - **`to_czml` and the CLI accept any file orbit-formats can read** (via its `read()`), so file
   input comes for free and gmat-czml ships no format readers of its own.
 
+## D8 — the validation boundary: `validate` / `CanonicalInput` / `normalize_inputs`
+
+`schema.py` is a thin boundary over the upstream `Ephemeris.from_dataframe`; it parses nothing
+itself, delegating the state arrays and the `attrs` spine to that one entry point (and never
+reaching into the semi-private `canonical.base` helpers behind it). On top of that delegation it
+adds the guards the renderer needs and the upstream does not enforce, and turns every failure into
+a typed `SchemaError`. The contract this settles for the converters:
+
+- **The validated unit of work is `CanonicalInput`** — the parsed upstream `Ephemeris` plus the
+  recognised frame id and a `has_velocity` flag. It is what every converter consumes.
+- **Velocity is optional.** A position-only frame (no `VX, VY, VZ`) validates; the velocity is
+  padded with `NaN` so the upstream parse — which requires all six state columns — runs, and
+  `has_velocity` records that none was supplied. A *partial* velocity declaration (some of the
+  three but not all) is malformed and rejected.
+- **Frame recognition is a gmat-czml-owned superset.** `recognised_frame` defers to orbit-formats'
+  shared alias table (`normalize_frame`) and supplements it with GMAT's own `EarthMJ2000Eq` /
+  `EarthFixed` spellings — the frames a headless GMAT run tags its states with, which the upstream
+  table does not carry. Only those two equatorial frames are added; GMAT's ecliptic / epoch-of-date
+  systems are left unrecognised rather than silently mapped to the wrong axes. The downstream frame
+  mapping classifies the recognised id as INERTIAL / FIXED.
+- **Frame and time scale are required, never guessed.** An absent `coordinate_system` or time scale
+  raises (the time scale is read from `time_scale`, falling back to `epoch_scales['Epoch']`),
+  consistent with D4's no-guessing rule — both are load-bearing for the CZML reference frame and the
+  UTC clock. Unit metadata, when present, is shape-validated; whether a well-formed unit *string* is
+  convertible is the ephemeris converter's concern, not the schema's.
+- **Multiple objects are an iterable, one trajectory per object.** `normalize_inputs` accepts a
+  single canonical `DataFrame`/`Ephemeris` or an iterable of them and returns one `CanonicalInput`
+  per object; object identity comes from `attrs['object_name']`, which must be unique across the
+  collection (a mapping is not the contract — it is rejected with a pointer to this form).
+- **Validation never mutates the caller.** The padded velocity and the resolved time scale live on a
+  shallow copy; the producer's DataFrame is left untouched.
+
 ---
 
 ## Forward notes (not v0.1 decisions)
