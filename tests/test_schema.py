@@ -371,3 +371,7 @@ def test_ephemeris_input_empty_raises() -> None:
 def test_ephemeris_input_without_velocity_reports_no_velocity() -> None:
     result = normalize_inputs(_ephemeris(with_velocity=False))[0]
     assert result.has_velocity is False
+
+
+def test_canonical_input_exposes_the_validated_time_scale() -> None:
+    assert validate(_conforming_df()).time_scale == "UTC"

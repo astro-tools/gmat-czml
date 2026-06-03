@@ -25,6 +25,7 @@ def _conforming_df(
     object_name: str | None = "Sat",
     start: str = "2026-01-01",
     periods: int = 3,
+    time_scale: str = "UTC",
 ) -> pd.DataFrame:
     """A conforming single-object canonical DataFrame; tweak per test via the keyword args."""
     n = periods
@@ -39,7 +40,7 @@ def _conforming_df(
         {
             "central_body": "Earth",
             "coordinate_system": "EME2000",
-            "time_scale": "UTC",
+            "time_scale": time_scale,
         }
     )
     if object_name is not None:
@@ -85,6 +86,23 @@ def test_clock_spans_the_union_across_multiple_objects() -> None:
     start_s, end_s = clock["interval"].split("/")
     assert _parse_czml_time(start_s) == dt.datetime(2026, 1, 1, 0, 0, tzinfo=dt.timezone.utc)
     assert _parse_czml_time(end_s) == dt.datetime(2026, 1, 1, 0, 40, tzinfo=dt.timezone.utc)
+
+
+def test_clock_and_availability_are_utc_for_a_non_utc_input() -> None:
+    # A TAI trajectory at 00:00:37 / 00:10:37 / 00:20:37 maps to 00:00 / 00:10 / 00:20 UTC
+    # (TAI - UTC = 37 s), so both the clock interval and the entity availability come out in UTC.
+    packets = to_czml(
+        _conforming_df(time_scale="TAI", start="2024-06-01T00:00:37", periods=3)
+    ).to_dict()
+    expected = "2024-06-01T00:00:00.000000Z/2024-06-01T00:20:00.000000Z"
+    assert packets[0]["clock"]["interval"] == expected
+    assert packets[1]["availability"] == expected
+
+
+def test_playback_seconds_is_forwarded_to_the_clock() -> None:
+    df = _conforming_df(start="2024-06-01T00:00:00", periods=3)  # 1200 s span
+    assert to_czml(df).to_dict()[0]["clock"]["multiplier"] == 20  # default ~60 s playback
+    assert to_czml(df, playback_seconds=120).to_dict()[0]["clock"]["multiplier"] == 10
 
 
 # --- the per-object entity packets --------------------------------------------------------
