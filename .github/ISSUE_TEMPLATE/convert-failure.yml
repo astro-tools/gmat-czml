@@ -1,0 +1,51 @@
+name: My trajectory does not convert
+description: A trajectory that should convert to CZML fails or renders wrong.
+title: "<short summary>"
+labels: ["type:bug"]
+body:
+  - type: markdown
+    attributes:
+      value: >-
+        gmat-czml consumes the canonical state-series schema. Most conversion failures come down to
+        the input DataFrame's columns or `attrs`, so please share its shape below.
+  - type: textarea
+    id: what_happened
+    attributes:
+      label: What happened
+      description: The error, the wrong rendering, or the missing entity. Include tracebacks verbatim.
+    validations:
+      required: true
+  - type: textarea
+    id: dataframe_schema
+    attributes:
+      label: Input DataFrame schema
+      description: >-
+        The columns and the `attrs` of the DataFrame you passed — ideally the output of
+        `print(df.columns.tolist()); print(df.attrs); print(df.head())`.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: producer
+    attributes:
+      label: Where the trajectory came from
+      description: >-
+        How the trajectory was produced or read (a GMAT run, a TLE propagation, a read ephemeris
+        file, …) and which file format if any.
+    validations:
+      required: true
+  - type: textarea
+    id: call
+    attributes:
+      label: The call you made
+      description: The `to_czml(...)` or `gmat-czml convert` invocation.
+      render: python
+    validations:
+      required: true
+  - type: input
+    id: gmat_czml_version
+    attributes:
+      label: gmat-czml version
+      placeholder: "e.g. 0.1.0, or git sha"
+    validations:
+      required: true

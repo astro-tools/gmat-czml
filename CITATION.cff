@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: "If you use gmat-czml in academic work, please cite it using the metadata below."
+title: gmat-czml
+abstract: >-
+  gmat-czml is a permissively-licensed Python library that converts an already-computed
+  trajectory — in the canonical state-series form produced by a headless GMAT run or read by the
+  org's format-I/O library — into CZML for browser-based 3D visualization in Cesium. It maps state
+  ephemerides to an orbit path, renders a ground track, synthesizes a clock,
+  and emits an in-memory or on-disk document; it does not propagate or render.
+type: software
+authors:
+  - given-names: Dimitrije
+    family-names: Jankovic
+version: 0.1.0
+license: MIT
+repository-code: "https://github.com/astro-tools/gmat-czml"
+url: "https://github.com/astro-tools/gmat-czml"
+keywords:
+  - astrodynamics
+  - orbital-mechanics
+  - cesium
+  - czml
+  - visualization
+  - space
