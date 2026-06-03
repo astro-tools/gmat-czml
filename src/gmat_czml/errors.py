@@ -25,11 +25,31 @@ __all__ = [
     "SchemaError",
     "UnknownFrameError",
     "UnknownTimeScaleError",
+    "UnmappableFrameError",
 ]
 
 
 class GmatCzmlError(Exception):
     """Base class for every error gmat-czml raises deliberately."""
+
+
+class UnmappableFrameError(GmatCzmlError):
+    """A recognised frame that has no CZML reference-frame mapping.
+
+    Raised by the frame mapping for a canonical frame id that validation *recognised* but the
+    converter cannot render in a CZML reference frame (``INERTIAL`` / ``FIXED``). Distinct from
+    :class:`UnknownFrameError`, which rejects a name outside the recognised set at the input
+    boundary: the input here was valid, so this descends from :class:`GmatCzmlError` directly rather
+    than :class:`SchemaError`. ``frame`` is the offending id and ``mappable`` the ids that do map.
+    """
+
+    def __init__(self, frame: str, mappable: Iterable[str]) -> None:
+        self.frame = frame
+        self.mappable: tuple[str, ...] = tuple(mappable)
+        joined = ", ".join(self.mappable)
+        super().__init__(
+            f"frame {frame!r} has no CZML reference-frame mapping; mappable frames: {joined}"
+        )
 
 
 class SchemaError(GmatCzmlError, ValueError):
