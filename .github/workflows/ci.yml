@@ -1,0 +1,139 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  test:
+    name: test (${{ matrix.os }}, py${{ matrix.python-version }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      # 3 OSes × 3 Python minors. gmat-czml is pure Python, so the matrix is the
+      # platform / interpreter spread. The browser and czml-validation jobs run once
+      # on Ubuntu (their output is platform-independent), so they are excluded here.
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.10', '3.11', '3.12']
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+      - name: Install project
+        run: uv sync --all-groups
+      - name: Run pytest
+        run: uv run pytest -m "not browser and not czml" --cov --cov-report=term-missing
+
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+      - run: uv sync --all-groups
+      - run: uv run ruff check
+      - run: uv run ruff format --check
+
+  typecheck:
+    name: typecheck
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+      - run: uv sync --all-groups
+      - run: uv run mypy
+
+  # Smoke-check that `pip install gmat-czml` (no dev group) imports cleanly. Catches a
+  # dev-only dependency leaking into the default install path.
+  minimal-install:
+    name: minimal install smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install .
+      - run: python -c "import gmat_czml; print(gmat_czml.__version__)"
+
+  # Validate that the emitted CZML is well-formed. The scaffold runs a minimal structural
+  # check; the full official-CZML-schema validation and the golden corpus land with the
+  # validation-harness work.
+  czml-validate:
+    name: CZML validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+      - run: uv sync --all-groups
+      - run: uv run pytest -m czml -v
+
+  # Load the emitted CZML in a real headless CesiumJS client (Playwright + chromium) to catch
+  # valid-but-unrenderable output the schema check alone misses. The scaffold runs a minimal
+  # parse against a trivial fixture; the full producer fixtures and goldens land with the
+  # validation-harness work.
+  cesium-parse:
+    name: headless CesiumJS parse
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+      - run: uv sync --all-groups
+      - run: uv run playwright install --with-deps chromium
+      - run: uv run pytest -m browser -v
+
+  # Validate CITATION.cff against the Citation File Format v1.2.0 schema.
+  citation:
+    name: citation file (cffconvert)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install cffconvert==2.0.0
+      - run: cffconvert --validate -i CITATION.cff
