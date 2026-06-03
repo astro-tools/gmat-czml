@@ -109,18 +109,18 @@ Core runtime dependencies:
 | Dependency | Constraint | Role |
 |-----------|-----------|------|
 | `czml3` | `>=3.3,<4` | CZML serialization backend (pydantic-2) |
-| `orbit-formats` | `>=0.4` (target `>=0.5`) | canonical schema, frame rotation, geodetic projection, file readers |
+| `orbit-formats` | `>=0.5` | canonical schema, frame rotation, geodetic projection, file readers |
 | `pandas` | `>=2.0` | the canonical DataFrame |
 | `numpy` | `>=1.24` | sampling / decimation / frame arrays |
 
 The exact versions are locked in `uv.lock`; the golden-output regression suite is the drift
 detector for a `czml3` bump (goldens are regenerated deliberately, never silently).
 
-The intended `orbit-formats` floor is `>=0.5` — the line where the ECEF↔geodetic helper the ground
-track delegates to first appears. It is held at `>=0.4` until that release ships, because the
-current surface calls nothing `0.5`-only; it tightens to `>=0.5` with the ground-track work. This
-keeps the package installable from PyPI today (a published library cannot depend on an unreleased
-version, nor on a git URL).
+The `orbit-formats` floor is `>=0.5` — the line where the ECEF↔geodetic helper the ground track
+delegates to first appears. It was held at `>=0.4` while 0.5 was unreleased (a published library
+cannot depend on an unreleased version, nor on a git URL); once 0.5.0 shipped to PyPI the floor
+moved to `>=0.5`, ahead of the ground-track work that consumes the helper rather than waiting on
+it.
 
 **Install-weight tradeoff (accepted).** Depending on orbit-formats pulls its own dependencies
 (including astropy) into the tree, so the base install is heavier than the charter's
@@ -156,5 +156,5 @@ it.
 ## Cross-project dependency note
 
 gmat-czml's ground track depends on orbit-formats' ECEF↔geodetic helper, which ships in the
-upstream's 0.5 line. gmat-czml's `orbit-formats>=0.5` floor reflects that; the ground-track work is
-gated on that upstream release being available.
+upstream's 0.5 line. That release is now on PyPI, so gmat-czml floors at `orbit-formats>=0.5` and
+the ground-track work is no longer gated on the upstream.

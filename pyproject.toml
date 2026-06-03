@@ -31,11 +31,9 @@ classifiers = [
 dependencies = [
   "czml3>=3.3,<4",
   # orbit-formats owns the canonical state-series schema gmat-czml consumes and provides the
-  # frame rotation + ECEF/geodetic projection the ground track delegates to. The intended floor
-  # is >=0.5 (where the geodetic helper lands); held at >=0.4 until that release ships, since the
-  # current surface calls nothing 0.5-only. Tighten to >=0.5 with the ground-track work. See
-  # docs/design/decisions.md (D6).
-  "orbit-formats>=0.4",
+  # frame rotation + ECEF/geodetic projection the ground track delegates to. Floored at >=0.5 —
+  # the line where that geodetic helper lands. See docs/design/decisions.md (D6).
+  "orbit-formats>=0.5",
   "pandas>=2.0",
   "numpy>=1.24",
 ]
