@@ -12,7 +12,7 @@ This module is the public surface. The conversion internals live under
 
 from __future__ import annotations
 
-from gmat_czml.assembly import to_czml
+from gmat_czml.assembly import TrajectorySource, to_czml
 from gmat_czml.document import CzmlDocument
 from gmat_czml.errors import (
     DuplicateObjectNameError,
@@ -43,6 +43,7 @@ __all__ = [
     "MissingTimeScaleError",
     "SchemaError",
     "Style",
+    "TrajectorySource",
     "UnknownFrameError",
     "UnknownTimeScaleError",
     "__version__",

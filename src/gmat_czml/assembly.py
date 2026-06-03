@@ -15,19 +15,26 @@ time-scale → UTC conversion and richer clock tuning are the clock-synthesis co
 from __future__ import annotations
 
 import datetime as dt
-from collections.abc import Sequence
+from collections.abc import Iterable, Sequence
+from typing import TypeAlias
 
 import numpy as np
 import pandas as pd
 from czml3 import CZML_VERSION, Document, Packet
 from czml3.properties import Clock
 from czml3.types import TimeInterval
+from orbit_formats import Attitude, Ephemeris, Maneuver
 
 from gmat_czml.document import CzmlDocument
 from gmat_czml.schema import CanonicalInput, normalize_inputs
 from gmat_czml.styles import Style
 
-__all__ = ["to_czml"]
+__all__ = ["TrajectorySource", "to_czml"]
+
+# The accepted input to :func:`to_czml`: a single canonical trajectory or an iterable of them
+# (one per object). A trajectory is a canonical state-series ``DataFrame`` or an orbit-formats
+# ``Ephemeris``; :func:`~gmat_czml.schema.normalize_inputs` validates and normalises it.
+TrajectorySource: TypeAlias = pd.DataFrame | Ephemeris | Iterable[pd.DataFrame | Ephemeris]
 
 # The CZML document preamble carries the id ``"document"`` by convention, plus the version and
 # the document clock.
@@ -41,12 +48,12 @@ _DEFAULT_CLOCK_MULTIPLIER = 60
 
 
 def to_czml(
-    ephemeris: object,
+    ephemeris: TrajectorySource,
     *,
     style: Style | None = None,
     contacts: object = None,
-    maneuvers: object = None,
-    attitude: object = None,
+    maneuvers: Iterable[Maneuver] | None = None,
+    attitude: Attitude | None = None,
 ) -> CzmlDocument:
     """Convert a canonical trajectory into a :class:`~gmat_czml.document.CzmlDocument`.
 
@@ -55,8 +62,10 @@ def to_czml(
     :func:`gmat_czml.schema.normalize_inputs` accepts. ``style`` selects the visual style;
     ``None`` uses the default. The document is assembled entirely in memory.
 
-    ``contacts``, ``maneuvers``, and ``attitude`` are accepted so the call signature is stable,
-    but are not yet emitted — they arrive in a later release.
+    ``contacts``, ``maneuvers``, and ``attitude`` are accepted so the call signature is stable
+    but are not yet emitted — they arrive in a later release. ``maneuvers`` and ``attitude``
+    already take orbit-formats' canonical types; ``contacts`` is loosely typed until the
+    contact-interval support that defines its shape lands.
 
     Raises a :class:`~gmat_czml.errors.SchemaError` (the typed family) for a malformed input,
     naming exactly what is wrong.

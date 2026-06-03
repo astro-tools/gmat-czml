@@ -133,15 +133,15 @@ def test_accepts_an_orbit_formats_ephemeris() -> None:
 
 
 def test_accepts_style_and_the_deferred_parameters() -> None:
-    # style is a real v0.1 parameter; contacts / maneuvers / attitude are accepted-but-deferred.
-    # All four must be accepted without changing the (geometry-free) skeleton output.
+    # style is applied (a single default for now); contacts / maneuvers / attitude are
+    # accepted-but-deferred. All four must be accepted without changing the skeleton output.
     plain = to_czml(_conforming_df()).to_dict()
     decorated = to_czml(
         _conforming_df(),
         style=Style(),
         contacts=[],
         maneuvers=[],
-        attitude=[],
+        attitude=None,
     ).to_dict()
     assert decorated == plain
 
