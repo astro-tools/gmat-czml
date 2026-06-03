@@ -12,6 +12,8 @@ This module is the public surface. The conversion internals live under
 
 from __future__ import annotations
 
+from gmat_czml.assembly import TrajectorySource, to_czml
+from gmat_czml.document import CzmlDocument
 from gmat_czml.errors import (
     DuplicateObjectNameError,
     EmptyTrajectoryError,
@@ -26,9 +28,11 @@ from gmat_czml.errors import (
     UnknownTimeScaleError,
 )
 from gmat_czml.schema import CanonicalInput, normalize_inputs, recognised_frame, validate
+from gmat_czml.styles import Style
 
 __all__ = [
     "CanonicalInput",
+    "CzmlDocument",
     "DuplicateObjectNameError",
     "EmptyTrajectoryError",
     "GmatCzmlError",
@@ -38,11 +42,14 @@ __all__ = [
     "MissingFrameError",
     "MissingTimeScaleError",
     "SchemaError",
+    "Style",
+    "TrajectorySource",
     "UnknownFrameError",
     "UnknownTimeScaleError",
     "__version__",
     "normalize_inputs",
     "recognised_frame",
+    "to_czml",
     "validate",
 ]
 
