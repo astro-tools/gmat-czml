@@ -9,16 +9,11 @@
 Convert GMAT (and any canonical-schema) trajectories to CZML for browser-based 3D Cesium
 visualization.
 
-> **Status:** early development. The package skeleton, tooling, CI, and docs are in place; the
-> conversion surface (canonical schema, state ephemeris to an orbit path, ground track, the
-> `convert` CLI) is landing for v0.1. See the [design decisions](docs/design/decisions.md) for the
-> input contract.
-
 ## What this is
 
 gmat-czml takes an already-computed trajectory — a state history in the canonical state-series
 form — and turns it into a [CZML](https://github.com/AnalyticalGraphicsInc/czml-writer/wiki/CZML-Structure)
-document a Cesium client can animate: an orbit path, a ground track, a billboard and label, on a
+document a Cesium client can animate: an orbit path, a ground track, a point and a label, on a
 clock synthesized from the trajectory's own time span. The input is not GMAT-specific — any
 producer that yields the canonical schema (a TLE propagation, a transfer, a read ephemeris) works
 through one call.
@@ -31,19 +26,48 @@ source of geometric truth, and Cesium is the renderer. gmat-czml is the bridge b
 ```python
 from gmat_czml import to_czml
 
-czml = to_czml(ephemeris, style="sat-default")
-czml.save("orbit.czml")        # → load in any Cesium viewer
+czml = to_czml(trajectory, ground_track=True)
+czml.save("orbit.czml")          # load in any Cesium viewer
 # czml.to_json() / czml.to_dict()  # in-memory, no file needed
 ```
 
-_(The conversion surface is under construction; the API above is the v0.1 target.)_
+`trajectory` is a canonical state-series `DataFrame`, an orbit-formats `Ephemeris`, a file
+orbit-formats can read (OEM, GMAT report, SP3, STK ephemeris, …), or an iterable of these for a
+multi-object scene. See the [gallery](https://astro-tools.github.io/gmat-czml/gallery/) for
+runnable examples.
+
+## The canonical input
+
+A trajectory is one row per sample with the columns and `DataFrame.attrs` metadata below — the
+shape orbit-formats emits and a headless GMAT run produces, so it flows in with no reshaping.
+
+| Columns | `Epoch` (datetime), `X` `Y` `Z` (required); `VX` `VY` `VZ` (optional) |
+|---------|----------------------------------------------------------------------|
+| Metadata | `object_name`, `central_body`, `coordinate_system`, `time_scale` (required), `units`, `interpolation`, `interpolation_degree` |
+
+The reference frame and time scale are required, never guessed; everything else has a sensible
+default. A malformed input raises a typed error naming exactly what is wrong. Full contract: the
+[schema reference](https://astro-tools.github.io/gmat-czml/schema/).
+
+## Supported Cesium clients
+
+The output is a standard CZML document — any Cesium client renders it:
+
+| Client | How |
+|--------|-----|
+| [CesiumJS](https://cesium.com/platform/cesiumjs/) | `Cesium.CzmlDataSource.load(czml)` in the core library |
+| [Cesium ion](https://cesium.com/platform/cesium-ion/) | stream/host assets and imagery; load the document with the same call |
+| [Resium](https://resium.reearth.io/) | the CesiumJS components for React |
+
+No setup beyond a Cesium viewer is needed; for a zero-install look, drop a `.czml` onto
+[Cesium Sandcastle](https://sandcastle.cesium.com/).
 
 ## What this is not
 
 - **Not** a propagation or astrodynamics library — it converts a trajectory, never computes one.
 - **Not** a CZML renderer — it produces CZML; [Cesium](https://cesium.com/) renders it.
 - **Not** a format parser — reading trajectory files is delegated to the org's format-I/O library.
-- **Not** a hosted service — the (later) bundled viewer is a local convenience, not a SaaS.
+- **Not** a hosted service — viewing happens in your own Cesium client.
 
 ## Installation
 
@@ -55,7 +79,9 @@ gmat-czml requires Python 3.10, 3.11, or 3.12.
 
 ## Documentation
 
-Full docs at **<https://astro-tools.github.io/gmat-czml/>**.
+Full docs — getting started, the schema, per-entity conversion, the CLI, the gallery, and the API
+reference — at **<https://astro-tools.github.io/gmat-czml/>**. The design rationale lives in the
+[design decisions](docs/design/decisions.md).
 
 ## Development
 

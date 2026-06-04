@@ -37,6 +37,9 @@ playwright-report/
 site/
 .cache/
 
+# Example gallery output (regenerate with the scripts under examples/)
+examples/output/
+
 # IDE / editor
 .vscode/
 .idea/
