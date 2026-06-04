@@ -12,14 +12,20 @@ learn what its DataFrame got wrong.
 from __future__ import annotations
 
 from collections.abc import Iterable
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from datetime import datetime
 
 __all__ = [
+    "AmbiguousManeuverTargetError",
     "ContactEntityCollisionError",
     "DuplicateObjectNameError",
     "EmptyTrajectoryError",
     "GmatCzmlError",
     "InvalidUnitsError",
     "MalformedStateError",
+    "ManeuverOutsideTrajectoryError",
     "MissingColumnError",
     "MissingFrameError",
     "MissingTimeScaleError",
@@ -139,6 +145,48 @@ class ContactEntityCollisionError(GmatCzmlError):
             f"contact entity id {entity_id!r} collides with another entity in the document; "
             "observer names must be distinct from object names and from each other (with one "
             "placement each), and no two contacts may share an observer and target"
+        )
+
+
+class ManeuverOutsideTrajectoryError(GmatCzmlError):
+    """A maneuver whose ignition (or finite-burn cut-off) falls outside the trajectory's time span.
+
+    A maneuver carries no position of its own, so the converter interpolates the marker location
+    from the trajectory at the burn epoch. A burn before the first state or after the last has no
+    orbit beneath it to pin to, so it is rejected rather than clamped to an endpoint. Like
+    :class:`UnknownContactTargetError`, the trajectory input was valid — the mismatch is in the
+    ``maneuvers`` argument — so this descends from :class:`GmatCzmlError` directly rather than
+    :class:`SchemaError`. ``epoch`` is the offending ignition time (UTC) and ``span`` the
+    trajectory's ``(start, end)`` it must fall within.
+    """
+
+    def __init__(self, epoch: datetime, span: tuple[datetime, datetime]) -> None:
+        self.epoch = epoch
+        self.span = span
+        start, end = span
+        super().__init__(
+            f"maneuver ignition {epoch.isoformat()} falls outside the trajectory span "
+            f"{start.isoformat()} .. {end.isoformat()}; the marker position is interpolated from "
+            "the trajectory, so a burn outside its time span has no orbit to pin to"
+        )
+
+
+class AmbiguousManeuverTargetError(GmatCzmlError):
+    """Maneuvers were supplied for a document with more than one object.
+
+    A :class:`~orbit_formats.Maneuver` names neither a position nor a target craft, so gmat-czml
+    attributes the maneuvers to the single rendered trajectory; with more than one object it cannot
+    tell which craft each burn acts on, and refuses to guess. Like
+    :class:`ManeuverOutsideTrajectoryError`, the inputs were individually valid — the ambiguity is
+    in pairing them with the ``maneuvers`` argument — so this descends from :class:`GmatCzmlError`
+    directly. ``count`` is the number of objects in the document.
+    """
+
+    def __init__(self, count: int) -> None:
+        self.count = count
+        super().__init__(
+            f"maneuvers are only supported for a single-object document, but {count} objects were "
+            "given; a maneuver names no target craft, so which object each burn acts on is unclear"
         )
 
 

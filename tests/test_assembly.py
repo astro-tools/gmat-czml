@@ -14,9 +14,11 @@ import datetime as dt
 import numpy as np
 import pandas as pd
 import pytest
+from orbit_formats import Maneuver
 
 from gmat_czml import Contact, CzmlDocument, GroundStation, Style, to_czml
 from gmat_czml.errors import (
+    AmbiguousManeuverTargetError,
     DuplicateObjectNameError,
     MissingFrameError,
     SchemaError,
@@ -195,9 +197,9 @@ def test_single_sample_trajectory_yields_a_valid_one_entity_document() -> None:
 # --- parameters ---------------------------------------------------------------------------
 
 
-def test_accepts_style_and_the_deferred_parameters() -> None:
-    # style is applied (a single default for now); maneuvers / attitude are accepted-but-deferred,
-    # and an empty contacts list is a no-op. All must be accepted without changing the output.
+def test_accepts_style_and_empty_decorations() -> None:
+    # style is applied (a single default for now); empty contacts / maneuvers lists are no-ops and
+    # attitude is accepted-but-deferred. All must be accepted without changing the output.
     plain = to_czml(_conforming_df()).to_dict()
     decorated = to_czml(
         _conforming_df(),
@@ -241,6 +243,52 @@ def test_contact_targeting_a_missing_object_raises() -> None:
     with pytest.raises(UnknownContactTargetError) as exc:
         to_czml(_conforming_df(object_name="Sat"), contacts=[contact])
     assert exc.value.target == "NotHere"
+
+
+# --- maneuvers ----------------------------------------------------------------------------
+
+
+def _maneuver(at: str, *, duration: float = 0.0) -> Maneuver:
+    """A maneuver at ``at`` (within the _conforming_df 00:00..00:20 span) with a small Δv."""
+    return Maneuver(
+        epoch_ignition=np.datetime64(at),
+        ref_frame="RTN",
+        duration=duration,
+        delta_v=np.array([0.01, 0.0, 0.0]),
+    )
+
+
+def test_impulsive_maneuver_appends_one_marker_packet() -> None:
+    # An impulsive burn adds a single marker packet after the object, keyed off the entity id.
+    packets = to_czml(
+        _conforming_df(object_name="Sat"), maneuvers=[_maneuver("2026-01-01T00:05:00")]
+    ).to_dict()
+    assert [p["id"] for p in packets] == ["document", "Sat", "Sat/maneuver/0"]
+    assert packets[2]["position"]["referenceFrame"] == "INERTIAL"
+    assert packets[2]["point"]["color"]["rgba"] == [255, 140, 0, 255]
+
+
+def test_finite_maneuver_appends_an_arc_and_a_marker_packet() -> None:
+    packets = to_czml(
+        _conforming_df(object_name="Sat"),
+        maneuvers=[_maneuver("2026-01-01T00:10:00", duration=60.0)],
+    ).to_dict()
+    assert [p["id"] for p in packets] == [
+        "document",
+        "Sat",
+        "Sat/maneuver/0",
+        "Sat/maneuver/0/marker",
+    ]
+    assert "polyline" in packets[2]
+    assert "label" in packets[3]
+
+
+def test_maneuvers_on_a_multi_object_document_are_rejected() -> None:
+    # A maneuver names no target craft, so it is ambiguous which of several objects it acts on.
+    inputs = [_conforming_df(object_name="A"), _conforming_df(object_name="B")]
+    with pytest.raises(AmbiguousManeuverTargetError) as exc:
+        to_czml(inputs, maneuvers=[_maneuver("2026-01-01T00:05:00")])
+    assert exc.value.count == 2
 
 
 # --- the opt-in ground track --------------------------------------------------------------

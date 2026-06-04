@@ -29,7 +29,7 @@ import numpy as np
 import orbit_formats as of
 import pandas as pd
 from jsonschema import Draft7Validator
-from orbit_formats import Ephemeris
+from orbit_formats import Ephemeris, Maneuver
 from referencing import Registry, Resource
 from referencing.jsonschema import DRAFT7
 
@@ -145,16 +145,43 @@ def gmat_leo_contacts() -> list[Contact]:
     return [Contact(observer=station, target="GmatLeo", windows=windows)]
 
 
+def gmat_leo_maneuvers() -> list[Maneuver]:
+    """One impulsive and one finite burn inside the GMAT LEO span, for the maneuver path.
+
+    Both ignitions fall within the GMAT LEO span (2026-03-01 00:00 -> 01:36:40 UTC): an impulsive
+    Δv at 00:30 and a 120 s finite burn at 01:00, with Δv in the burn's own RTN frame. The values
+    are illustrative placements, not a computed maneuver plan — gmat-czml renders the maneuvers it
+    is given; planning them is the producer's job.
+    """
+    return [
+        Maneuver(
+            epoch_ignition=np.datetime64("2026-03-01T00:30:00"),
+            ref_frame="RTN",
+            duration=0.0,
+            delta_v=np.array([0.012, 0.0, 0.0]),
+        ),
+        Maneuver(
+            epoch_ignition=np.datetime64("2026-03-01T01:00:00"),
+            ref_frame="RTN",
+            duration=120.0,
+            delta_v=np.array([0.0, 0.006, 0.0]),
+        ),
+    ]
+
+
 # --- the catalogue the goldens and the schema check share ---------------------------------
 
 # Each entry is a golden filename -> a factory producing the document for that fixed input. The
 # set spans both producers, the orbit-path and ground-track (multi-segment) paths, the contacts
-# path (observer placement + per-window link), and a multi-object document, so the goldens and the
-# official-schema check cover the surface.
+# path (observer placement + per-window link), the maneuver path (impulsive marker + finite arc),
+# and a multi-object document, so the goldens and the official-schema check cover the surface.
 DOCUMENTS: dict[str, Callable[[], CzmlDocument]] = {
     "gmat-leo.czml": lambda: to_czml(gmat_leo_dataframe()),
     "gmat-leo-groundtrack.czml": lambda: to_czml(gmat_leo_dataframe(), ground_track=True),
     "gmat-leo-contacts.czml": lambda: to_czml(gmat_leo_dataframe(), contacts=gmat_leo_contacts()),
+    "gmat-leo-maneuvers.czml": lambda: to_czml(
+        gmat_leo_dataframe(), maneuvers=gmat_leo_maneuvers()
+    ),
     "skyfield-iss.czml": lambda: to_czml(skyfield_iss_dataframe()),
     "skyfield-iss-groundtrack.czml": lambda: to_czml(skyfield_iss_dataframe(), ground_track=True),
     "multi-object.czml": lambda: to_czml(
