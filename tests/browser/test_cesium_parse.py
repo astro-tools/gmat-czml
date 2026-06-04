@@ -31,6 +31,9 @@ _CESIUM_BASE = "https://cdn.jsdelivr.net/npm/cesium@1/Build/Cesium/"
 _CASES = [
     pytest.param("gmat-leo.czml", "GmatLeo", id="gmat-leo"),
     pytest.param("skyfield-iss.czml", "ISS (ZARYA)", id="skyfield-iss"),
+    # The named-preset document renders the same GMAT LEO geometry — only the style differs — so it
+    # must trace the same correct orbit path.
+    pytest.param("gmat-leo-preset.czml", "GmatLeo", id="gmat-leo-preset"),
 ]
 
 _LEO_RADIUS_MIN_M = 6.6e6
@@ -235,6 +238,49 @@ async ({ czml, attitudeId, samples }) => {
     return out;
 }
 """
+
+
+# The styled scene: the satellite entity carries an image billboard in place of the point, with the
+# custom colours / widths the _harness styled_gmat_leo fixture sets.
+_STYLED_SAT_ID = "GmatLeo"
+
+_READ_STYLED = """
+async ({ czml, entityId }) => {
+    const dataSource = await Cesium.CzmlDataSource.load(czml);
+    const entity = dataSource.entities.getById(entityId);
+    const out = { count: dataSource.entities.values.length, hasBillboard: false, hasPoint: true,
+                  hasPosition: false };
+    if (Cesium.defined(entity)) {
+        out.hasBillboard = Cesium.defined(entity.billboard);
+        out.hasPoint = Cesium.defined(entity.point);
+        if (Cesium.defined(entity.position)) {
+            const p = entity.position.getValue(dataSource.clock.startTime, new Cesium.Cartesian3());
+            out.hasPosition = Cesium.defined(p);
+        }
+    }
+    return out;
+}
+"""
+
+
+def test_cesium_parses_a_styled_billboard_scene(page: Page) -> None:
+    # The custom-style document loads and its satellite materialises with an image-billboard glyph
+    # in place of the coloured point (the billboard replaces the point), and still resolves a
+    # position on the orbit — so the image-glyph customization path renders.
+    czml = DOCUMENTS["gmat-leo-styled.czml"]().to_dict()
+    page.set_content(
+        "<!doctype html><html><head>"
+        f"<script>window.CESIUM_BASE_URL = '{_CESIUM_BASE}';</script>"
+        "</head><body></body></html>"
+    )
+    page.add_script_tag(url=f"{_CESIUM_BASE}Cesium.js")
+
+    result: dict[str, Any] = page.evaluate(_READ_STYLED, {"czml": czml, "entityId": _STYLED_SAT_ID})
+
+    assert result["count"] >= 1  # the satellite entity materialised
+    assert result["hasBillboard"]  # the image-billboard glyph is present
+    assert not result["hasPoint"]  # the billboard replaced the coloured point
+    assert result["hasPosition"]  # the satellite still resolves a position on the orbit
 
 
 def test_cesium_parses_an_attitude_scene(page: Page) -> None:

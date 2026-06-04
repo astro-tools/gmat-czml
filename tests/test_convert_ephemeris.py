@@ -30,7 +30,7 @@ from czml3.enums import InterpolationAlgorithms, ReferenceFrames
 from czml3.properties import Position
 from numpy.typing import NDArray
 
-from gmat_czml import Style, to_czml
+from gmat_czml import ImageBillboard, LabelStyle, PathStyle, PointStyle, Style, to_czml
 from gmat_czml.convert.ephemeris import orbit_geometry
 from gmat_czml.errors import InvalidUnitsError, UnknownInterpolationError
 from gmat_czml.schema import CanonicalInput, validate
@@ -361,6 +361,7 @@ def test_multi_segment_ephemeris_renders_one_continuous_position() -> None:
 
 def test_sat_default_style_is_applied() -> None:
     geometry = orbit_geometry(_input(_ORBIT), Style(), label_text="Orbiter")
+    assert geometry.billboard is None  # the default marker is a point, not a billboard
     path, point, label = _dump(geometry.path), _dump(geometry.point), _dump(geometry.label)
     assert path["show"] is True
     assert path["width"] == 1.5
@@ -368,3 +369,39 @@ def test_sat_default_style_is_applied() -> None:
     assert point["color"]["rgba"] == [255, 255, 0, 255]
     assert label["text"] == "Orbiter"
     assert label["fillColor"]["rgba"] == [255, 255, 255, 255]
+
+
+def test_custom_style_drives_point_path_and_label() -> None:
+    # A fully custom style: every customizable colour / width / size / font reaches the output.
+    style = Style(
+        marker=PointStyle(
+            color=(10, 20, 30, 255),
+            pixel_size=4.0,
+            outline_color=(1, 2, 3, 255),
+            outline_width=2.0,
+        ),
+        path=PathStyle(color=(40, 50, 60, 255), width=9.0),
+        label=LabelStyle(color=(7, 8, 9, 255), font="20pt Arial"),
+    )
+    geometry = orbit_geometry(_input(_ORBIT), style, label_text="Sat")
+    assert geometry.billboard is None
+    point, path, label = _dump(geometry.point), _dump(geometry.path), _dump(geometry.label)
+    assert point["color"]["rgba"] == [10, 20, 30, 255]
+    assert point["pixelSize"] == 4.0
+    assert point["outlineColor"]["rgba"] == [1, 2, 3, 255]
+    assert point["outlineWidth"] == 2.0
+    assert path["width"] == 9.0
+    assert path["material"]["solidColor"]["color"]["rgba"] == [40, 50, 60, 255]
+    assert label["fillColor"]["rgba"] == [7, 8, 9, 255]
+    assert label["font"] == "20pt Arial"
+
+
+def test_image_billboard_marker_replaces_the_point() -> None:
+    # An image-billboard glyph: the converter emits a billboard and no point.
+    style = Style(marker=ImageBillboard(image="data:image/png;base64,AAAA", scale=2.5))
+    geometry = orbit_geometry(_input(_ORBIT), style, label_text="Sat")
+    assert geometry.point is None
+    billboard = _dump(geometry.billboard)
+    assert billboard["show"] is True
+    assert billboard["image"] == "data:image/png;base64,AAAA"
+    assert billboard["scale"] == 2.5

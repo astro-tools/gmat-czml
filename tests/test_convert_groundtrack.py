@@ -26,7 +26,7 @@ from numpy.typing import NDArray
 from gmat_czml.convert.groundtrack import ground_track
 from gmat_czml.errors import InvalidUnitsError, UnsupportedCentralBodyError
 from gmat_czml.schema import CanonicalInput, validate
-from gmat_czml.styles import Style
+from gmat_czml.styles import Style, TrackStyle
 
 # WGS84 equatorial radius (km) — orbit-formats' default ellipsoid, used to place analytic points.
 _WGS84_A = 6378.137
@@ -235,3 +235,11 @@ def test_sat_default_style_is_applied() -> None:
     assert parsed["width"] == 2.0
     assert parsed["arcType"] == ArcTypes.GEODESIC.value
     assert parsed["material"]["solidColor"]["color"]["rgba"] == [255, 255, 0, 255]
+
+
+def test_custom_track_style_drives_color_and_width() -> None:
+    style = Style(track=TrackStyle(color=(11, 22, 33, 255), width=5.0))
+    polyline = ground_track(_input(_equatorial([0.0, 30.0])), style).segments[0]
+    parsed = json.loads(polyline.dumps())
+    assert parsed["width"] == 5.0
+    assert parsed["material"]["solidColor"]["color"]["rgba"] == [11, 22, 33, 255]
