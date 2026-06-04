@@ -29,7 +29,7 @@ import numpy as np
 import orbit_formats as of
 import pandas as pd
 from jsonschema import Draft7Validator
-from orbit_formats import Ephemeris, Maneuver
+from orbit_formats import Attitude, Ephemeris, Maneuver
 from referencing import Registry, Resource
 from referencing.jsonschema import DRAFT7
 
@@ -40,6 +40,7 @@ _SCHEMA_DIR = _DATA / "czml-schema"
 GOLDEN_DIR = _DATA / "golden"
 
 _GMAT_OEM = _DATA / "gmat-leo.oem"
+_GMAT_AEM = _DATA / "gmat-leo-attitude.aem"
 _ISS_TLE = _DATA / "iss.tle"
 
 # The validation entry point of the vendored schema: a CZML document is an array of packets.
@@ -169,12 +170,25 @@ def gmat_leo_maneuvers() -> list[Maneuver]:
     ]
 
 
+def gmat_leo_attitude() -> Attitude:
+    """The committed CCSDS-AEM quaternion history for the GMAT LEO, for the attitude path.
+
+    A slow rotation about the EME2000 +Z axis (0 -> 32 degrees over the GMAT LEO span), read through
+    orbit-formats into the canonical attitude. The reference frame is inertial (EME2000), so the
+    converter exercises the full body->reference->ECEF composition, not a fixed-frame passthrough.
+    The values are an illustrative attitude profile, not a computed pointing solution — gmat-czml
+    renders the attitude it is given.
+    """
+    return cast(Attitude, of.read(_GMAT_AEM))
+
+
 # --- the catalogue the goldens and the schema check share ---------------------------------
 
 # Each entry is a golden filename -> a factory producing the document for that fixed input. The
 # set spans both producers, the orbit-path and ground-track (multi-segment) paths, the contacts
 # path (observer placement + per-window link), the maneuver path (impulsive marker + finite arc),
-# and a multi-object document, so the goldens and the official-schema check cover the surface.
+# the attitude path (a sampled orientation from a CCSDS-AEM quaternion history), and a multi-object
+# document, so the goldens and the official-schema check cover the surface.
 DOCUMENTS: dict[str, Callable[[], CzmlDocument]] = {
     "gmat-leo.czml": lambda: to_czml(gmat_leo_dataframe()),
     "gmat-leo-groundtrack.czml": lambda: to_czml(gmat_leo_dataframe(), ground_track=True),
@@ -182,6 +196,7 @@ DOCUMENTS: dict[str, Callable[[], CzmlDocument]] = {
     "gmat-leo-maneuvers.czml": lambda: to_czml(
         gmat_leo_dataframe(), maneuvers=gmat_leo_maneuvers()
     ),
+    "gmat-leo-attitude.czml": lambda: to_czml(gmat_leo_dataframe(), attitude=gmat_leo_attitude()),
     "skyfield-iss.czml": lambda: to_czml(skyfield_iss_dataframe()),
     "skyfield-iss-groundtrack.czml": lambda: to_czml(skyfield_iss_dataframe(), ground_track=True),
     "multi-object.czml": lambda: to_czml(

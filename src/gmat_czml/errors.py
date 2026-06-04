@@ -18,9 +18,12 @@ if TYPE_CHECKING:
     from datetime import datetime
 
 __all__ = [
+    "AmbiguousAttitudeTargetError",
     "AmbiguousManeuverTargetError",
+    "AttitudeFrameError",
     "ContactEntityCollisionError",
     "DuplicateObjectNameError",
+    "EmptyAttitudeError",
     "EmptyTrajectoryError",
     "GmatCzmlError",
     "InvalidUnitsError",
@@ -35,6 +38,7 @@ __all__ = [
     "UnknownInterpolationError",
     "UnknownTimeScaleError",
     "UnmappableFrameError",
+    "UnsupportedAttitudeTypeError",
     "UnsupportedCentralBodyError",
 ]
 
@@ -188,6 +192,71 @@ class AmbiguousManeuverTargetError(GmatCzmlError):
             f"maneuvers are only supported for a single-object document, but {count} objects were "
             "given; a maneuver names no target craft, so which object each burn acts on is unclear"
         )
+
+
+class AmbiguousAttitudeTargetError(GmatCzmlError):
+    """An attitude was supplied for a document with more than one object.
+
+    An attitude history orients one object: its sampled ``orientation`` attaches to that object's
+    position, so with more than one rendered object gmat-czml cannot tell which craft the attitude
+    belongs to, and refuses to guess. Like :class:`AmbiguousManeuverTargetError`, the inputs were
+    individually valid — the ambiguity is in pairing them with the ``attitude`` argument — so this
+    descends from :class:`GmatCzmlError` directly. ``count`` is the number of objects in the
+    document.
+    """
+
+    def __init__(self, count: int) -> None:
+        self.count = count
+        super().__init__(
+            f"attitude is only supported for a single-object document, but {count} objects were "
+            "given; an attitude orients one object, so which craft it belongs to is unclear"
+        )
+
+
+class UnsupportedAttitudeTypeError(GmatCzmlError):
+    """An attitude whose representation the converter does not render.
+
+    The attitude converter emits a sampled ``orientation`` from a quaternion history; the canonical
+    :class:`~orbit_formats.Attitude` also models Euler-angle and spin attitudes, which are not
+    rendered (rather than converted on a guess). Like :class:`UnmappableFrameError`, the attitude
+    was a valid canonical object — the limitation is at render time — so this descends from
+    :class:`GmatCzmlError` directly. ``attitude_type`` is the offending type and ``supported`` the
+    types that render.
+    """
+
+    def __init__(self, attitude_type: str, supported: Iterable[str]) -> None:
+        self.attitude_type = attitude_type
+        self.supported: tuple[str, ...] = tuple(supported)
+        joined = ", ".join(self.supported)
+        super().__init__(
+            f"attitude type {attitude_type!r} is not rendered; supported attitude types: {joined}"
+        )
+
+
+class AttitudeFrameError(GmatCzmlError):
+    """An attitude whose two frames do not resolve to one external reference plus one body frame.
+
+    An AEM names two frames; rendering the orientation requires exactly one to be a *recognised*
+    external reference (e.g. ``EME2000`` / ``ITRF``, which body→ECEF composition rotates through)
+    and the other to be the body frame (e.g. ``SC_BODY``, which is not a recognised external frame).
+    This is raised when neither frame is recognised (no external reference to compose against) or
+    both are (no identifiable body frame). Like :class:`UnmappableFrameError`, the attitude was a
+    valid canonical object — the limitation is at render time — so this descends from
+    :class:`GmatCzmlError` directly. ``frame_a`` and ``frame_b`` are the offending frame names.
+    """
+
+    def __init__(self, frame_a: str | None, frame_b: str | None) -> None:
+        self.frame_a = frame_a
+        self.frame_b = frame_b
+        super().__init__(
+            f"attitude frames {frame_a!r} and {frame_b!r} do not resolve to one external "
+            "reference frame plus one body frame; exactly one must be a recognised frame (the "
+            "reference) and the other the body frame"
+        )
+
+
+class EmptyAttitudeError(GmatCzmlError):
+    """An attitude history with no samples — there is no orientation to render."""
 
 
 class SchemaError(GmatCzmlError, ValueError):

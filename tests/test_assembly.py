@@ -14,10 +14,12 @@ import datetime as dt
 import numpy as np
 import pandas as pd
 import pytest
-from orbit_formats import Maneuver
+from orbit_formats import Attitude, Maneuver
+from orbit_formats.canonical.metadata import Metadata
 
 from gmat_czml import Contact, CzmlDocument, GroundStation, Style, to_czml
 from gmat_czml.errors import (
+    AmbiguousAttitudeTargetError,
     AmbiguousManeuverTargetError,
     DuplicateObjectNameError,
     MissingFrameError,
@@ -198,8 +200,8 @@ def test_single_sample_trajectory_yields_a_valid_one_entity_document() -> None:
 
 
 def test_accepts_style_and_empty_decorations() -> None:
-    # style is applied (a single default for now); empty contacts / maneuvers lists are no-ops and
-    # attitude is accepted-but-deferred. All must be accepted without changing the output.
+    # style is applied (a single default for now); empty contacts / maneuvers lists and a None
+    # attitude are no-ops. All must be accepted without changing the output.
     plain = to_czml(_conforming_df()).to_dict()
     decorated = to_czml(
         _conforming_df(),
@@ -288,6 +290,46 @@ def test_maneuvers_on_a_multi_object_document_are_rejected() -> None:
     inputs = [_conforming_df(object_name="A"), _conforming_df(object_name="B")]
     with pytest.raises(AmbiguousManeuverTargetError) as exc:
         to_czml(inputs, maneuvers=[_maneuver("2026-01-01T00:05:00")])
+    assert exc.value.count == 2
+
+
+# --- attitude -----------------------------------------------------------------------------
+
+
+def _attitude(frame_a: str = "EME2000") -> Attitude:
+    """A short quaternion history within the _conforming_df 00:00..00:20 span (EME2000 -> body)."""
+    return Attitude(
+        metadata=Metadata(object_name="Sat", time_scale="UTC"),
+        attitude_type="QUATERNION",
+        epochs=np.array(
+            ["2026-01-01T00:00:00", "2026-01-01T00:10:00", "2026-01-01T00:20:00"],
+            dtype="datetime64[ns]",
+        ),
+        records=np.array(
+            [[0.0, 0.0, 0.0, 1.0], [0.0, 0.0, 0.087156, 0.996195], [0.0, 0.0, 0.173648, 0.984808]]
+        ),
+        frame_a=frame_a,
+        frame_b="SC_BODY",
+    )
+
+
+def test_attitude_appends_one_orientation_packet() -> None:
+    # An attitude adds a single child packet after the object: it references the object's position
+    # and carries a sampled orientation plus the schematic body box.
+    packets = to_czml(_conforming_df(object_name="Sat"), attitude=_attitude()).to_dict()
+    assert [p["id"] for p in packets] == ["document", "Sat", "Sat/attitude"]
+    attitude_packet = packets[2]
+    assert attitude_packet["position"] == {"reference": "Sat#position"}
+    assert attitude_packet["orientation"]["interpolationAlgorithm"] == "LINEAR"
+    assert "box" in attitude_packet
+
+
+def test_attitude_on_a_multi_object_document_is_rejected() -> None:
+    # An attitude orients one object, so with several objects it is ambiguous which craft it belongs
+    # to.
+    inputs = [_conforming_df(object_name="A"), _conforming_df(object_name="B")]
+    with pytest.raises(AmbiguousAttitudeTargetError) as exc:
+        to_czml(inputs, attitude=_attitude())
     assert exc.value.count == 2
 
 

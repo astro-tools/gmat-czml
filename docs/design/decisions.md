@@ -236,14 +236,65 @@ so the fixture can be regenerated) and an **offline TLE propagation** from a non
 golden corpus spans both producers across the orbit-path, ground-track (multi-segment), and
 multi-object paths.
 
+## D11 — attitude: orientation is composed into Cesium's body→ECEF frame, never shipped raw
+
+The attitude converter consumes orbit-formats' canonical `Attitude` (a CCSDS-AEM quaternion history)
+and emits a sampled CZML `orientation`. The load-bearing decision is the **frame**, because
+orientation does not behave like position:
+
+- A CZML `position` carries a `referenceFrame`, and Cesium converts `INERTIAL` ↔ `FIXED` itself, so
+  an inertial ephemeris is shipped untouched (D4). A CZML `orientation` carries **no** reference
+  frame: Cesium always interprets the quaternion as the rotation from the object's **body** axes to
+  the **Earth-fixed (ECEF)** axes. An AEM attitude is almost always expressed against an *inertial*
+  reference (e.g. `EME2000 → SC_BODY`), so shipping its quaternion raw would render the orientation
+  wrong by the Earth-rotation angle — tens of degrees over a single pass, far above visualization
+  tolerance (unlike the EME2000-vs-ICRF bias D4 documents away).
+
+So gmat-czml performs the **full composition**, per epoch:
+
+1. **Identify the frames.** Exactly one of the AEM's two frames must resolve through
+   `recognised_frame` (the external reference); the other is the body frame (`SC_BODY`, unrecognised).
+   Neither/both resolving is a typed `AttitudeFrameError`.
+2. **Form body → reference** from the stored quaternion, taking the rotation *direction* from the AEM
+   `ATTITUDE_DIR` (`A2B` / `B2A`) — which orbit-formats parks on the `source_native` fidelity model,
+   not the canonical schema — defaulting to the near-universal `A2B` when absent.
+3. **Compose with reference → ECEF**, obtained per epoch from orbit-formats' `rotate_state` (the same
+   Earth-orientation rotation the ground track delegates to under D5). An already-fixed reference
+   short-circuits to the identity and loads no astropy; only an inertial reference loads it, lazily —
+   so the attitude path's import weight matches the ground track's (D6), not the core path's.
+
+The CCSDS quaternion is stored scalar-last (`Q1 Q2 Q3 QC`), which is exactly CZML's `[X, Y, Z, W]`
+order, so there is no component reshuffle — only the frame composition. The quaternion is read in the
+CCSDS coordinate-transformation convention (504.0-B); `_quaternion_to_matrix` matches Cesium's
+`Matrix3.fromQuaternion` (the standard active rotation), verified against a +90° turn about +Z mapping
+body +X to +Y, so the emitted quaternion is exactly what a client applies. A consequence worth noting:
+an **already-Earth-fixed** source is a pure passthrough (`q_czml == q_source`), which is the cleanest
+convention anchor in the test suite.
+
+The orientation is emitted as an **epoch-relative sampled unit quaternion** with a `LINEAR`
+interpolation hint (normalised linear interpolation is the robust default for orientation; a
+higher-order scheme on raw quaternion components is not meaningful) and **hemisphere-continuous signs**
+(`q` and `-q` are the same rotation, but a sign flip between samples makes a client interpolate the
+long way). Because the orientation must attach to one object's position, it rides a child packet
+`<entity_id>/attitude` that references the object's position and carries a schematic **box** (three
+distinct, exaggerated dimensions) as the minimal model hook that makes the orientation visible — a
+glTF-model hook waits on the asset pipeline. Like maneuvers, attitude attaches to the single rendered
+object; a multi-object document raises `AmbiguousAttitudeTargetError`. Only the quaternion
+representation is rendered; Euler-angle and spin attitudes raise `UnsupportedAttitudeTypeError` rather
+than being guessed at.
+
+**Note on the charter.** The charter's frame discussion was position-centric and scoped the
+inertial→fixed rotation as "EOP machinery beyond what a ground track needs," assuming the ground track
+was its sole consumer. Attitude is a second consumer of that same rotation. This decision corrects
+that under-count: it reuses the existing ground-track-grade rotation at the same visualization
+tolerance, so the charter's EOP non-goal stands intact (recorded as a charter erratum).
+
 ---
 
 ## Forward notes (not v0.1 decisions)
 
 - **Maneuvers** (a later release) consume orbit-formats' canonical maneuver record rather than
   inventing a parallel one — the same convergence as the state schema.
-- **Attitude** (a later release) consumes orbit-formats' attitude canonical type (read from a CCSDS
-  attitude message) for the sampled orientation.
 
 ## Cross-project dependency note
 
