@@ -1,0 +1,78 @@
+%
+%  gmat-leo
+%
+%  The GMAT mission that produced gmat-leo.oem, the committed GMAT producer
+%  fixture for the gmat-czml validation harness. One orbital period of a circular
+%  ~500 km, 51.6 deg LEO, propagated under a degree/order-4 Earth gravity field
+%  (no drag or SRP, so the run is reproducible without time-sensitive space-weather
+%  data), written as a fixed-step CCSDS-OEM in EarthMJ2000Eq / UTC.
+%
+%  GMAT is NOT a runtime or CI dependency of gmat-czml: gmat-leo.oem is committed
+%  and read through orbit-formats. This script is kept only so the fixture can be
+%  regenerated deliberately. To regenerate (GMAT R2026a):
+%
+%      GmatConsole -r gmat-leo.script --exit
+%
+%  then move the emitted gmat-leo.oem next to this script.
+%
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+Create Spacecraft GmatLeo;
+GmatLeo.DateFormat       = UTCGregorian;
+GmatLeo.Epoch            = '01 Mar 2026 00:00:00.000';
+GmatLeo.Id               = '2026-001A';
+GmatLeo.CoordinateSystem = EarthMJ2000Eq;
+GmatLeo.DisplayStateType = Keplerian;
+GmatLeo.SMA              = 6878.14;
+GmatLeo.ECC              = 0.0012;
+GmatLeo.INC              = 51.6;
+GmatLeo.RAAN             = 30;
+GmatLeo.AOP              = 0;
+GmatLeo.TA               = 0;
+
+%----------------------------------------
+%---------- ForceModels
+%----------------------------------------
+Create ForceModel FM;
+FM.CentralBody               = Earth;
+FM.PrimaryBodies             = {Earth};
+FM.Drag                      = None;
+FM.SRP                       = Off;
+FM.GravityField.Earth.Degree = 4;
+FM.GravityField.Earth.Order  = 4;
+FM.GravityField.Earth.PotentialFile = 'JGM2.cof';
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+Create Propagator Prop;
+Prop.FM              = FM;
+Prop.Type            = RungeKutta89;
+Prop.InitialStepSize = 60;
+Prop.Accuracy        = 1e-12;
+Prop.MinStep         = 0.001;
+Prop.MaxStep         = 60;
+
+%----------------------------------------
+%---------- Subscribers
+%----------------------------------------
+Create EphemerisFile eph;
+eph.Spacecraft         = GmatLeo;
+eph.Filename           = 'gmat-leo.oem';
+eph.FileFormat         = CCSDS-OEM;
+eph.EpochFormat        = UTCGregorian;
+eph.InitialEpoch       = InitialSpacecraftEpoch;
+eph.FinalEpoch         = FinalSpacecraftEpoch;
+eph.StepSize           = 60;
+eph.Interpolator       = Lagrange;
+eph.InterpolationOrder = 5;
+eph.CoordinateSystem   = EarthMJ2000Eq;
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+BeginMissionSequence;
+
+Propagate Prop(GmatLeo) {GmatLeo.ElapsedSecs = 5800};

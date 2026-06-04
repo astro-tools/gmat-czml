@@ -1,0 +1,97 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://analyticalgraphicsinc.github.io/czml-writer/Schema/Ellipsoid.json",
+    "title": "Ellipsoid",
+    "description": "A closed quadric surface that is a three-dimensional analogue of an ellipse.",
+    "type": "object",
+    "properties": {
+        "show": {
+            "$ref": "Boolean.json",
+            "description": "Whether or not the ellipsoid is shown.",
+            "default": true
+        },
+        "radii": {
+            "$ref": "EllipsoidRadii.json",
+            "description": "The radii of the ellipsoid.",
+            "czmlRequiredForDisplay": true
+        },
+        "innerRadii": {
+            "$ref": "EllipsoidRadii.json",
+            "description": "The inner radii of the ellipsoid."
+        },
+        "minimumClock": {
+            "$ref": "Double.json",
+            "description": "The minimum clock angle of the ellipsoid.",
+            "default": 0.0
+        },
+        "maximumClock": {
+            "$ref": "Double.json",
+            "description": "The maximum clock angle of the ellipsoid.",
+            "default": "2π"
+        },
+        "minimumCone": {
+            "$ref": "Double.json",
+            "description": "The minimum cone angle of the ellipsoid.",
+            "default": 0.0
+        },
+        "maximumCone": {
+            "$ref": "Double.json",
+            "description": "The maximum cone angle of the ellipsoid.",
+            "default": "π"
+        },
+        "heightReference": {
+            "$ref": "HeightReference.json",
+            "description": "The height reference of the ellipsoid, which indicates if the position is relative to terrain or not.",
+            "default": "NONE"
+        },
+        "fill": {
+            "$ref": "Boolean.json",
+            "description": "Whether or not the ellipsoid is filled.",
+            "default": true
+        },
+        "material": {
+            "$ref": "Material.json",
+            "description": "The material to display on the surface of the ellipsoid.",
+            "default": "solid white"
+        },
+        "outline": {
+            "$ref": "Boolean.json",
+            "description": "Whether or not the ellipsoid is outlined.",
+            "default": false
+        },
+        "outlineColor": {
+            "$ref": "Color.json",
+            "description": "The color of the ellipsoid outline.",
+            "default": "black"
+        },
+        "outlineWidth": {
+            "$ref": "Double.json",
+            "description": "The width of the ellipsoid outline.",
+            "default": 1.0
+        },
+        "stackPartitions": {
+            "$ref": "Integer.json",
+            "description": "The number of times to partition the ellipsoid into stacks.",
+            "default": 64
+        },
+        "slicePartitions": {
+            "$ref": "Integer.json",
+            "description": "The number of times to partition the ellipsoid into radial slices.",
+            "default": 64
+        },
+        "subdivisions": {
+            "$ref": "Integer.json",
+            "description": "The number of samples per outline ring, determining the granularity of the curvature.",
+            "default": 128
+        },
+        "shadows": {
+            "$ref": "ShadowMode.json",
+            "description": "Whether or not the ellipsoid casts or receives shadows.",
+            "default": "DISABLED"
+        },
+        "distanceDisplayCondition": {
+            "$ref": "DistanceDisplayCondition.json",
+            "description": "The display condition specifying at what distance from the camera this ellipsoid will be displayed."
+        }
+    }
+}

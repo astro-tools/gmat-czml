@@ -1,0 +1,29 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://analyticalgraphicsinc.github.io/czml-writer/Schema/Extensions/AGI/SensorVolumePortionToDisplay.json",
+    "title": "SensorVolumePortionToDisplay",
+    "description": "The part of a sensor that should be displayed.",
+    "allOf": [
+        { "$ref": "../../DeletableProperty.json" },
+        { "$ref": "../../Extensions/AGI/SensorVolumePortionToDisplayValueProperty.json" },
+        { "$ref": "../../ValueProperties/ReferenceValueProperty.json" }
+    ],
+    "type": [
+        "array",
+        "object",
+        "string"
+    ],
+    "items": {
+        "$ref": "#"
+    },
+    "properties": {
+        "portionToDisplay": {
+            "$ref": "../../Extensions/AGI/SensorVolumePortionToDisplayValue.json",
+            "description": "The part of a sensor to display."
+        },
+        "reference": {
+            "$ref": "../../Values/ReferenceValue.json",
+            "description": "The part of a sensor to display, specified as a reference to another property."
+        }
+    }
+}

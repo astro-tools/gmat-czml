@@ -1,0 +1,44 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://analyticalgraphicsinc.github.io/czml-writer/Schema/Direction.json",
+    "title": "Direction",
+    "description": "A unit vector, in world coordinates, that defines a direction.",
+    "allOf": [
+        { "$ref": "InterpolatableProperty.json" },
+        { "$ref": "DeletableProperty.json" },
+        { "$ref": "ValueProperties/SphericalValueProperty.json" },
+        { "$ref": "ValueProperties/UnitSphericalValueProperty.json" },
+        { "$ref": "ValueProperties/Cartesian3ValueProperty.json" },
+        { "$ref": "ValueProperties/UnitCartesian3ValueProperty.json" },
+        { "$ref": "ValueProperties/ReferenceValueProperty.json" }
+    ],
+    "type": [
+        "array",
+        "object"
+    ],
+    "items": {
+        "$ref": "#"
+    },
+    "properties": {
+        "spherical": {
+            "$ref": "Values/SphericalValue.json",
+            "description": "The direction specified as a spherical value `[Clock, Cone, Magnitude]`, with angles in radians and magnitude in meters. The clock angle is measured in the XY plane from the positive X axis toward the positive Y axis. The cone angle is the angle from the positive Z axis toward the negative Z axis."
+        },
+        "unitSpherical": {
+            "$ref": "Values/UnitSphericalValue.json",
+            "description": "The direction specified as a unit spherical value `[Clock, Cone]`, in radians. The clock angle is measured in the XY plane from the positive X axis toward the positive Y axis. The cone angle is the angle from the positive Z axis toward the negative Z axis."
+        },
+        "cartesian": {
+            "$ref": "Values/Cartesian3Value.json",
+            "description": "The direction specified as a three-dimensional Cartesian value `[X, Y, Z]`, in world coordinates in meters."
+        },
+        "unitCartesian": {
+            "$ref": "Values/UnitCartesian3Value.json",
+            "description": "The direction specified as a three-dimensional unit magnitude Cartesian value `[X, Y, Z]`, in world coordinates in meters."
+        },
+        "reference": {
+            "$ref": "Values/ReferenceValue.json",
+            "description": "The direction specified as a reference to another property."
+        }
+    }
+}

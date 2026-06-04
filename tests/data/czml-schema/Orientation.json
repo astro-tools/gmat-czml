@@ -1,0 +1,38 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://analyticalgraphicsinc.github.io/czml-writer/Schema/Orientation.json",
+    "title": "Orientation",
+    "description": "Defines an orientation. An orientation is a rotation that takes a vector expressed in the \"body\" axes of the object and transforms it to the Earth fixed axes.",
+    "allOf": [
+        { "$ref": "InterpolatableProperty.json" },
+        { "$ref": "DeletableProperty.json" },
+        { "$ref": "ValueProperties/UnitQuaternionValueProperty.json" },
+        { "$ref": "ValueProperties/ReferenceValueProperty.json" },
+        { "$ref": "ValueProperties/VelocityReferenceValueProperty.json" }
+    ],
+    "type": [
+        "array",
+        "object"
+    ],
+    "items": {
+        "$ref": "#"
+    },
+    "czmlExamples": [
+        "Examples/Orientation.json",
+        "Examples/OrientationSampled.json"
+    ],
+    "properties": {
+        "unitQuaternion": {
+            "$ref": "Values/UnitQuaternionValue.json",
+            "description": "The orientation specified as a 4-dimensional unit magnitude quaternion, specified as `[X, Y, Z, W]`."
+        },
+        "reference": {
+            "$ref": "Values/ReferenceValue.json",
+            "description": "The orientation specified as a reference to another property."
+        },
+        "velocityReference": {
+            "$ref": "Values/VelocityReferenceValue.json",
+            "description": "The orientation specified as the normalized velocity vector of a position property. The reference must be to a `position` property."
+        }
+    }
+}

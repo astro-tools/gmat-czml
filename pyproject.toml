@@ -57,6 +57,14 @@ dev = [
   "pandas-stubs",
   # The headless-browser harness for the CesiumJS-parse check (the `browser`-marked tests).
   "pytest-playwright>=0.5",
+  # The validation harness. jsonschema + referencing validate every emitted document against
+  # the official CZML JSON schema vendored under tests/data/czml-schema/ (the `czml`-marked
+  # tests). skyfield is the non-GMAT producer fixture — a TLE propagation exercised end-to-end
+  # through to_czml; its byte golden is regenerated deliberately when the skyfield pin changes.
+  "jsonschema>=4.20",
+  "types-jsonschema",
+  "referencing>=0.30",
+  "skyfield>=1.49",
 ]
 docs = [
   "mkdocs-material>=9.5",
@@ -86,6 +94,11 @@ select = [
 python_version = "3.10"
 strict = true
 files = ["src/gmat_czml", "tests"]
+
+# skyfield (the non-GMAT producer fixture) ships no type information.
+[[tool.mypy.overrides]]
+module = ["skyfield.*"]
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 minversion = "8.0"

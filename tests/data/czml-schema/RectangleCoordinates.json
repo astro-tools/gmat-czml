@@ -1,0 +1,34 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://analyticalgraphicsinc.github.io/czml-writer/Schema/RectangleCoordinates.json",
+    "title": "RectangleCoordinates",
+    "description": "A set of coordinates describing a cartographic rectangle on the surface of the ellipsoid.",
+    "allOf": [
+        { "$ref": "InterpolatableProperty.json" },
+        { "$ref": "DeletableProperty.json" },
+        { "$ref": "ValueProperties/CartographicRectangleRadiansValueProperty.json" },
+        { "$ref": "ValueProperties/CartographicRectangleDegreesValueProperty.json" },
+        { "$ref": "ValueProperties/ReferenceValueProperty.json" }
+    ],
+    "type": [
+        "array",
+        "object"
+    ],
+    "items": {
+        "$ref": "#"
+    },
+    "properties": {
+        "wsen": {
+            "$ref": "Values/CartographicRectangleRadiansValue.json",
+            "description": "The set of coordinates specified as Cartographic values `[WestLongitude, SouthLatitude, EastLongitude, NorthLatitude]`, with values in radians."
+        },
+        "wsenDegrees": {
+            "$ref": "Values/CartographicRectangleDegreesValue.json",
+            "description": "The set of coordinates specified as Cartographic values `[WestLongitude, SouthLatitude, EastLongitude, NorthLatitude]`, with values in degrees."
+        },
+        "reference": {
+            "$ref": "Values/ReferenceValue.json",
+            "description": "The set of coordinates specified as a reference to another property."
+        }
+    }
+}

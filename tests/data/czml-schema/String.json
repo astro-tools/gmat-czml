@@ -1,0 +1,29 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://analyticalgraphicsinc.github.io/czml-writer/Schema/String.json",
+    "title": "String",
+    "description": "A string value. The string can optionally vary with time.",
+    "allOf": [
+        { "$ref": "DeletableProperty.json" },
+        { "$ref": "ValueProperties/StringValueProperty.json" },
+        { "$ref": "ValueProperties/ReferenceValueProperty.json" }
+    ],
+    "type": [
+        "array",
+        "object",
+        "string"
+    ],
+    "items": {
+        "$ref": "#"
+    },
+    "properties": {
+        "string": {
+            "$ref": "Values/StringValue.json",
+            "description": "The string value."
+        },
+        "reference": {
+            "$ref": "Values/ReferenceValue.json",
+            "description": "The string specified as a reference to another property."
+        }
+    }
+}

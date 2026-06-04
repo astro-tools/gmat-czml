@@ -1,0 +1,30 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://analyticalgraphicsinc.github.io/czml-writer/Schema/Integer.json",
+    "title": "Integer",
+    "description": "An integer number.",
+    "allOf": [
+        { "$ref": "InterpolatableProperty.json" },
+        { "$ref": "DeletableProperty.json" },
+        { "$ref": "ValueProperties/IntegerValueProperty.json" },
+        { "$ref": "ValueProperties/ReferenceValueProperty.json" }
+    ],
+    "type": [
+        "array",
+        "object",
+        "integer"
+    ],
+    "items": {
+        "$ref": "#"
+    },
+    "properties": {
+        "number": {
+            "$ref": "Values/IntegerValue.json",
+            "description": "The integer."
+        },
+        "reference": {
+            "$ref": "Values/ReferenceValue.json",
+            "description": "The integer specified as a reference to another property."
+        }
+    }
+}

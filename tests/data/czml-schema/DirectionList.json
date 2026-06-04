@@ -1,0 +1,38 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://analyticalgraphicsinc.github.io/czml-writer/Schema/DirectionList.json",
+    "title": "DirectionList",
+    "description": "A list of directions.",
+    "allOf": [
+        { "$ref": "DeletableProperty.json" },
+        { "$ref": "ValueProperties/SphericalListValueProperty.json" },
+        { "$ref": "ValueProperties/UnitSphericalListValueProperty.json" },
+        { "$ref": "ValueProperties/Cartesian3ListValueProperty.json" },
+        { "$ref": "ValueProperties/UnitCartesian3ListValueProperty.json" }
+    ],
+    "type": [
+        "array",
+        "object"
+    ],
+    "items": {
+        "$ref": "#"
+    },
+    "properties": {
+        "spherical": {
+            "$ref": "Values/SphericalListValue.json",
+            "description": "The list of directions specified as spherical values `[Clock, Cone, Magnitude, Clock, Cone, Magnitude, ...]`, with angles in radians and magnitude in meters. The clock angle is measured in the XY plane from the positive X axis toward the positive Y axis. The cone angle is the angle from the positive Z axis toward the negative Z axis."
+        },
+        "unitSpherical": {
+            "$ref": "Values/UnitSphericalListValue.json",
+            "description": "The list of directions specified as unit spherical values `[Clock, Cone, Clock, Cone, ...]`, in radians. The clock angle is measured in the XY plane from the positive X axis toward the positive Y axis. The cone angle is the angle from the positive Z axis toward the negative Z axis."
+        },
+        "cartesian": {
+            "$ref": "Values/Cartesian3ListValue.json",
+            "description": "The list of directions specified as three-dimensional Cartesian values `[X, Y, Z, X, Y, Z, ...]`, in world coordinates in meters."
+        },
+        "unitCartesian": {
+            "$ref": "Values/UnitCartesian3ListValue.json",
+            "description": "The list of directions specified as three-dimensional unit magnitude Cartesian values, `[X, Y, Z, X, Y, Z, ...]`, in world coordinates in meters."
+        }
+    }
+}
