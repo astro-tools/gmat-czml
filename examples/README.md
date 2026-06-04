@@ -24,10 +24,20 @@ a gmat-czml runtime dependency.
 
 ## Viewing the output
 
-Open [`viewer.html`](viewer.html) in a desktop browser and **drag a `.czml` file from
-`examples/output/` onto the page** (or use *Choose file*). It renders with the offline imagery
-bundled in CesiumJS; paste a Cesium ion access token in the box for ion world imagery. The token
-is stored in your browser only and is never committed.
+[`viewer.html`](viewer.html) must be loaded over **http**, not opened as a `file://` — CesiumJS
+needs Web Workers, which browsers refuse to create on a `file://` (null-origin) page, so the globe
+won't render there. The simplest way:
+
+```bash
+python examples/serve.py        # serves this folder and opens the viewer
+```
+
+Then **drag a `.czml` file from `examples/output/` onto the page** (or use *Choose file*). It
+renders with the offline imagery bundled in CesiumJS; paste a Cesium ion access token in the box for
+ion world imagery — the token is stored in your browser only and is never committed.
+
+(Equivalently, run `python -m http.server` in this folder and open
+`http://localhost:8000/viewer.html`.)
 
 You can also drop any `.czml` into the [Cesium Sandcastle](https://sandcastle.cesium.com/) or load
 it with `Cesium.CzmlDataSource.load()` in your own CesiumJS / Resium app.

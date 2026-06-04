@@ -98,9 +98,10 @@ CZML is rendered by a Cesium client, not by gmat-czml. The quickest ways to see 
 
 - **[Cesium Sandcastle](https://sandcastle.cesium.com/)** — paste a `Cesium.CzmlDataSource.load()`
   snippet, or drag your `.czml` onto the page. Nothing to install.
-- **The bundled viewer** — open [`examples/viewer.html`](https://github.com/astro-tools/gmat-czml/blob/main/examples/viewer.html)
-  in a desktop browser and drag a `.czml` onto it. It uses CesiumJS's offline imagery by default;
-  paste a Cesium ion token for ion world imagery.
+- **The bundled viewer** — run `python examples/serve.py` (CesiumJS needs Web Workers, which
+  browsers block on a `file://` page, so it must be served over http) and drag a `.czml` onto the
+  page. It uses CesiumJS's offline imagery by default; paste a Cesium ion token for ion world
+  imagery.
 - **Your own app** — load the document with `Cesium.CzmlDataSource.load()` in CesiumJS, Cesium ion,
   or [Resium](https://resium.reearth.io/) (React). See the [client matrix](https://github.com/astro-tools/gmat-czml#supported-cesium-clients).
 

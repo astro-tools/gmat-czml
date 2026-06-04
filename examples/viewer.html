@@ -7,11 +7,15 @@
     <!--
       A self-contained CesiumJS viewer for the .czml documents the examples produce.
 
+      Serve it over a local web server, not file:// — CesiumJS needs Web Workers, which browsers
+      refuse to create on a file:// (null-origin) page, so the globe won't render. The simplest way
+      is  python examples/serve.py  (it serves this folder and opens the viewer); or run
+      python -m http.server  here and open http://localhost:8000/viewer.html
+
       Two ways to use it:
-        1. Manual: open this file in a desktop browser, optionally paste a Cesium ion access
-           token in the box (top-left), then drag a .czml file onto the page (or use "Choose
-           file"). The token is stored in your browser's localStorage only — it is never sent
-           anywhere but Cesium ion and is not part of this repository.
+        1. Manual: optionally paste a Cesium ion access token in the box (top-left), then drag a
+           .czml file onto the page (or use "Choose file"). The token is stored in your browser's
+           localStorage only — it is never sent anywhere but Cesium ion and is not in this repo.
         2. Headless: scripts/render_gallery.py serves the repo over HTTP and calls window.boot()
            with the token (from the CESIUM_ION_TOKEN environment variable) and a .czml URL.
 
@@ -19,13 +23,13 @@
       offline Natural Earth II imagery bundled with CesiumJS — no token, no network imagery.
     -->
     <script>
-      window.CESIUM_BASE_URL = "https://cdn.jsdelivr.net/npm/cesium@1/Build/Cesium/";
+      window.CESIUM_BASE_URL = "https://cdn.jsdelivr.net/npm/cesium@1.142.0/Build/Cesium/";
     </script>
     <link
-      href="https://cdn.jsdelivr.net/npm/cesium@1/Build/Cesium/Widgets/widgets.css"
+      href="https://cdn.jsdelivr.net/npm/cesium@1.142.0/Build/Cesium/Widgets/widgets.css"
       rel="stylesheet"
     />
-    <script src="https://cdn.jsdelivr.net/npm/cesium@1/Build/Cesium/Cesium.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/cesium@1.142.0/Build/Cesium/Cesium.js"></script>
     <style>
       html,
       body,
@@ -80,6 +84,29 @@
         font-size: 12px;
         opacity: 0.85;
       }
+      #fileWarning {
+        display: none;
+        position: absolute;
+        inset: 0;
+        z-index: 20;
+        background: #0b0e16;
+        color: #eee;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 24px;
+      }
+      #fileWarning .box {
+        max-width: 560px;
+        line-height: 1.5;
+      }
+      #fileWarning code {
+        background: #11141c;
+        border: 1px solid #333;
+        border-radius: 4px;
+        padding: 2px 6px;
+        color: #8fd6c0;
+      }
     </style>
   </head>
   <body>
@@ -95,6 +122,18 @@
       <div id="status"></div>
     </div>
     <div id="cesiumContainer"></div>
+    <div id="fileWarning">
+      <div class="box">
+        <h2>Open this over a local web server</h2>
+        <p>
+          This page is loaded from a <code>file://</code> URL. Browsers treat that as a unique
+          origin and block the cross-origin Web Workers CesiumJS needs, so the 3D globe can't load.
+        </p>
+        <p>From the repository, run</p>
+        <p><code>python examples/serve.py</code></p>
+        <p>and it will serve this folder and open the viewer for you.</p>
+      </div>
+    </div>
     <script>
       const TOKEN_KEY = "gmat_czml_ion_token";
       const statusEl = document.getElementById("status");
@@ -214,6 +253,12 @@
 
       // Auto-load when a ?czml=<url> query parameter is present (shared links / harness).
       window.addEventListener("DOMContentLoaded", () => {
+        if (location.protocol === "file:") {
+          // Cesium's Web Workers cannot load cross-origin from a file:// (unique-origin) page,
+          // so the globe can't render. Show how to serve it instead of a black screen.
+          document.getElementById("fileWarning").style.display = "flex";
+          return;
+        }
         makeViewer(tokenEl.value.trim());
         const url = new URLSearchParams(location.search).get("czml");
         if (url) {
