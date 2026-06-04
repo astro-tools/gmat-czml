@@ -13,7 +13,7 @@ converter (:mod:`gmat_czml.convert.ephemeris`).
 
 from __future__ import annotations
 
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from typing import TypeAlias
 
 import pandas as pd
@@ -21,6 +21,7 @@ from czml3 import CZML_VERSION, Document, Packet
 from czml3.types import TimeInterval
 from orbit_formats import Attitude, Ephemeris, Maneuver
 
+from gmat_czml.convert.contacts import Contact, contact_packets
 from gmat_czml.convert.ephemeris import orbit_geometry
 from gmat_czml.convert.groundtrack import ground_track as build_ground_track
 from gmat_czml.convert.time import synthesize_clock, utc_span
@@ -48,7 +49,7 @@ def to_czml(
     style: Style | None = None,
     playback_seconds: float = 60.0,
     ground_track: bool = False,
-    contacts: object = None,
+    contacts: Sequence[Contact] | None = None,
     maneuvers: Iterable[Maneuver] | None = None,
     attitude: Attitude | None = None,
 ) -> CzmlDocument:
@@ -66,14 +67,17 @@ def to_czml(
     path that loads the Earth-orientation rotation (and astropy, transitively, for an inertial
     source), so the core ephemeris path stays free of it unless a ground track is asked for (D6).
 
-    ``contacts``, ``maneuvers``, and ``attitude`` are accepted so the call signature is stable
-    but are not yet emitted — they arrive in a later release. ``maneuvers`` and ``attitude``
-    already take orbit-formats' canonical types; ``contacts`` is loosely typed until the
-    contact-interval support that defines its shape lands.
+    ``contacts`` adds, per :class:`~gmat_czml.convert.contacts.Contact`, an observer entity at its
+    geodetic position and an observer → satellite link shown only during each access window. Each
+    distinct observer is placed once, and each contact's target must be one of the rendered objects.
+    ``maneuvers`` and ``attitude`` are accepted so the call signature is stable but are not yet
+    emitted — they arrive in a later release and already take orbit-formats' canonical types.
 
     Raises a :class:`~gmat_czml.errors.SchemaError` (the typed family) for a malformed input,
     naming exactly what is wrong, :class:`~gmat_czml.errors.UnsupportedCentralBodyError` for a
-    ground track about a non-Earth body, or :class:`ValueError` if ``playback_seconds`` is not
+    ground track about a non-Earth body, :class:`~gmat_czml.errors.UnknownContactTargetError` /
+    :class:`~gmat_czml.errors.ContactEntityCollisionError` for a contact that targets a missing
+    object or collides with another entity, or :class:`ValueError` if ``playback_seconds`` is not
     positive.
     """
     inputs = normalize_inputs(ephemeris)
@@ -90,6 +94,8 @@ def to_czml(
         packets.append(_entity_packet(item, entity_id, resolved_style))
         if ground_track:
             packets.extend(_ground_track_packets(item, entity_id, resolved_style))
+    if contacts:
+        packets.extend(contact_packets(contacts, entity_ids, resolved_style))
     return CzmlDocument(Document(packets=packets))
 
 

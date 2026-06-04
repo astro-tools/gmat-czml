@@ -18,6 +18,7 @@ only when the ``czml3`` or ``skyfield`` pin changes.
 
 from __future__ import annotations
 
+import datetime as dt
 import json
 import os
 from collections.abc import Callable, Iterator
@@ -32,7 +33,7 @@ from orbit_formats import Ephemeris
 from referencing import Registry, Resource
 from referencing.jsonschema import DRAFT7
 
-from gmat_czml import CzmlDocument, to_czml
+from gmat_czml import Contact, CzmlDocument, GroundStation, to_czml
 
 _DATA = Path(__file__).parent / "data"
 _SCHEMA_DIR = _DATA / "czml-schema"
@@ -122,14 +123,38 @@ def skyfield_iss_dataframe() -> pd.DataFrame:
     return frame
 
 
+def gmat_leo_contacts() -> list[Contact]:
+    """Two access windows from a ground station to the GMAT LEO, for the contacts path.
+
+    A station placed at a real geodetic location (the Canberra DSN complex) with two windows inside
+    the GMAT LEO span (2026-03-01 00:00 -> 01:36:40 UTC), so the link materialises and shows on the
+    clock. The windows are illustrative placements, not a computed access solution — gmat-czml
+    renders the contacts it is given; computing them is the producer's job (charter non-goal).
+    """
+    station = GroundStation(name="Canberra", latitude=-35.4014, longitude=148.9819, height=0.55)
+    windows = [
+        (
+            dt.datetime(2026, 3, 1, 0, 10, tzinfo=dt.timezone.utc),
+            dt.datetime(2026, 3, 1, 0, 22, tzinfo=dt.timezone.utc),
+        ),
+        (
+            dt.datetime(2026, 3, 1, 1, 5, tzinfo=dt.timezone.utc),
+            dt.datetime(2026, 3, 1, 1, 17, tzinfo=dt.timezone.utc),
+        ),
+    ]
+    return [Contact(observer=station, target="GmatLeo", windows=windows)]
+
+
 # --- the catalogue the goldens and the schema check share ---------------------------------
 
 # Each entry is a golden filename -> a factory producing the document for that fixed input. The
-# set spans both producers, the orbit-path and ground-track (multi-segment) paths, and a
-# multi-object document, so the goldens and the official-schema check cover the v0.1 surface.
+# set spans both producers, the orbit-path and ground-track (multi-segment) paths, the contacts
+# path (observer placement + per-window link), and a multi-object document, so the goldens and the
+# official-schema check cover the surface.
 DOCUMENTS: dict[str, Callable[[], CzmlDocument]] = {
     "gmat-leo.czml": lambda: to_czml(gmat_leo_dataframe()),
     "gmat-leo-groundtrack.czml": lambda: to_czml(gmat_leo_dataframe(), ground_track=True),
+    "gmat-leo-contacts.czml": lambda: to_czml(gmat_leo_dataframe(), contacts=gmat_leo_contacts()),
     "skyfield-iss.czml": lambda: to_czml(skyfield_iss_dataframe()),
     "skyfield-iss-groundtrack.czml": lambda: to_czml(skyfield_iss_dataframe(), ground_track=True),
     "multi-object.czml": lambda: to_czml(

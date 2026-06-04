@@ -89,3 +89,54 @@ def test_cesium_renders_a_correct_orbit_path(
     assert all(_LEO_RADIUS_MIN_M <= r <= _LEO_RADIUS_MAX_M for r in radii)  # correct LEO band
     assert max(radii) - min(radii) < _NEAR_CIRCULAR_SPREAD_M  # near-circular, ~constant radius
     assert result["maxMotion"] > _PATH_MOTION_M  # the path animates (position varies over time)
+
+
+# The contacts scene: the observer's expected geodetic placement (matching the _harness fixture)
+# and the entity ids Cesium must materialise.
+_CONTACTS_OBSERVER_ID = "Canberra"
+_CONTACTS_LINK_ID = "Canberra-to-GmatLeo"
+_CONTACTS_OBSERVER_LON = 148.9819
+_CONTACTS_OBSERVER_LAT = -35.4014
+_GEODETIC_TOL_DEG = 1.0e-4  # ~10 m on the ground — well inside visualization tolerance
+
+_READ_CONTACTS = """
+async ({ czml, observerId, linkId }) => {
+    const dataSource = await Cesium.CzmlDataSource.load(czml);
+    const observer = dataSource.entities.getById(observerId);
+    const link = dataSource.entities.getById(linkId);
+    const out = { count: dataSource.entities.values.length, hasLink: false, lon: null, lat: null };
+    out.hasLink = Cesium.defined(link) && Cesium.defined(link.polyline);
+    if (Cesium.defined(observer) && Cesium.defined(observer.position)) {
+        const p = observer.position.getValue(dataSource.clock.startTime, new Cesium.Cartesian3());
+        if (Cesium.defined(p)) {
+            const carto = Cesium.Cartographic.fromCartesian(p);
+            out.lon = Cesium.Math.toDegrees(carto.longitude);
+            out.lat = Cesium.Math.toDegrees(carto.latitude);
+        }
+    }
+    return out;
+}
+"""
+
+
+def test_cesium_parses_a_contacts_scene(page: Page) -> None:
+    # The contacts document loads and its observer + link entities materialise: the observer
+    # resolves to its declared geodetic position and the link carries a polyline (the referenced
+    # line of sight Cesium draws between the observer and the satellite during each window).
+    czml = DOCUMENTS["gmat-leo-contacts.czml"]().to_dict()
+    page.set_content(
+        "<!doctype html><html><head>"
+        f"<script>window.CESIUM_BASE_URL = '{_CESIUM_BASE}';</script>"
+        "</head><body></body></html>"
+    )
+    page.add_script_tag(url=f"{_CESIUM_BASE}Cesium.js")
+
+    result: dict[str, Any] = page.evaluate(
+        _READ_CONTACTS,
+        {"czml": czml, "observerId": _CONTACTS_OBSERVER_ID, "linkId": _CONTACTS_LINK_ID},
+    )
+
+    assert result["count"] >= 3  # satellite + observer + link entities materialised
+    assert result["hasLink"]  # the observer -> satellite link is a renderable polyline
+    assert result["lon"] == pytest.approx(_CONTACTS_OBSERVER_LON, abs=_GEODETIC_TOL_DEG)
+    assert result["lat"] == pytest.approx(_CONTACTS_OBSERVER_LAT, abs=_GEODETIC_TOL_DEG)

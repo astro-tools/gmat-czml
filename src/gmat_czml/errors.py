@@ -14,6 +14,7 @@ from __future__ import annotations
 from collections.abc import Iterable
 
 __all__ = [
+    "ContactEntityCollisionError",
     "DuplicateObjectNameError",
     "EmptyTrajectoryError",
     "GmatCzmlError",
@@ -23,6 +24,7 @@ __all__ = [
     "MissingFrameError",
     "MissingTimeScaleError",
     "SchemaError",
+    "UnknownContactTargetError",
     "UnknownFrameError",
     "UnknownInterpolationError",
     "UnknownTimeScaleError",
@@ -92,6 +94,51 @@ class UnknownInterpolationError(GmatCzmlError):
         super().__init__(
             f"interpolation algorithm {algorithm!r} has no CZML equivalent; "
             f"recognised algorithms: {joined}"
+        )
+
+
+class UnknownContactTargetError(GmatCzmlError):
+    """A contact names a target satellite that is not an object in the document.
+
+    The observer → satellite link is a CZML polyline whose endpoints *reference* the observer's and
+    the target's position properties, so the target must be one of the rendered objects (its entity
+    id is the object's name, or its positional fallback). A contact naming a target no input
+    trajectory provides would emit a link with a dangling reference a Cesium client cannot resolve,
+    so it is rejected. Like :class:`UnmappableFrameError`, the trajectory input was valid — the
+    mismatch is in the ``contacts`` argument — so this descends from :class:`GmatCzmlError` directly
+    rather than :class:`SchemaError`. ``target`` is the offending name and ``known`` the object ids
+    a contact may target.
+    """
+
+    def __init__(self, target: str, known: Iterable[str]) -> None:
+        self.target = target
+        self.known: tuple[str, ...] = tuple(known)
+        joined = ", ".join(self.known) if self.known else "(none)"
+        super().__init__(
+            f"contact target {target!r} is not an object in the document; "
+            f"targetable objects: {joined}"
+        )
+
+
+class ContactEntityCollisionError(GmatCzmlError):
+    """A contact would emit a CZML entity whose id collides with another entity.
+
+    Contacts introduce their own entities — one observer per ground station and one
+    observer-to-satellite link per contact — each with its own packet id (the observer's name, and
+    ``<observer>-to-<target>`` for the link). That id must be unique across the whole document: a
+    Cesium client silently merges two packets sharing an id into one entity. This is raised when an
+    observer name collides with an object (satellite) id, when one observer name is declared with
+    two different placements, or when two contacts share the same observer and target. Like
+    :class:`UnknownContactTargetError`, the trajectory input was valid, so this descends from
+    :class:`GmatCzmlError` directly. ``entity_id`` is the colliding id.
+    """
+
+    def __init__(self, entity_id: str) -> None:
+        self.entity_id = entity_id
+        super().__init__(
+            f"contact entity id {entity_id!r} collides with another entity in the document; "
+            "observer names must be distinct from object names and from each other (with one "
+            "placement each), and no two contacts may share an observer and target"
         )
 
 

@@ -15,11 +15,12 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from gmat_czml import CzmlDocument, Style, to_czml
+from gmat_czml import Contact, CzmlDocument, GroundStation, Style, to_czml
 from gmat_czml.errors import (
     DuplicateObjectNameError,
     MissingFrameError,
     SchemaError,
+    UnknownContactTargetError,
     UnsupportedCentralBodyError,
 )
 from gmat_czml.schema import validate
@@ -195,8 +196,8 @@ def test_single_sample_trajectory_yields_a_valid_one_entity_document() -> None:
 
 
 def test_accepts_style_and_the_deferred_parameters() -> None:
-    # style is applied (a single default for now); contacts / maneuvers / attitude are
-    # accepted-but-deferred. All four must be accepted without changing the skeleton output.
+    # style is applied (a single default for now); maneuvers / attitude are accepted-but-deferred,
+    # and an empty contacts list is a no-op. All must be accepted without changing the output.
     plain = to_czml(_conforming_df()).to_dict()
     decorated = to_czml(
         _conforming_df(),
@@ -206,6 +207,40 @@ def test_accepts_style_and_the_deferred_parameters() -> None:
         attitude=None,
     ).to_dict()
     assert decorated == plain
+
+
+# --- contacts -----------------------------------------------------------------------------
+
+
+def test_contacts_append_observer_and_link_packets() -> None:
+    # A contact adds two packets after the object: the observer entity and the per-window link,
+    # the link referencing the observer's and the satellite's position properties.
+    contact = Contact(
+        observer=GroundStation(name="GS1", latitude=40.0, longitude=-75.0, height=0.1),
+        target="Sat",
+        windows=[
+            (
+                dt.datetime(2026, 1, 1, 0, 5, tzinfo=dt.timezone.utc),
+                dt.datetime(2026, 1, 1, 0, 15, tzinfo=dt.timezone.utc),
+            )
+        ],
+    )
+    packets = to_czml(_conforming_df(object_name="Sat"), contacts=[contact]).to_dict()
+    assert [p["id"] for p in packets] == ["document", "Sat", "GS1", "GS1-to-Sat"]
+    link = packets[3]
+    assert link["polyline"]["positions"]["references"] == ["GS1#position", "Sat#position"]
+    assert link["availability"] == ["2026-01-01T00:05:00.000000Z/2026-01-01T00:15:00.000000Z"]
+
+
+def test_contact_targeting_a_missing_object_raises() -> None:
+    contact = Contact(
+        observer=GroundStation(name="GS1", latitude=0.0, longitude=0.0),
+        target="NotHere",
+        windows=[],
+    )
+    with pytest.raises(UnknownContactTargetError) as exc:
+        to_czml(_conforming_df(object_name="Sat"), contacts=[contact])
+    assert exc.value.target == "NotHere"
 
 
 # --- the opt-in ground track --------------------------------------------------------------

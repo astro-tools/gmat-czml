@@ -13,8 +13,10 @@ This module is the public surface. The conversion internals live under
 from __future__ import annotations
 
 from gmat_czml.assembly import TrajectorySource, to_czml
+from gmat_czml.convert.contacts import Contact, GroundStation
 from gmat_czml.document import CzmlDocument
 from gmat_czml.errors import (
+    ContactEntityCollisionError,
     DuplicateObjectNameError,
     EmptyTrajectoryError,
     GmatCzmlError,
@@ -24,6 +26,7 @@ from gmat_czml.errors import (
     MissingFrameError,
     MissingTimeScaleError,
     SchemaError,
+    UnknownContactTargetError,
     UnknownFrameError,
     UnknownTimeScaleError,
 )
@@ -32,10 +35,13 @@ from gmat_czml.styles import Style
 
 __all__ = [
     "CanonicalInput",
+    "Contact",
+    "ContactEntityCollisionError",
     "CzmlDocument",
     "DuplicateObjectNameError",
     "EmptyTrajectoryError",
     "GmatCzmlError",
+    "GroundStation",
     "InvalidUnitsError",
     "MalformedStateError",
     "MissingColumnError",
@@ -44,6 +50,7 @@ __all__ = [
     "SchemaError",
     "Style",
     "TrajectorySource",
+    "UnknownContactTargetError",
     "UnknownFrameError",
     "UnknownTimeScaleError",
     "__version__",
