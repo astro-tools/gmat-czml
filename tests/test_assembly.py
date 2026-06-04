@@ -16,7 +16,7 @@ import pandas as pd
 import pytest
 
 from gmat_czml import CzmlDocument, Style, to_czml
-from gmat_czml.errors import MissingFrameError, SchemaError
+from gmat_czml.errors import MissingFrameError, SchemaError, UnsupportedCentralBodyError
 from gmat_czml.schema import validate
 
 
@@ -26,6 +26,8 @@ def _conforming_df(
     start: str = "2026-01-01",
     periods: int = 3,
     time_scale: str = "UTC",
+    frame: str = "EME2000",
+    central_body: str | None = "Earth",
 ) -> pd.DataFrame:
     """A conforming single-object canonical DataFrame; tweak per test via the keyword args."""
     n = periods
@@ -36,13 +38,9 @@ def _conforming_df(
         "Z": np.linspace(0.0, 2.0, n),
     }
     df = pd.DataFrame(data)
-    df.attrs.update(
-        {
-            "central_body": "Earth",
-            "coordinate_system": "EME2000",
-            "time_scale": time_scale,
-        }
-    )
+    df.attrs.update({"coordinate_system": frame, "time_scale": time_scale})
+    if central_body is not None:
+        df.attrs["central_body"] = central_body
     if object_name is not None:
         df.attrs["object_name"] = object_name
     return df
@@ -162,6 +160,59 @@ def test_accepts_style_and_the_deferred_parameters() -> None:
         attitude=None,
     ).to_dict()
     assert decorated == plain
+
+
+# --- the opt-in ground track --------------------------------------------------------------
+
+
+def test_ground_track_is_off_by_default() -> None:
+    # No ground_track flag: the document is preamble + the single entity, no polyline packet.
+    packets = to_czml(_conforming_df()).to_dict()
+    assert len(packets) == 2
+    assert all("polyline" not in packet for packet in packets)
+
+
+def test_ground_track_opt_in_appends_a_polyline_packet() -> None:
+    # ground_track=True adds the sub-satellite polyline as its own packet keyed off the entity id.
+    # A fixed (ITRF) source keeps the rotation an identity, so the track is the short non-crossing
+    # segment of this near-straight arc — one packet.
+    packets = to_czml(_conforming_df(frame="ITRF"), ground_track=True).to_dict()
+    assert len(packets) == 3
+    track = packets[2]
+    assert track["id"] == "Sat/groundtrack"
+    assert "polyline" in track
+    assert track["polyline"]["positions"]["cartographicDegrees"]
+
+
+def test_antimeridian_track_becomes_numbered_segment_packets() -> None:
+    # A fixed equatorial track that wraps across +180 splits into two polyline packets, numbered
+    # off the entity id so each segment is addressable.
+    radius = 6378.137 + 500.0
+    radians = np.deg2rad([170.0, 175.0, -175.0, -170.0])
+    df = pd.DataFrame(
+        {
+            "Epoch": pd.date_range("2024-06-01", periods=4, freq="600s"),
+            "X": radius * np.cos(radians),
+            "Y": radius * np.sin(radians),
+            "Z": np.zeros(4),
+        }
+    )
+    df.attrs.update(
+        {
+            "object_name": "Sat",
+            "central_body": "Earth",
+            "coordinate_system": "ITRF",
+            "time_scale": "UTC",
+        }
+    )
+    packets = to_czml(df, ground_track=True).to_dict()
+    track_packets = [p for p in packets if "polyline" in p]
+    assert [p["id"] for p in track_packets] == ["Sat/groundtrack/0", "Sat/groundtrack/1"]
+
+
+def test_ground_track_for_a_non_earth_body_raises() -> None:
+    with pytest.raises(UnsupportedCentralBodyError):
+        to_czml(_conforming_df(frame="ITRF", central_body="Moon"), ground_track=True)
 
 
 # --- error propagation --------------------------------------------------------------------

@@ -27,6 +27,7 @@ __all__ = [
     "UnknownInterpolationError",
     "UnknownTimeScaleError",
     "UnmappableFrameError",
+    "UnsupportedCentralBodyError",
 ]
 
 
@@ -50,6 +51,25 @@ class UnmappableFrameError(GmatCzmlError):
         joined = ", ".join(self.mappable)
         super().__init__(
             f"frame {frame!r} has no CZML reference-frame mapping; mappable frames: {joined}"
+        )
+
+
+class UnsupportedCentralBodyError(GmatCzmlError):
+    """A ground track requested for a trajectory about a body other than Earth.
+
+    The sub-satellite projection is WGS84 / Earth-fixed throughout (D1, D5), so the ground track is
+    Earth-only. Raised by the ground-track converter when ``attrs['central_body']`` is *declared* as
+    something other than Earth; an undeclared body is accepted, since every recognised frame is an
+    Earth frame already. Like :class:`UnmappableFrameError`, the input was a valid trajectory — the
+    limitation is at render time — so this descends from :class:`GmatCzmlError` directly rather than
+    :class:`SchemaError`. ``central_body`` is the offending value.
+    """
+
+    def __init__(self, central_body: str) -> None:
+        self.central_body = central_body
+        super().__init__(
+            f"ground track is Earth-only, but the central body is {central_body!r}; "
+            "the WGS84 sub-satellite projection is defined for Earth"
         )
 
 
