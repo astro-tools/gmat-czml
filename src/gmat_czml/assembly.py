@@ -21,13 +21,18 @@ from czml3 import CZML_VERSION, Document, Packet
 from czml3.types import TimeInterval
 from orbit_formats import Attitude, Ephemeris, Maneuver
 
+from gmat_czml.convert.attitude import attitude_packets
 from gmat_czml.convert.contacts import Contact, contact_packets
 from gmat_czml.convert.ephemeris import orbit_geometry
 from gmat_czml.convert.groundtrack import ground_track as build_ground_track
 from gmat_czml.convert.maneuvers import maneuver_packets
 from gmat_czml.convert.time import synthesize_clock, utc_span
 from gmat_czml.document import CzmlDocument
-from gmat_czml.errors import AmbiguousManeuverTargetError, DuplicateObjectNameError
+from gmat_czml.errors import (
+    AmbiguousAttitudeTargetError,
+    AmbiguousManeuverTargetError,
+    DuplicateObjectNameError,
+)
 from gmat_czml.schema import CanonicalInput, normalize_inputs
 from gmat_czml.styles import Style
 
@@ -77,8 +82,14 @@ def to_czml(
     burn becomes an orange arc over the burn span plus a companion marker. The marker position is
     interpolated from the trajectory, so maneuvers attach to the one rendered object — passing them
     for a multi-object document raises :class:`~gmat_czml.errors.AmbiguousManeuverTargetError`.
-    ``attitude`` is accepted so the call signature is stable but is not yet emitted — it arrives in
-    a later release and already takes orbit-formats' canonical type.
+
+    ``attitude`` adds, from an ``Attitude`` (a CCSDS-AEM quaternion history), a sampled
+    ``orientation`` on a child entity that references the object's position and carries a schematic
+    body box, so the object's axes animate over the trajectory. The orientation is composed into
+    Cesium's body→Earth-fixed convention (the source attitude's reference frame is rotated to ECEF
+    per epoch), so an inertial-referenced attitude renders correctly. Like maneuvers it attaches to
+    the one rendered object — passing it for a multi-object document raises
+    :class:`~gmat_czml.errors.AmbiguousAttitudeTargetError`.
 
     Raises a :class:`~gmat_czml.errors.SchemaError` (the typed family) for a malformed input,
     naming exactly what is wrong, :class:`~gmat_czml.errors.UnsupportedCentralBodyError` for a
@@ -87,7 +98,10 @@ def to_czml(
     object or collides with another entity,
     :class:`~gmat_czml.errors.AmbiguousManeuverTargetError` for maneuvers on a multi-object
     document, :class:`~gmat_czml.errors.ManeuverOutsideTrajectoryError` for a burn outside the
-    trajectory's time span, or :class:`ValueError` if ``playback_seconds`` is not positive.
+    trajectory's time span, :class:`~gmat_czml.errors.AmbiguousAttitudeTargetError` for an attitude
+    on a multi-object document, :class:`~gmat_czml.errors.UnsupportedAttitudeTypeError` /
+    :class:`~gmat_czml.errors.AttitudeFrameError` for a non-quaternion or unresolvable-frame
+    attitude, or :class:`ValueError` if ``playback_seconds`` is not positive.
     """
     inputs = normalize_inputs(ephemeris)
     entity_ids = _entity_ids(inputs)
@@ -113,6 +127,10 @@ def to_czml(
             packets.extend(
                 maneuver_packets(maneuver_list, inputs[0], entity_ids[0], resolved_style)
             )
+    if attitude is not None:
+        if len(inputs) != 1:
+            raise AmbiguousAttitudeTargetError(len(inputs))
+        packets.extend(attitude_packets(attitude, entity_ids[0], resolved_style))
     return CzmlDocument(Document(packets=packets))
 
 

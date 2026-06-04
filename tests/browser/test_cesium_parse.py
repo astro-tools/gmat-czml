@@ -197,3 +197,65 @@ def test_cesium_parses_a_maneuvers_scene(page: Page) -> None:
     assert result["hasImpulsive"]  # the impulsive marker resolves a position on the orbit
     assert result["hasArc"]  # the finite burn arc is a renderable polyline
     assert result["hasMarker"]  # the finite burn's companion marker carries a point glyph
+
+
+# The attitude scene: the orientation child entity id (matching the _harness gmat_leo_attitude
+# fixture, attached to the GmatLeo object) and the sample count across its availability.
+_ATTITUDE_ID = "GmatLeo/attitude"
+_ATTITUDE_SAMPLES = 8
+
+_READ_ATTITUDE = """
+async ({ czml, attitudeId, samples }) => {
+    const dataSource = await Cesium.CzmlDataSource.load(czml);
+    const entity = dataSource.entities.getById(attitudeId);
+    const out = { count: dataSource.entities.values.length, hasBox: false, resolved: 0,
+                  unit: true, varied: false };
+    if (!Cesium.defined(entity)) { return out; }
+    out.hasBox = Cesium.defined(entity.box);
+    if (!Cesium.defined(entity.orientation)) { return out; }
+    // Sample the orientation across the attitude's availability: every sample must resolve to a
+    // unit quaternion, and the orientation must actually change over the span (it animates).
+    const interval = entity.availability.get(0);
+    const span = Cesium.JulianDate.secondsDifference(interval.stop, interval.start);
+    const quaternions = [];
+    for (let i = 0; i < samples; i++) {
+        const t = Cesium.JulianDate.addSeconds(interval.start, (span * i) / (samples - 1),
+                                               new Cesium.JulianDate());
+        const q = entity.orientation.getValue(t, new Cesium.Quaternion());
+        if (!Cesium.defined(q)) { continue; }
+        out.resolved += 1;
+        if (Math.abs(Cesium.Quaternion.magnitude(q) - 1) > 1e-6) { out.unit = false; }
+        quaternions.push(q);
+    }
+    for (let i = 1; i < quaternions.length; i++) {
+        if (1 - Math.abs(Cesium.Quaternion.dot(quaternions[0], quaternions[i])) > 1e-4) {
+            out.varied = true;
+        }
+    }
+    return out;
+}
+"""
+
+
+def test_cesium_parses_an_attitude_scene(page: Page) -> None:
+    # The attitude document loads and its orientation child entity materialises: the sampled
+    # orientation resolves a unit quaternion across the availability and the orientation varies
+    # over the span (it animates), and the entity carries a box so the orientation is visible.
+    czml = DOCUMENTS["gmat-leo-attitude.czml"]().to_dict()
+    page.set_content(
+        "<!doctype html><html><head>"
+        f"<script>window.CESIUM_BASE_URL = '{_CESIUM_BASE}';</script>"
+        "</head><body></body></html>"
+    )
+    page.add_script_tag(url=f"{_CESIUM_BASE}Cesium.js")
+
+    result: dict[str, Any] = page.evaluate(
+        _READ_ATTITUDE,
+        {"czml": czml, "attitudeId": _ATTITUDE_ID, "samples": _ATTITUDE_SAMPLES},
+    )
+
+    assert result["count"] >= 2  # satellite + the orientation child entity
+    assert result["hasBox"]  # the body box that makes the orientation visible
+    assert result["resolved"] == _ATTITUDE_SAMPLES  # the orientation resolves across the span
+    assert result["unit"]  # every sampled orientation is a unit quaternion
+    assert result["varied"]  # the orientation animates (it changes over the span)

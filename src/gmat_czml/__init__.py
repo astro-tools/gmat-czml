@@ -16,9 +16,12 @@ from gmat_czml.assembly import TrajectorySource, to_czml
 from gmat_czml.convert.contacts import Contact, GroundStation
 from gmat_czml.document import CzmlDocument
 from gmat_czml.errors import (
+    AmbiguousAttitudeTargetError,
     AmbiguousManeuverTargetError,
+    AttitudeFrameError,
     ContactEntityCollisionError,
     DuplicateObjectNameError,
+    EmptyAttitudeError,
     EmptyTrajectoryError,
     GmatCzmlError,
     InvalidUnitsError,
@@ -31,17 +34,21 @@ from gmat_czml.errors import (
     UnknownContactTargetError,
     UnknownFrameError,
     UnknownTimeScaleError,
+    UnsupportedAttitudeTypeError,
 )
 from gmat_czml.schema import CanonicalInput, normalize_inputs, recognised_frame, validate
 from gmat_czml.styles import Style
 
 __all__ = [
+    "AmbiguousAttitudeTargetError",
     "AmbiguousManeuverTargetError",
+    "AttitudeFrameError",
     "CanonicalInput",
     "Contact",
     "ContactEntityCollisionError",
     "CzmlDocument",
     "DuplicateObjectNameError",
+    "EmptyAttitudeError",
     "EmptyTrajectoryError",
     "GmatCzmlError",
     "GroundStation",
@@ -57,6 +64,7 @@ __all__ = [
     "UnknownContactTargetError",
     "UnknownFrameError",
     "UnknownTimeScaleError",
+    "UnsupportedAttitudeTypeError",
     "__version__",
     "normalize_inputs",
     "recognised_frame",
