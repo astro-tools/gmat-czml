@@ -1,8 +1,8 @@
 # Orbit path
 
-The core conversion: one validated trajectory becomes the four CZML properties an entity packet
-carries — a sampled **position**, a **path**, a **point**, and a **label** — on a packet that also
-holds the object's identity and UTC availability.
+The core conversion: one validated trajectory becomes the CZML properties an entity packet
+carries — a sampled **position**, a **path**, a **marker** (a point or an image billboard), and a
+**label** — on a packet that also holds the object's identity and UTC availability.
 
 ![A geostationary orbit rendered in Cesium](../assets/gallery/geo.png){ width="520" }
 
@@ -34,14 +34,14 @@ stay within ~1 km of the kept polyline, keeping the document small while preserv
 **The reference frame** is taken from the recognised frame id — inertial frames render in CZML
 `INERTIAL`, Earth-fixed in `FIXED` (see the [schema reference](../schema.md#recognised-reference-frames)).
 
-## The four properties
+## The properties
 
 | Property | What it is |
 |----------|------------|
 | `position` | the sampled cartesian (metres), tagged with the interpolation hint and the reference frame |
 | `path` | the orbit trail — a lead time of 0 and a trail spanning the whole trajectory by default |
-| `point` | the object's marker glyph (a coloured dot) |
-| `label` | the object's name, offset clear of the point |
+| `point` / `billboard` | the object's marker glyph — a coloured dot by default, or an image billboard |
+| `label` | the object's name, offset clear of the marker |
 
 A multi-segment ephemeris is concatenated into one chronological sample series, so it renders as a
 single position property spanning the whole span. Multiple objects are handled one packet each — see
@@ -49,5 +49,6 @@ single position property spanning the whole span. Multiple objects are handled o
 
 ## Styling
 
-The single baked-in `sat-default` style is applied to every object's point, label, and path. The
-colour / width / glyph customization API is a later release — see [Styling](../styling.md).
+The marker, label, and orbit path are driven by the supplied [`Style`][gmat_czml.Style] — its
+colour, width, pixel size, font, and glyph (a coloured point or an image billboard). The default is
+`sat-default`; named presets and the customization API are covered in [Styling](../styling.md).

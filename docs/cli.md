@@ -8,16 +8,20 @@ CLI and the API stay byte-for-byte in step.
 ## `gmat-czml convert`
 
 ```bash
-gmat-czml convert INPUT -o OUTPUT [--style sat-default] [--playback-seconds SECONDS] [--ground-track]
+gmat-czml convert INPUT -o OUTPUT [--style PRESET] [--playback-seconds SECONDS] [--ground-track]
 ```
 
 | Argument | Meaning |
 |----------|---------|
 | `INPUT` | the trajectory to convert — any file orbit-formats can read (OEM, GMAT report, SP3, STK ephemeris, …) |
 | `-o`, `--output PATH` | where to write the `.czml` document (required) |
-| `--style` | the visual style; v0.1 offers the single `sat-default` (the default) |
+| `--style` | a style preset: `sat-default` (the default), `sat-red`, `sat-green`, or `sat-magenta` |
 | `--playback-seconds SECONDS` | wall-clock seconds the whole trajectory plays back in (default: 60) |
 | `--ground-track` | also emit each object's sub-satellite ground track (Earth-only) |
+
+The CLI offers the named presets; the full colour / width / glyph customization API (custom colours,
+widths, fonts, and image-billboard glyphs) is the Python [`Style`][gmat_czml.Style] — see
+[Styling](styling.md).
 
 ## Examples
 
@@ -27,6 +31,9 @@ gmat-czml convert mission.oem -o mission.czml --ground-track
 
 # Slower playback (the span plays back over two minutes)
 gmat-czml convert mission.oem -o mission.czml --playback-seconds 120
+
+# A colour preset, to tell one object apart from another
+gmat-czml convert mission.oem -o mission.czml --style sat-red
 ```
 
 ## Exit status and errors

@@ -48,5 +48,6 @@ degenerate track with no renderable segment yields no packets.
 
 ## Styling
 
-The ground track uses the same baked-in `sat-default` style as the orbit path, drawn a touch heavier
-so it reads clearly against the globe. Customization arrives with the [style system](../styling.md).
+The ground track's colour and width come from the supplied [`Style`][gmat_czml.Style]'s `track`
+field; the `sat-default` default is the orbit trail's yellow, drawn a touch heavier so it reads
+clearly against the globe. See [Styling](../styling.md) for presets and customization.
