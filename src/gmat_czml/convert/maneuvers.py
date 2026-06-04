@@ -66,10 +66,10 @@ __all__ = ["maneuver_packets"]
 _LENGTH_TO_METRES = {"KM": 1000.0, "M": 1.0}
 _SUPPORTED_LENGTH_UNITS = ("km", "m")
 
-# The single baked-in maneuver style — the only style until the v0.2 preset / customization system.
-# The values live here as the converter's rendering defaults, applied to every maneuver entity. RGBA
-# channels are 0-255. Maneuvers are drawn in orange so they read as their own layer, distinct from
-# the satellite's yellow orbit trail and the cyan contact line of sight.
+# The maneuver layer's own baked-in style, applied to every maneuver entity. RGBA channels are
+# 0-255. Maneuvers are drawn in orange so they read as their own layer, distinct from the
+# satellite's orbit trail and the cyan contact line of sight; this layer is deliberately separate
+# from the satellite style's colour / width / glyph customization API (gmat_czml.Style).
 _MARKER_COLOR = (255, 140, 0, 255)
 _MARKER_OUTLINE_COLOR = (0, 0, 0, 255)
 _MARKER_PIXEL_SIZE = 11.0
@@ -89,9 +89,10 @@ def maneuver_packets(
 
     ``item`` is the trajectory the maneuvers act on (the source of the interpolated marker position
     and the reference frame); ``entity_id`` is its packet id, under which the maneuver ids are
-    namespaced. ``style`` selects the visual style; the single baked-in maneuver style is applied to
-    every entity, so it is accepted as the stable seam the v0.2 preset system plugs into rather than
-    branched on here. Packets are returned in maneuver order: an impulsive maneuver yields one
+    namespaced. ``style`` is accepted for signature parity with the satellite converters but is not
+    read here: the maneuver layer carries its own baked-in style, intentionally separate from the
+    satellite style's customization API. Packets are returned in maneuver order: an impulsive
+    maneuver yields one
     packet (``<entity_id>/maneuver/<k>``); a finite one yields its arc (same id) then its companion
     marker (``<entity_id>/maneuver/<k>/marker``).
 

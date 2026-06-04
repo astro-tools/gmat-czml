@@ -52,10 +52,10 @@ __all__ = ["Contact", "GroundStation", "contact_packets"]
 # GroundStation altitude unit), so it is scaled here exactly as the ground track scales its height.
 _KM_TO_METRES = 1000.0
 
-# The single baked-in contact style — the only style until the v0.2 preset / customization system.
-# The values live here as the converter's rendering defaults, applied to every contact entity. RGBA
-# channels are 0-255. The observer and the access link are drawn in cyan so they read as the
-# ground / line-of-sight layer, distinct from the satellite's yellow orbit trail.
+# The contact layer's own baked-in style, applied to every contact entity. RGBA channels are 0-255.
+# The observer and the access link are drawn in cyan so they read as the ground / line-of-sight
+# layer, distinct from the satellite's orbit trail; this layer is deliberately separate from the
+# satellite style's colour / width / glyph customization API (gmat_czml.Style).
 _LINK_COLOR = (0, 255, 255, 255)
 _LINK_WIDTH = 1.0
 _OBSERVER_COLOR = (0, 255, 255, 255)
@@ -107,11 +107,11 @@ def contact_packets(
     """Build the CZML packets for a set of contacts: one observer entity, one per-window link each.
 
     ``known_targets`` is the entity ids of the rendered objects (a contact may only target one of
-    them). ``style`` selects the visual style; the single baked-in contact style is applied to every
-    entity, so it is accepted as the stable seam the v0.2 preset system plugs into rather than
-    branched on here. Returns the observer packets (each distinct station placed once, in first-seen
-    order) followed by the link packets (one per contact that has at least one window, in contact
-    order).
+    them). ``style`` is accepted for signature parity with the satellite converters but is not read
+    here: the contact layer carries its own baked-in style, separate from the satellite style's
+    customization API. Returns the observer packets (each distinct station placed once, in
+    first-seen order) followed by the link packets (one per contact that has at least one window, in
+    contact order).
 
     Raises :class:`~gmat_czml.errors.UnknownContactTargetError` if a contact targets an object not
     in the document, and :class:`~gmat_czml.errors.ContactEntityCollisionError` if a contact entity

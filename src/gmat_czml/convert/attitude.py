@@ -97,10 +97,11 @@ _ATTITUDE_DIR_B2A = "B2A"
 _ORIENTATION_ALGORITHM = InterpolationAlgorithms.LINEAR
 _ORIENTATION_DEGREE = 1
 
-# The single baked-in attitude style — the only style until the v0.2 preset / customization system,
-# applied to every attitude marker. The body marker is a schematic box, not a glTF model (gmat-czml
-# ships no asset pipeline yet), sized with three distinct, exaggerated dimensions so the
-# body frame's orientation reads unambiguously at orbital scale. Dimensions are metres; RGBA 0-255.
+# The attitude layer's own baked-in style, applied to every attitude marker — deliberately separate
+# from the satellite style's customization API (gmat_czml.Style). The body marker is a schematic
+# box, not a glTF model (gmat-czml ships no asset pipeline yet), sized with three distinct,
+# exaggerated dimensions so the body frame's orientation reads unambiguously at orbital scale.
+# Dimensions are metres; RGBA 0-255.
 _BOX_DIMENSIONS_M = (600_000.0, 200_000.0, 200_000.0)  # body X, Y, Z — distinct so axes are legible
 _BOX_FILL_COLOR = (0, 200, 255, 110)  # translucent cyan body, distinct from the yellow orbit layer
 _BOX_OUTLINE_COLOR = (0, 200, 255, 255)
@@ -112,9 +113,9 @@ def attitude_packets(attitude: Attitude, entity_id: str, style: Style) -> list[P
 
     ``attitude`` is the canonical :class:`~orbit_formats.Attitude` (a CCSDS-AEM quaternion history);
     ``entity_id`` is the rendered object's packet id, under which the attitude id is namespaced and
-    whose position the marker references. ``style`` selects the visual style; the single baked-in
-    attitude style is applied, so it is accepted as the stable seam the preset system plugs into
-    rather than branched on here.
+    whose position the marker references. ``style`` is accepted for signature parity with the
+    satellite converters but is not read here: the attitude layer carries its own baked-in style,
+    intentionally separate from the satellite style's customization API.
 
     Returns a single packet ``<entity_id>/attitude`` with the object's position by reference, the
     body → ECEF ``orientation`` sampled at the attitude's epochs (epoch-relative, with the LINEAR
