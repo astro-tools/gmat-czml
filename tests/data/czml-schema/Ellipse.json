@@ -1,0 +1,107 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://analyticalgraphicsinc.github.io/czml-writer/Schema/Ellipse.json",
+    "title": "Ellipse",
+    "description": "An ellipse, which is a closed curve on or above the surface of the Earth.",
+    "type": "object",
+    "properties": {
+        "show": {
+            "$ref": "Boolean.json",
+            "description": "Whether or not the ellipse is shown.",
+            "default": true
+        },
+        "semiMajorAxis": {
+            "$ref": "Double.json",
+            "description": "The length of the ellipse's semi-major axis in meters.",
+            "czmlRequiredForDisplay": true
+        },
+        "semiMinorAxis": {
+            "$ref": "Double.json",
+            "description": "The length of the ellipse's semi-minor axis in meters.",
+            "czmlRequiredForDisplay": true
+        },
+        "height": {
+            "$ref": "Double.json",
+            "description": "The altitude of the ellipse relative to the surface.",
+            "default": "0.0"
+        },
+        "heightReference": {
+            "$ref": "HeightReference.json",
+            "description": "The height reference of the ellipse, which indicates if `height` is relative to terrain or not.",
+            "default": "NONE"
+        },
+        "extrudedHeight": {
+            "$ref": "Double.json",
+            "description": "The altitude of the ellipse's extruded face relative to the surface."
+        },
+        "extrudedHeightReference": {
+            "$ref": "HeightReference.json",
+            "description": "The extruded height reference of the ellipse, which indicates if `extrudedHeight` is relative to terrain or not.",
+            "default": "NONE"
+        },
+        "rotation": {
+            "$ref": "Double.json",
+            "description": "The angle from north (counter-clockwise) in radians.",
+            "default": "0.0"
+        },
+        "stRotation": {
+            "$ref": "Double.json",
+            "description": "The rotation of any applied texture coordinates.",
+            "default": "0.0"
+        },
+        "granularity": {
+            "$ref": "Double.json",
+            "description": "The sampling distance, in radians.",
+            "default": "π / 180.0"
+        },
+        "fill": {
+            "$ref": "Boolean.json",
+            "description": "Whether or not the ellipse is filled.",
+            "default": true
+        },
+        "material": {
+            "$ref": "Material.json",
+            "description": "The material to use to fill the ellipse.",
+            "default": "solid white"
+        },
+        "outline": {
+            "$ref": "Boolean.json",
+            "description": "Whether or not the ellipse is outlined.",
+            "default": false
+        },
+        "outlineColor": {
+            "$ref": "Color.json",
+            "description": "The color of the ellipse outline.",
+            "default": "black"
+        },
+        "outlineWidth": {
+            "$ref": "Double.json",
+            "description": "The width of the ellipse outline.",
+            "default": 1.0
+        },
+        "numberOfVerticalLines": {
+            "$ref": "Integer.json",
+            "description": "The number of vertical lines to use when outlining an extruded ellipse.",
+            "default": "16"
+        },
+        "shadows": {
+            "$ref": "ShadowMode.json",
+            "description": "Whether or not the ellipse casts or receives shadows.",
+            "default": "DISABLED"
+        },
+        "distanceDisplayCondition": {
+            "$ref": "DistanceDisplayCondition.json",
+            "description": "The display condition specifying at what distance from the camera this ellipse will be displayed."
+        },
+        "classificationType": {
+            "$ref": "ClassificationType.json",
+            "description": "Whether a classification affects terrain, 3D Tiles, or both.",
+            "default": "BOTH"
+        },
+        "zIndex": {
+            "$ref": "Integer.json",
+            "description": "The z-index of the ellipse, used for ordering ground geometry. Only has an effect if the ellipse is constant, and `height` and `extrudedHeight` are not specified.",
+            "default": "0"
+        }
+    }
+}

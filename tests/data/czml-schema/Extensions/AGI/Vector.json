@@ -1,0 +1,35 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://analyticalgraphicsinc.github.io/czml-writer/Schema/Extensions/AGI/Vector.json",
+    "title": "Vector",
+    "description": "Defines a graphical vector that originates at the `position` property and extends in the provided direction for the provided length.",
+    "type": "object",
+    "czmlExtensionPrefix": "agi",
+    "properties": {
+        "show": {
+            "$ref": "../../Boolean.json",
+            "description": "Whether or not the vector is shown.",
+            "default": true
+        },
+        "color": {
+            "$ref": "../../Color.json",
+            "description": "The color of the vector.",
+            "default": "white"
+        },
+        "direction": {
+            "$ref": "../../Direction.json",
+            "description": "The direction of the vector.",
+            "czmlRequiredForDisplay": true
+        },
+        "length": {
+            "$ref": "../../Double.json",
+            "description": "The graphical length of the vector, in meters.",
+            "default": 1.0
+        },
+        "minimumLengthInPixels": {
+            "$ref": "../../Double.json",
+            "description": "The minimum graphical length of the vector in pixels.",
+            "default": 0.0
+        }
+    }
+}

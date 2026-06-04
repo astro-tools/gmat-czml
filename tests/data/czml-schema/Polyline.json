@@ -1,0 +1,72 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://analyticalgraphicsinc.github.io/czml-writer/Schema/Polyline.json",
+    "title": "Polyline",
+    "description": "A polyline, which is a line in the scene composed of multiple segments.",
+    "type": "object",
+    "properties": {
+        "show": {
+            "$ref": "Boolean.json",
+            "description": "Whether or not the polyline is shown.",
+            "default": true
+        },
+        "positions": {
+            "$ref": "PositionList.json",
+            "description": "The array of positions defining the polyline as a line strip.",
+            "czmlRequiredForDisplay": true
+        },
+        "arcType": {
+            "$ref": "ArcType.json",
+            "description": "The type of arc that should connect the positions of the polyline.",
+            "default": "GEODESIC"
+        },
+        "width": {
+            "$ref": "Double.json",
+            "description": "The width of the polyline.",
+            "default": 1.0
+        },
+        "granularity": {
+            "$ref": "Double.json",
+            "description": "The sampling distance, in radians.",
+            "default": "π / 180.0"
+        },
+        "material": {
+            "$ref": "PolylineMaterial.json",
+            "description": "The material to use to draw the polyline.",
+            "default": "solid white"
+        },
+        "followSurface": {
+            "$ref": "Boolean.json",
+            "description": "Whether or not the positions are connected as great arcs (the default) or as straight lines. This property has been superseded by `arcType`, which should be used instead.",
+            "default": true
+        },
+        "shadows": {
+            "$ref": "ShadowMode.json",
+            "description": "Whether or not the polyline casts or receives shadows.",
+            "default": "DISABLED"
+        },
+        "depthFailMaterial": {
+            "$ref": "PolylineMaterial.json",
+            "description": "The material to use to draw the polyline when it is below the terrain."
+        },
+        "distanceDisplayCondition": {
+            "$ref": "DistanceDisplayCondition.json",
+            "description": "The display condition specifying at what distance from the camera this polyline will be displayed."
+        },
+        "clampToGround": {
+            "$ref": "Boolean.json",
+            "description": "Whether or not the polyline should be clamped to the ground.",
+            "default": false
+        },
+        "classificationType": {
+            "$ref": "ClassificationType.json",
+            "description": "Whether a classification affects terrain, 3D Tiles, or both.",
+            "default": "BOTH"
+        },
+        "zIndex": {
+            "$ref": "Integer.json",
+            "description": "The z-index of the polyline, used for ordering ground geometry. Only has an effect if the polyline is constant, and `clampToGround` is true.",
+            "default": "0"
+        }
+    }
+}

@@ -1,0 +1,29 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://analyticalgraphicsinc.github.io/czml-writer/Schema/BoxDimensions.json",
+    "title": "BoxDimensions",
+    "description": "The width, depth, and height of a box.",
+    "allOf": [
+        { "$ref": "InterpolatableProperty.json" },
+        { "$ref": "DeletableProperty.json" },
+        { "$ref": "ValueProperties/Cartesian3ValueProperty.json" },
+        { "$ref": "ValueProperties/ReferenceValueProperty.json" }
+    ],
+    "type": [
+        "array",
+        "object"
+    ],
+    "items": {
+        "$ref": "#"
+    },
+    "properties": {
+        "cartesian": {
+            "$ref": "Values/Cartesian3Value.json",
+            "description": "The dimensions specified as a three-dimensional Cartesian value `[X, Y, Z]`, with X representing width, Y representing depth, and Z representing height, in world coordinates in meters."
+        },
+        "reference": {
+            "$ref": "Values/ReferenceValue.json",
+            "description": "The dimensions specified as a reference to another property."
+        }
+    }
+}

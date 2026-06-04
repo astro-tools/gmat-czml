@@ -1,0 +1,58 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://analyticalgraphicsinc.github.io/czml-writer/Schema/Box.json",
+    "title": "Box",
+    "description": "A box, which is a closed rectangular cuboid.",
+    "type": "object",
+    "properties": {
+        "show": {
+            "$ref": "Boolean.json",
+            "description": "Whether or not the box is shown.",
+            "default": true
+        },
+        "dimensions": {
+            "$ref": "BoxDimensions.json",
+            "description": "The dimensions of the box.",
+            "czmlRequiredForDisplay": true
+        },
+        "heightReference": {
+            "$ref": "HeightReference.json",
+            "description": "The height reference of the box, which indicates if the position is relative to terrain or not.",
+            "default": "NONE"
+        },
+        "fill": {
+            "$ref": "Boolean.json",
+            "description": "Whether or not the box is filled.",
+            "default": true
+        },
+        "material": {
+            "$ref": "Material.json",
+            "description": "The material to display on the surface of the box.",
+            "default": "solid white"
+        },
+        "outline": {
+            "$ref": "Boolean.json",
+            "description": "Whether or not the box is outlined.",
+            "default": false
+        },
+        "outlineColor": {
+            "$ref": "Color.json",
+            "description": "The color of the box outline.",
+            "default": "black"
+        },
+        "outlineWidth": {
+            "$ref": "Double.json",
+            "description": "The width of the box outline.",
+            "default": 1.0
+        },
+        "shadows": {
+            "$ref": "ShadowMode.json",
+            "description": "Whether or not the box casts or receives shadows.",
+            "default": "DISABLED"
+        },
+        "distanceDisplayCondition": {
+            "$ref": "DistanceDisplayCondition.json",
+            "description": "The display condition specifying the distance from the camera at which this box will be displayed."
+        }
+    }
+}

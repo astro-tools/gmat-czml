@@ -1,0 +1,32 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://analyticalgraphicsinc.github.io/czml-writer/Schema/ViewFrom.json",
+    "title": "ViewFrom",
+    "description": "A suggested initial camera position offset when tracking this object, specified as a Cartesian position. Typically defined in the East (x), North (y), Up (z) reference frame relative to the object's position, but may use another frame depending on the object's velocity.",
+    "allOf": [
+        { "$ref": "InterpolatableProperty.json" },
+        { "$ref": "DeletableProperty.json" },
+        { "$ref": "ValueProperties/Cartesian3ValueProperty.json" },
+        { "$ref": "ValueProperties/ReferenceValueProperty.json" }
+    ],
+    "type": [
+        "array",
+        "object"
+    ],
+    "items": {
+        "$ref": "#"
+    },
+    "czmlExamples": [
+        "Examples/ViewFrom.json"
+    ],
+    "properties": {
+        "cartesian": {
+            "$ref": "Values/Cartesian3Value.json",
+            "description": "The offset specified as a three-dimensional Cartesian value `[X, Y, Z]`."
+        },
+        "reference": {
+            "$ref": "Values/ReferenceValue.json",
+            "description": "The offset specified as a reference to another property."
+        }
+    }
+}

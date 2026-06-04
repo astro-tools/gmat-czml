@@ -1,0 +1,29 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://analyticalgraphicsinc.github.io/czml-writer/Schema/ColorBlendMode.json",
+    "title": "ColorBlendMode",
+    "description": "The mode of blending between a target color and an entity's source color.",
+    "allOf": [
+        { "$ref": "DeletableProperty.json" },
+        { "$ref": "ValueProperties/ColorBlendModeValueProperty.json" },
+        { "$ref": "ValueProperties/ReferenceValueProperty.json" }
+    ],
+    "type": [
+        "array",
+        "object",
+        "string"
+    ],
+    "items": {
+        "$ref": "#"
+    },
+    "properties": {
+        "colorBlendMode": {
+            "$ref": "Values/ColorBlendModeValue.json",
+            "description": "The color blend mode."
+        },
+        "reference": {
+            "$ref": "Values/ReferenceValue.json",
+            "description": "The color blend mode specified as a reference to another property."
+        }
+    }
+}

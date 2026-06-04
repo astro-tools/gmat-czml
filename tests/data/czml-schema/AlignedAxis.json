@@ -1,0 +1,39 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://analyticalgraphicsinc.github.io/czml-writer/Schema/AlignedAxis.json",
+    "title": "AlignedAxis",
+    "description": "An aligned axis represented by a unit vector which can optionally vary over time.",
+    "allOf": [
+        { "$ref": "InterpolatableProperty.json" },
+        { "$ref": "DeletableProperty.json" },
+        { "$ref": "ValueProperties/UnitCartesian3ValueProperty.json" },
+        { "$ref": "ValueProperties/UnitSphericalValueProperty.json" },
+        { "$ref": "ValueProperties/ReferenceValueProperty.json" },
+        { "$ref": "ValueProperties/VelocityReferenceValueProperty.json" }
+    ],
+    "type": [
+        "array",
+        "object"
+    ],
+    "items": {
+        "$ref": "#"
+    },
+    "properties": {
+        "unitCartesian": {
+            "$ref": "Values/UnitCartesian3Value.json",
+            "description": "The axis specified as a three-dimensional unit magnitude Cartesian value `[X, Y, Z]`, in world coordinates."
+        },
+        "unitSpherical": {
+            "$ref": "Values/UnitSphericalValue.json",
+            "description": "The axis specified as a unit spherical value `[Clock, Cone]`, in radians. The clock angle is measured in the XY plane from the positive X axis toward the positive Y axis. The cone angle is the angle from the positive Z axis toward the negative Z axis."
+        },
+        "reference": {
+            "$ref": "Values/ReferenceValue.json",
+            "description": "The axis specified as a reference to another property."
+        },
+        "velocityReference": {
+            "$ref": "Values/VelocityReferenceValue.json",
+            "description": "The axis specified as the normalized velocity vector of a position property. The reference must be to a `position` property."
+        }
+    }
+}

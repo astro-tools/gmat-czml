@@ -1,0 +1,149 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://analyticalgraphicsinc.github.io/czml-writer/Schema/CustomProperty.json",
+    "title": "CustomProperty",
+    "description": "A custom property.",
+    "allOf": [
+        { "$ref": "InterpolatableProperty.json" },
+        { "$ref": "DeletableProperty.json" },
+        { "$ref": "ValueProperties/BooleanValueProperty.json" },
+        { "$ref": "ValueProperties/BoundingRectangleValueProperty.json" },
+        { "$ref": "ValueProperties/Cartesian3ValueProperty.json" },
+        { "$ref": "ValueProperties/CartographicDegreesValueProperty.json" },
+        { "$ref": "ValueProperties/CartographicRadiansValueProperty.json" },
+        { "$ref": "ValueProperties/Cartesian2ValueProperty.json" },
+        { "$ref": "ValueProperties/UnitCartesian3ValueProperty.json" },
+        { "$ref": "ValueProperties/SphericalValueProperty.json" },
+        { "$ref": "ValueProperties/UnitSphericalValueProperty.json" },
+        { "$ref": "ValueProperties/RgbaValueProperty.json" },
+        { "$ref": "ValueProperties/RgbafValueProperty.json" },
+        { "$ref": "ValueProperties/ColorBlendModeValueProperty.json" },
+        { "$ref": "ValueProperties/CornerTypeValueProperty.json" },
+        { "$ref": "ValueProperties/HeightReferenceValueProperty.json" },
+        { "$ref": "ValueProperties/HorizontalOriginValueProperty.json" },
+        { "$ref": "ValueProperties/LabelStyleValueProperty.json" },
+        { "$ref": "ValueProperties/DoubleValueProperty.json" },
+        { "$ref": "ValueProperties/NearFarScalarValueProperty.json" },
+        { "$ref": "ValueProperties/UnitQuaternionValueProperty.json" },
+        { "$ref": "ValueProperties/ShadowModeValueProperty.json" },
+        { "$ref": "ValueProperties/StringValueProperty.json" },
+        { "$ref": "ValueProperties/StripeOrientationValueProperty.json" },
+        { "$ref": "ValueProperties/CartographicRectangleRadiansValueProperty.json" },
+        { "$ref": "ValueProperties/CartographicRectangleDegreesValueProperty.json" },
+        { "$ref": "ValueProperties/UriValueProperty.json" },
+        { "$ref": "ValueProperties/VerticalOriginValueProperty.json" }
+    ],
+    "type": [
+        "array",
+        "object"
+    ],
+    "items": {
+        "$ref": "#"
+    },
+    "properties": {
+        "boolean": {
+            "$ref": "Values/BooleanValue.json",
+            "description": "The property specified as a boolean value."
+        },
+        "boundingRectangle": {
+            "$ref": "Values/BoundingRectangleValue.json",
+            "description": "The property specified as `[X, Y, Width, Height]`."
+        },
+        "cartesian": {
+            "$ref": "Values/Cartesian3Value.json",
+            "description": "The property specified as a three-dimensional Cartesian value `[X, Y, Z]`."
+        },
+        "cartographicRadians": {
+            "$ref": "Values/CartographicRadiansValue.json",
+            "description": "The property specified in Cartographic WGS84 coordinates, `[Longitude, Latitude, Height]`, where Longitude and Latitude are in radians and Height is in meters."
+        },
+        "cartographicDegrees": {
+            "$ref": "Values/CartographicDegreesValue.json",
+            "description": "The property specified in Cartographic WGS84 coordinates, `[Longitude, Latitude, Height]`, where Longitude and Latitude are in degrees and Height is in meters."
+        },
+        "cartesian2": {
+            "$ref": "Values/Cartesian2Value.json",
+            "description": "The property specified as a two-dimensional Cartesian value `[X, Y]`."
+        },
+        "unitCartesian": {
+            "$ref": "Values/UnitCartesian3Value.json",
+            "description": "The property specified as a three-dimensional unit magnitude Cartesian value `[X, Y, Z]`."
+        },
+        "spherical": {
+            "$ref": "Values/SphericalValue.json",
+            "description": "The property specified as a spherical value `[Clock, Cone, Magnitude]`. The clock angle is measured in the XY plane from the positive X axis toward the positive Y axis. The cone angle is the angle from the positive Z axis toward the negative Z axis."
+        },
+        "unitSpherical": {
+            "$ref": "Values/UnitSphericalValue.json",
+            "description": "The property specified as a unit spherical value `[Clock, Cone]`. The clock angle is measured in the XY plane from the positive X axis toward the positive Y axis. The cone angle is the angle from the positive Z axis toward the negative Z axis."
+        },
+        "rgba": {
+            "$ref": "Values/RgbaValue.json",
+            "description": "The property specified as an array of color components `[Red, Green, Blue, Alpha]` where each component is an integer in the range 0-255."
+        },
+        "rgbaf": {
+            "$ref": "Values/RgbafValue.json",
+            "description": "The property specified as an array of color components `[Red, Green, Blue, Alpha]` where each component is a double in the range 0.0-1.0."
+        },
+        "colorBlendMode": {
+            "$ref": "Values/ColorBlendModeValue.json",
+            "description": "The property specified as a color blend mode."
+        },
+        "cornerType": {
+            "$ref": "Values/CornerTypeValue.json",
+            "description": "The property specified as a corner style."
+        },
+        "heightReference": {
+            "$ref": "Values/HeightReferenceValue.json",
+            "description": "The property specified as a height reference."
+        },
+        "horizontalOrigin": {
+            "$ref": "Values/HorizontalOriginValue.json",
+            "description": "The property specified as a horizontal origin."
+        },
+        "labelStyle": {
+            "$ref": "Values/LabelStyleValue.json",
+            "description": "The property specified as a label style."
+        },
+        "number": {
+            "$ref": "Values/DoubleValue.json",
+            "description": "The property specified as a number."
+        },
+        "nearFarScalar": {
+            "$ref": "Values/NearFarScalarValue.json",
+            "description": "The property specified as four values `[NearDistance, NearValue, FarDistance, FarValue]`."
+        },
+        "unitQuaternion": {
+            "$ref": "Values/UnitQuaternionValue.json",
+            "description": "The property specified as a 4-dimensional unit magnitude quaternion, specified as `[X, Y, Z, W]`."
+        },
+        "shadowMode": {
+            "$ref": "Values/ShadowModeValue.json",
+            "description": "The property specified as a shadow mode."
+        },
+        "string": {
+            "$ref": "Values/StringValue.json",
+            "description": "The property specified as a string."
+        },
+        "stripeOrientation": {
+            "$ref": "Values/StripeOrientationValue.json",
+            "description": "The property specified as an orientation of stripes in the stripe material."
+        },
+        "wsen": {
+            "$ref": "Values/CartographicRectangleRadiansValue.json",
+            "description": "The property specified as a Cartographic rectangle `[WestLongitude, SouthLatitude, EastLongitude, NorthLatitude]`, with values in radians."
+        },
+        "wsenDegrees": {
+            "$ref": "Values/CartographicRectangleDegreesValue.json",
+            "description": "The property specified as a Cartographic rectangle `[WestLongitude, SouthLatitude, EastLongitude, NorthLatitude]`, with values in degrees."
+        },
+        "uri": {
+            "$ref": "Values/UriValue.json",
+            "description": "The property specified as a URI."
+        },
+        "verticalOrigin": {
+            "$ref": "Values/VerticalOriginValue.json",
+            "description": "The property specified as a vertical origin."
+        }
+    }
+}

@@ -1,0 +1,29 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://analyticalgraphicsinc.github.io/czml-writer/Schema/PixelOffset.json",
+    "title": "PixelOffset",
+    "description": "A pixel offset in viewport coordinates. A pixel offset is the number of pixels up and to the right to place an element relative to an origin.",
+    "allOf": [
+        { "$ref": "InterpolatableProperty.json" },
+        { "$ref": "DeletableProperty.json" },
+        { "$ref": "ValueProperties/Cartesian2ValueProperty.json" },
+        { "$ref": "ValueProperties/ReferenceValueProperty.json" }
+    ],
+    "type": [
+        "array",
+        "object"
+    ],
+    "items": {
+        "$ref": "#"
+    },
+    "properties": {
+        "cartesian2": {
+            "$ref": "Values/Cartesian2Value.json",
+            "description": "The pixel offset specified as a two-dimensional Cartesian value `[X, Y]`, in viewport coordinates in pixels, where X is pixels to the right and Y is pixels up."
+        },
+        "reference": {
+            "$ref": "Values/ReferenceValue.json",
+            "description": "The pixel offset specified as a reference to another property."
+        }
+    }
+}

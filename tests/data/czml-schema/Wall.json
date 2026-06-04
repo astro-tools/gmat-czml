@@ -1,0 +1,66 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://analyticalgraphicsinc.github.io/czml-writer/Schema/Wall.json",
+    "title": "Wall",
+    "description": "A two-dimensional wall defined as a line strip and optional maximum and minimum heights, which conforms to the curvature of the globe and can be placed along the surface or at altitude.",
+    "type": "object",
+    "properties": {
+        "show": {
+            "$ref": "Boolean.json",
+            "description": "Whether or not the wall is shown.",
+            "default": true
+        },
+        "positions": {
+            "$ref": "PositionList.json",
+            "description": "The array of positions defining the centerline of the wall.",
+            "czmlRequiredForDisplay": true
+        },
+        "minimumHeights": {
+            "$ref": "DoubleList.json",
+            "description": "The list of heights to be used for the bottom of the wall, instead of the surface."
+        },
+        "maximumHeights": {
+            "$ref": "DoubleList.json",
+            "description": "The list of heights to be used for the top of the wall, instead of the height of each position."
+        },
+        "granularity": {
+            "$ref": "Double.json",
+            "description": "The sampling distance, in radians.",
+            "default": "π / 180.0"
+        },
+        "fill": {
+            "$ref": "Boolean.json",
+            "description": "Whether or not the wall is filled.",
+            "default": true
+        },
+        "material": {
+            "$ref": "Material.json",
+            "description": "The material to display on the surface of the wall.",
+            "default": "solid white"
+        },
+        "outline": {
+            "$ref": "Boolean.json",
+            "description": "Whether or not the wall is outlined.",
+            "default": false
+        },
+        "outlineColor": {
+            "$ref": "Color.json",
+            "description": "The color of the wall outline.",
+            "default": "black"
+        },
+        "outlineWidth": {
+            "$ref": "Double.json",
+            "description": "The width of the wall outline.",
+            "default": 1.0
+        },
+        "shadows": {
+            "$ref": "ShadowMode.json",
+            "description": "Whether or not the wall casts or receives shadows.",
+            "default": "DISABLED"
+        },
+        "distanceDisplayCondition": {
+            "$ref": "DistanceDisplayCondition.json",
+            "description": "The display condition specifying at what distance from the camera this wall will be displayed."
+        }
+    }
+}

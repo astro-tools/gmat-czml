@@ -1,0 +1,33 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://analyticalgraphicsinc.github.io/czml-writer/Schema/Rotation.json",
+    "title": "Rotation",
+    "description": "Defines a rotation that transforms a vector expressed in one axes and transforms it to another.",
+    "allOf": [
+        { "$ref": "InterpolatableProperty.json" },
+        { "$ref": "DeletableProperty.json" },
+        { "$ref": "ValueProperties/UnitQuaternionValueProperty.json" },
+        { "$ref": "ValueProperties/ReferenceValueProperty.json" }
+    ],
+    "type": [
+        "array",
+        "object"
+    ],
+    "items": {
+        "$ref": "#"
+    },
+    "czmlExamples": [
+        "Examples/Rotation.json",
+        "Examples/RotationSampled.json"
+    ],
+    "properties": {
+        "unitQuaternion": {
+            "$ref": "Values/UnitQuaternionValue.json",
+            "description": "The rotation specified as a 4-dimensional unit magnitude quaternion, specified as `[X, Y, Z, W]`."
+        },
+        "reference": {
+            "$ref": "Values/ReferenceValue.json",
+            "description": "The rotation specified as a reference to another property."
+        }
+    }
+}

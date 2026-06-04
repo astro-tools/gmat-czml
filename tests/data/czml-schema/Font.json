@@ -1,0 +1,29 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://analyticalgraphicsinc.github.io/czml-writer/Schema/Font.json",
+    "title": "Font",
+    "description": "A font used to draw text. Fonts are specified using the same syntax as the CSS \"font\" property.",
+    "allOf": [
+        { "$ref": "DeletableProperty.json" },
+        { "$ref": "ValueProperties/FontValueProperty.json" },
+        { "$ref": "ValueProperties/ReferenceValueProperty.json" }
+    ],
+    "type": [
+        "array",
+        "object",
+        "string"
+    ],
+    "items": {
+        "$ref": "#"
+    },
+    "properties": {
+        "font": {
+            "$ref": "Values/FontValue.json",
+            "description": "The font, specified using the same syntax as the CSS \"font\" property."
+        },
+        "reference": {
+            "$ref": "Values/ReferenceValue.json",
+            "description": "The font specified as a reference to another property."
+        }
+    }
+}
