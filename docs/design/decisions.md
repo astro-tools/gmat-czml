@@ -196,6 +196,38 @@ geometric bound of the kept polyline. This finalises D7's provisional knobs:
 The pass is pure geometry on an `(N, 3)` array — positions and tolerance share a unit (the converter
 passes canonical km) — so it carries no schema or unit logic of its own.
 
+## D10 — the validation harness: official schema, golden corpus, real producer fixtures
+
+Correctness is two-headed — *is the CZML well-formed and renderable* and *is the geometry it
+encodes right* — so the harness has three independent layers, each catching what the others miss:
+
+- **Official-schema validation.** Every emitted document validates against the **official CZML
+  JSON schema** (the CesiumGS/czml-writer `Schema/` tree, draft-07), vendored verbatim and
+  dev/CI-only at a pinned upstream commit. This is deliberately *not* a re-parse through czml3:
+  czml3 emits the document, so validating with it would be circular. A `referencing` registry keys
+  every vendored file by its own `$id` so the cross-file `$ref`s resolve, and validation runs
+  against `Document.json`. A negative control (a deliberately malformed clock) guards the harness
+  itself against silently degrading into a no-op.
+- **Headless-CesiumJS parse.** The runtime check that the output is not just valid JSON but a
+  renderable, animated scene — a real browser loads the document through `CzmlDataSource.load` and
+  the satellite's position is sampled across the clock span to assert a *correct orbit path*: the
+  radius stays in the expected band, is near-constant (a LEO is near-circular), and varies over
+  time. Positions are read in the document's inertial frame, so no Earth-orientation data is needed
+  and the check stays hermetic. This catches valid-but-unrenderable output the schema check passes.
+- **Golden-output regression.** Fixed inputs produce byte-exact reference documents; `to_czml` must
+  reproduce them verbatim. The goldens are the drift detector for the serialization-backend and
+  producer pins — they are regenerated **deliberately** (gated behind an environment flag), never
+  silently, and carry `-text` so the byte comparison survives line-ending normalisation on every
+  platform.
+
+**Producer fixtures.** Both correctness heads run end-to-end on two real producers, not synthetic
+toys: a **real GMAT LEO CCSDS-OEM ephemeris** (committed as bytes and read through orbit-formats —
+GMAT is neither a runtime nor a CI dependency; the generating mission script is committed alongside
+so the fixture can be regenerated) and an **offline TLE propagation** from a non-GMAT producer
+(dev-only, no network — it proves the canonical input contract is genuinely producer-agnostic). The
+golden corpus spans both producers across the orbit-path, ground-track (multi-segment), and
+multi-object paths.
+
 ---
 
 ## Forward notes (not v0.1 decisions)

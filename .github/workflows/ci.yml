@@ -85,9 +85,9 @@ jobs:
       - run: pip install .
       - run: python -c "import gmat_czml; print(gmat_czml.__version__)"
 
-  # Validate that the emitted CZML is well-formed. The scaffold runs a minimal structural
-  # check; the full official-CZML-schema validation and the golden corpus land with the
-  # validation-harness work.
+  # Validate the emitted CZML against the official CZML JSON schema (vendored under
+  # tests/data/czml-schema/) and byte-diff it against the committed golden corpus, on the real
+  # GMAT and TLE producer fixtures.
   czml-validate:
     name: CZML validation
     runs-on: ubuntu-latest
@@ -105,9 +105,8 @@ jobs:
       - run: uv run pytest -m czml -v
 
   # Load the emitted CZML in a real headless CesiumJS client (Playwright + chromium) to catch
-  # valid-but-unrenderable output the schema check alone misses. The scaffold runs a minimal
-  # parse against a trivial fixture; the full producer fixtures and goldens land with the
-  # validation-harness work.
+  # valid-but-unrenderable output the schema check alone misses, and assert a correct, animated
+  # orbit path on the real GMAT and TLE producer fixtures.
   cesium-parse:
     name: headless CesiumJS parse
     runs-on: ubuntu-latest
