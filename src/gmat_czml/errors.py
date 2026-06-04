@@ -24,6 +24,7 @@ __all__ = [
     "MissingTimeScaleError",
     "SchemaError",
     "UnknownFrameError",
+    "UnknownInterpolationError",
     "UnknownTimeScaleError",
     "UnmappableFrameError",
 ]
@@ -49,6 +50,28 @@ class UnmappableFrameError(GmatCzmlError):
         joined = ", ".join(self.mappable)
         super().__init__(
             f"frame {frame!r} has no CZML reference-frame mapping; mappable frames: {joined}"
+        )
+
+
+class UnknownInterpolationError(GmatCzmlError):
+    """A declared interpolation algorithm with no CZML equivalent.
+
+    Raised by the ephemeris converter when ``attrs['interpolation']`` carries a name outside the
+    set CZML understands (``LAGRANGE`` / ``HERMITE`` / ``LINEAR``). The interpolation hint is read
+    at the converter layer, not validated as part of the schema contract, so — like
+    :class:`UnmappableFrameError` — this descends from :class:`GmatCzmlError` directly rather than
+    :class:`SchemaError`. The algorithm is mapped, never guessed: an undeclared algorithm defaults,
+    but an *unrecognised* one is rejected. ``algorithm`` is the offending name and ``recognised``
+    the names that map.
+    """
+
+    def __init__(self, algorithm: str, recognised: Iterable[str]) -> None:
+        self.algorithm = algorithm
+        self.recognised: tuple[str, ...] = tuple(recognised)
+        joined = ", ".join(self.recognised)
+        super().__init__(
+            f"interpolation algorithm {algorithm!r} has no CZML equivalent; "
+            f"recognised algorithms: {joined}"
         )
 
 
