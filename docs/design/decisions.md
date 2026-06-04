@@ -138,9 +138,8 @@ it.
 - **Ground-station coordinate reads are deferred** to the release that adds contact intervals;
   v0.1 reads nothing but the canonical trajectory.
 - **Decimation is tolerance-bounded and configurable, on by default**, keeping the document small
-  enough to load quickly and to fit an attachment. Provisional defaults — a ~1 km cross-track
-  geometric tolerance and a ~5 MB soft payload budget — are finalised when the sampling module
-  lands.
+  enough to load quickly and to fit an attachment. The provisional ~1 km cross-track geometric
+  tolerance and ~5 MB soft payload budget are finalised in D9, where the sampling module lands.
 - **`to_czml` and the CLI accept any file orbit-formats can read** (via its `read()`), so file
   input comes for free and gmat-czml ships no format readers of its own.
 
@@ -175,6 +174,27 @@ a typed `SchemaError`. The contract this settles for the converters:
   collection (a mapping is not the contract — it is rejected with a pointer to this form).
 - **Validation never mutates the caller.** The padded velocity and the resolved time scale live on a
   shallow copy; the producer's DataFrame is left untouched.
+
+## D9 — decimation: cross-track Douglas–Peucker, tolerance hard / budget soft
+
+`sampling.py` decimates a sampled path with an iterative 3D **Douglas–Peucker** pass on the
+**cross-track** (perpendicular-to-chord) distance, so every dropped sample stays within a stated
+geometric bound of the kept polyline. This finalises D7's provisional knobs:
+
+- **Tolerance is the hard bound** — `DEFAULT_TOLERANCE_KM = 1.0` km, the cross-track distance a
+  dropped sample may sit from the kept polyline (≈ visualization tolerance). A sample whose deviation
+  would exceed it is never dropped.
+- **The payload budget is a soft target** — `DEFAULT_PAYLOAD_BUDGET_BYTES = 5_000_000` (5 MB). At the
+  tolerance the result is already the fewest samples within the bound, so the budget cannot be met
+  by dropping more without breaking the bound; it is reported on the result (`within_budget`), never
+  traded against the tolerance.
+- **Interpolation hints are respected** — a `min_samples` floor (the converter sets it to
+  `interpolation_degree + 1`) keeps enough support for the declared Lagrange / Hermite curve, whose
+  algorithm and degree are carried onto the CZML unchanged (D3). The spatial cross-track bound is
+  conservative for that higher-order interpolation, which passes through every kept sample.
+
+The pass is pure geometry on an `(N, 3)` array — positions and tolerance share a unit (the converter
+passes canonical km) — so it carries no schema or unit logic of its own.
 
 ---
 
