@@ -39,6 +39,7 @@ nav:
       - Canonical input schema: schema.md
       - Orbit path: conversion/orbit-path.md
       - Ground track: conversion/ground-track.md
+      - Maneuvers: conversion/maneuvers.md
       - Styling: styling.md
       - Command line: cli.md
   - Gallery: gallery.md

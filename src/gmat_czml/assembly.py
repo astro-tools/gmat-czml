@@ -24,9 +24,10 @@ from orbit_formats import Attitude, Ephemeris, Maneuver
 from gmat_czml.convert.contacts import Contact, contact_packets
 from gmat_czml.convert.ephemeris import orbit_geometry
 from gmat_czml.convert.groundtrack import ground_track as build_ground_track
+from gmat_czml.convert.maneuvers import maneuver_packets
 from gmat_czml.convert.time import synthesize_clock, utc_span
 from gmat_czml.document import CzmlDocument
-from gmat_czml.errors import DuplicateObjectNameError
+from gmat_czml.errors import AmbiguousManeuverTargetError, DuplicateObjectNameError
 from gmat_czml.schema import CanonicalInput, normalize_inputs
 from gmat_czml.styles import Style
 
@@ -70,15 +71,23 @@ def to_czml(
     ``contacts`` adds, per :class:`~gmat_czml.convert.contacts.Contact`, an observer entity at its
     geodetic position and an observer → satellite link shown only during each access window. Each
     distinct observer is placed once, and each contact's target must be one of the rendered objects.
-    ``maneuvers`` and ``attitude`` are accepted so the call signature is stable but are not yet
-    emitted — they arrive in a later release and already take orbit-formats' canonical types.
+
+    ``maneuvers`` adds, per orbit-formats ``Maneuver``, a marker on the orbit at the burn: an
+    impulsive burn becomes a point + label pinned at the burn epoch (shown from then on); a finite
+    burn becomes an orange arc over the burn span plus a companion marker. The marker position is
+    interpolated from the trajectory, so maneuvers attach to the one rendered object — passing them
+    for a multi-object document raises :class:`~gmat_czml.errors.AmbiguousManeuverTargetError`.
+    ``attitude`` is accepted so the call signature is stable but is not yet emitted — it arrives in
+    a later release and already takes orbit-formats' canonical type.
 
     Raises a :class:`~gmat_czml.errors.SchemaError` (the typed family) for a malformed input,
     naming exactly what is wrong, :class:`~gmat_czml.errors.UnsupportedCentralBodyError` for a
     ground track about a non-Earth body, :class:`~gmat_czml.errors.UnknownContactTargetError` /
     :class:`~gmat_czml.errors.ContactEntityCollisionError` for a contact that targets a missing
-    object or collides with another entity, or :class:`ValueError` if ``playback_seconds`` is not
-    positive.
+    object or collides with another entity,
+    :class:`~gmat_czml.errors.AmbiguousManeuverTargetError` for maneuvers on a multi-object
+    document, :class:`~gmat_czml.errors.ManeuverOutsideTrajectoryError` for a burn outside the
+    trajectory's time span, or :class:`ValueError` if ``playback_seconds`` is not positive.
     """
     inputs = normalize_inputs(ephemeris)
     entity_ids = _entity_ids(inputs)
@@ -96,6 +105,14 @@ def to_czml(
             packets.extend(_ground_track_packets(item, entity_id, resolved_style))
     if contacts:
         packets.extend(contact_packets(contacts, entity_ids, resolved_style))
+    if maneuvers is not None:
+        maneuver_list = list(maneuvers)
+        if maneuver_list:
+            if len(inputs) != 1:
+                raise AmbiguousManeuverTargetError(len(inputs))
+            packets.extend(
+                maneuver_packets(maneuver_list, inputs[0], entity_ids[0], resolved_style)
+            )
     return CzmlDocument(Document(packets=packets))
 
 

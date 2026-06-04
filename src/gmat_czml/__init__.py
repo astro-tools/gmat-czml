@@ -16,12 +16,14 @@ from gmat_czml.assembly import TrajectorySource, to_czml
 from gmat_czml.convert.contacts import Contact, GroundStation
 from gmat_czml.document import CzmlDocument
 from gmat_czml.errors import (
+    AmbiguousManeuverTargetError,
     ContactEntityCollisionError,
     DuplicateObjectNameError,
     EmptyTrajectoryError,
     GmatCzmlError,
     InvalidUnitsError,
     MalformedStateError,
+    ManeuverOutsideTrajectoryError,
     MissingColumnError,
     MissingFrameError,
     MissingTimeScaleError,
@@ -34,6 +36,7 @@ from gmat_czml.schema import CanonicalInput, normalize_inputs, recognised_frame,
 from gmat_czml.styles import Style
 
 __all__ = [
+    "AmbiguousManeuverTargetError",
     "CanonicalInput",
     "Contact",
     "ContactEntityCollisionError",
@@ -44,6 +47,7 @@ __all__ = [
     "GroundStation",
     "InvalidUnitsError",
     "MalformedStateError",
+    "ManeuverOutsideTrajectoryError",
     "MissingColumnError",
     "MissingFrameError",
     "MissingTimeScaleError",

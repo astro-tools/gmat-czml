@@ -140,3 +140,60 @@ def test_cesium_parses_a_contacts_scene(page: Page) -> None:
     assert result["hasLink"]  # the observer -> satellite link is a renderable polyline
     assert result["lon"] == pytest.approx(_CONTACTS_OBSERVER_LON, abs=_GEODETIC_TOL_DEG)
     assert result["lat"] == pytest.approx(_CONTACTS_OBSERVER_LAT, abs=_GEODETIC_TOL_DEG)
+
+
+# The maneuvers scene: the impulsive marker, the finite arc, and the finite marker entity ids
+# Cesium must materialise (matching the _harness gmat_leo_maneuvers fixture).
+_IMPULSIVE_ID = "GmatLeo/maneuver/0"
+_FINITE_ARC_ID = "GmatLeo/maneuver/1"
+_FINITE_MARKER_ID = "GmatLeo/maneuver/1/marker"
+
+_READ_MANEUVERS = """
+async ({ czml, impulsiveId, arcId, markerId }) => {
+    const dataSource = await Cesium.CzmlDataSource.load(czml);
+    const impulsive = dataSource.entities.getById(impulsiveId);
+    const arc = dataSource.entities.getById(arcId);
+    const marker = dataSource.entities.getById(markerId);
+    const out = { count: dataSource.entities.values.length, hasImpulsive: false, hasArc: false,
+                  hasMarker: false };
+    // The impulsive marker resolves a position once its availability opens (00:30 into the span).
+    if (Cesium.defined(impulsive) && Cesium.defined(impulsive.position)) {
+        const t = Cesium.JulianDate.addSeconds(dataSource.clock.startTime, 2400,
+                                               new Cesium.JulianDate());
+        out.hasImpulsive = Cesium.defined(
+            impulsive.position.getValue(t, new Cesium.Cartesian3())
+        );
+    }
+    out.hasArc = Cesium.defined(arc) && Cesium.defined(arc.polyline);
+    out.hasMarker = Cesium.defined(marker) && Cesium.defined(marker.point);
+    return out;
+}
+"""
+
+
+def test_cesium_parses_a_maneuvers_scene(page: Page) -> None:
+    # The maneuvers document loads and its entities materialise: the impulsive marker resolves a
+    # position on the orbit once its availability opens, the finite burn carries a renderable arc
+    # polyline, and the finite burn's companion marker carries a point glyph.
+    czml = DOCUMENTS["gmat-leo-maneuvers.czml"]().to_dict()
+    page.set_content(
+        "<!doctype html><html><head>"
+        f"<script>window.CESIUM_BASE_URL = '{_CESIUM_BASE}';</script>"
+        "</head><body></body></html>"
+    )
+    page.add_script_tag(url=f"{_CESIUM_BASE}Cesium.js")
+
+    result: dict[str, Any] = page.evaluate(
+        _READ_MANEUVERS,
+        {
+            "czml": czml,
+            "impulsiveId": _IMPULSIVE_ID,
+            "arcId": _FINITE_ARC_ID,
+            "markerId": _FINITE_MARKER_ID,
+        },
+    )
+
+    assert result["count"] >= 4  # satellite + impulsive marker + finite arc + finite marker
+    assert result["hasImpulsive"]  # the impulsive marker resolves a position on the orbit
+    assert result["hasArc"]  # the finite burn arc is a renderable polyline
+    assert result["hasMarker"]  # the finite burn's companion marker carries a point glyph
