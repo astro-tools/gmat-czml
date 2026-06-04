@@ -7,8 +7,8 @@ JSON / dict / file forms are all produced in memory.
 
 The assembly lays down the document preamble and one packet per object. The clock and each object's
 UTC availability are synthesized by :mod:`gmat_czml.convert.time`; the position property, path,
-point, and label — and the application of a ``style`` — are produced by the ephemeris geometry
-converter (:mod:`gmat_czml.convert.ephemeris`).
+marker (a point or a billboard), and label — and the application of a ``style`` — are produced by
+the ephemeris geometry converter (:mod:`gmat_czml.convert.ephemeris`).
 """
 
 from __future__ import annotations
@@ -137,9 +137,10 @@ def to_czml(
 def _entity_packet(item: CanonicalInput, entity_id: str, style: Style) -> Packet:
     """The CZML packet for one object — identity, UTC availability, and orbit-path geometry.
 
-    Identity and availability are assembled here; the position property, path, point, and label —
+    Identity and availability are assembled here; the position property, path, marker, and label —
     and the application of ``style`` — come from the ephemeris geometry converter, keyed to the same
-    id used as the label's display name.
+    id used as the label's display name. The marker is either a ``point`` or a ``billboard`` (the
+    style's glyph choice); the unused one is ``None`` and is dropped from the packet's JSON.
     """
     start, end = utc_span(item)
     geometry = orbit_geometry(item, style, label_text=entity_id)
@@ -150,6 +151,7 @@ def _entity_packet(item: CanonicalInput, entity_id: str, style: Style) -> Packet
         position=geometry.position,
         path=geometry.path,
         point=geometry.point,
+        billboard=geometry.billboard,
         label=geometry.label,
     )
 

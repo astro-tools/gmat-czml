@@ -17,14 +17,13 @@ from orbit_formats import Ephemeris, OrbitFormatsError, read
 
 from gmat_czml.assembly import to_czml
 from gmat_czml.errors import GmatCzmlError
-from gmat_czml.styles import Style
+from gmat_czml.styles import PRESET_NAMES, preset
 
 _PROG = "gmat-czml"
 
-# The styles --style offers. v0.1 ships the single baked-in default; the preset system (and the
-# wider choice set) is a later release, so the flag is validated to exactly what exists rather than
-# accepting names the converter would silently ignore.
-_STYLE_CHOICES = ("sat-default",)
+# --style offers the named style presets (sat-default plus the colour palette); the flag is
+# validated to exactly the recognised set rather than accepting names the converter would reject.
+# The full colour / width / glyph customization API is the Python surface (gmat_czml.Style).
 _DEFAULT_STYLE = "sat-default"
 
 # Mirrors the to_czml default so an unflagged convert and a bare to_czml() agree.
@@ -60,9 +59,9 @@ def build_parser() -> argparse.ArgumentParser:
     )
     convert.add_argument(
         "--style",
-        choices=_STYLE_CHOICES,
+        choices=PRESET_NAMES,
         default=_DEFAULT_STYLE,
-        help="Visual style applied to every object (default: %(default)s).",
+        help="Style preset applied to every object (default: %(default)s).",
     )
     convert.add_argument(
         "--playback-seconds",
@@ -119,7 +118,7 @@ def _run_convert(args: argparse.Namespace) -> int:
     try:
         document = to_czml(
             trajectory,
-            style=Style(name=args.style),
+            style=preset(args.style),
             playback_seconds=args.playback_seconds,
             ground_track=args.ground_track,
         )
