@@ -25,6 +25,7 @@ from gmat_czml.convert.ephemeris import orbit_geometry
 from gmat_czml.convert.groundtrack import ground_track as build_ground_track
 from gmat_czml.convert.time import synthesize_clock, utc_span
 from gmat_czml.document import CzmlDocument
+from gmat_czml.errors import DuplicateObjectNameError
 from gmat_czml.schema import CanonicalInput, normalize_inputs
 from gmat_czml.styles import Style
 
@@ -76,6 +77,7 @@ def to_czml(
     positive.
     """
     inputs = normalize_inputs(ephemeris)
+    entity_ids = _entity_ids(inputs)
     preamble = Packet(
         id=_DOCUMENT_ID,
         name=_DOCUMENT_NAME,
@@ -84,8 +86,7 @@ def to_czml(
     )
     resolved_style = style if style is not None else Style()
     packets: list[Packet] = [preamble]
-    for index, item in enumerate(inputs):
-        entity_id = _entity_id(item, index)
+    for entity_id, item in zip(entity_ids, inputs, strict=True):
         packets.append(_entity_packet(item, entity_id, resolved_style))
         if ground_track:
             packets.extend(_ground_track_packets(item, entity_id, resolved_style))
@@ -127,6 +128,28 @@ def _ground_track_packets(item: CanonicalInput, entity_id: str, style: Style) ->
         Packet(id=f"{entity_id}/groundtrack/{index}", name=item.object_name, polyline=segment)
         for index, segment in enumerate(segments)
     ]
+
+
+def _entity_ids(inputs: list[CanonicalInput]) -> list[str]:
+    """Resolve a unique CZML packet id for every object, rejecting any collision.
+
+    Each id is the object's declared name, or its positional ``object-<index>`` fallback when it is
+    unnamed (:func:`_entity_id`). Declared names are already unique across the collection (enforced
+    in :func:`~gmat_czml.schema.normalize_inputs`), but a declared name can still collide with
+    another object's positional fallback — e.g. a name ``"object-1"`` and an unnamed object at index
+    1. That collision would emit two CZML packets sharing an id, which a Cesium client silently
+    merges into one entity, so it is rejected here with a typed
+    :class:`~gmat_czml.errors.DuplicateObjectNameError` naming the colliding id. Packet-id
+    uniqueness is the assembly's output-contract concern; the declared-name uniqueness the schema
+    enforces cannot see the positional fallback.
+    """
+    ids = [_entity_id(item, index) for index, item in enumerate(inputs)]
+    seen: set[str] = set()
+    for entity_id in ids:
+        if entity_id in seen:
+            raise DuplicateObjectNameError(entity_id)
+        seen.add(entity_id)
+    return ids
 
 
 def _entity_id(item: CanonicalInput, index: int) -> str:

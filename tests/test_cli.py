@@ -128,6 +128,20 @@ def test_non_trajectory_input_fails_cleanly(
     assert "not a trajectory" in capsys.readouterr().err
 
 
+def test_conversion_failure_is_reported_cleanly(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    # The fixture reads fine, but a non-positive playback speed makes to_czml raise — the convert
+    # driver catches the assembly error and reports it as a one-line gmat-czml: message, no output.
+    out = tmp_path / "no.czml"
+    rc = main(["convert", str(_FIXTURE), "-o", str(out), "--playback-seconds", "0"])
+    assert rc == 1
+    assert not out.exists()
+    err = capsys.readouterr().err
+    assert err.startswith("gmat-czml: ")
+    assert "playback_seconds" in err
+
+
 def test_no_subcommand_prints_help_and_returns_one(capsys: pytest.CaptureFixture[str]) -> None:
     rc = main([])
     assert rc == 1

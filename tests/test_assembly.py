@@ -16,7 +16,12 @@ import pandas as pd
 import pytest
 
 from gmat_czml import CzmlDocument, Style, to_czml
-from gmat_czml.errors import MissingFrameError, SchemaError, UnsupportedCentralBodyError
+from gmat_czml.errors import (
+    DuplicateObjectNameError,
+    MissingFrameError,
+    SchemaError,
+    UnsupportedCentralBodyError,
+)
 from gmat_czml.schema import validate
 
 
@@ -143,6 +148,47 @@ def test_accepts_an_orbit_formats_ephemeris() -> None:
     packets = to_czml(ephemeris).to_dict()
     assert len(packets) == 2
     assert packets[1]["id"] == "FromEph"
+
+
+# --- packet-id uniqueness (declared name vs positional fallback) --------------------------
+
+
+def test_declared_name_colliding_with_positional_fallback_is_rejected() -> None:
+    # A declared name equal to another object's positional fallback ("object-1" vs the id an
+    # unnamed object at index 1 takes) would emit two packets sharing an id — which a Cesium client
+    # silently merges into one entity — so it is rejected rather than emitted as a malformed scene.
+    named = _conforming_df(object_name="object-1")  # at index 0 -> id "object-1"
+    unnamed = _conforming_df(object_name=None)  # at index 1 -> fallback "object-1"
+    with pytest.raises(DuplicateObjectNameError) as exc:
+        to_czml([named, unnamed])
+    assert exc.value.name == "object-1"
+
+
+def test_fallback_collision_is_rejected_regardless_of_order() -> None:
+    # The collision is symmetric: an unnamed object at index 0 ("object-0") and a later object
+    # declared "object-0" collide just the same.
+    unnamed = _conforming_df(object_name=None)  # at index 0 -> fallback "object-0"
+    named = _conforming_df(object_name="object-0")  # at index 1 -> id "object-0"
+    with pytest.raises(DuplicateObjectNameError) as exc:
+        to_czml([unnamed, named])
+    assert exc.value.name == "object-0"
+
+
+# --- the single-sample edge case ----------------------------------------------------------
+
+
+def test_single_sample_trajectory_yields_a_valid_one_entity_document() -> None:
+    # A degenerate single-state "trajectory" still assembles to a preamble + one entity carrying a
+    # single position sample, with a zero-length availability / clock span (a static instant).
+    packets = to_czml(_conforming_df(periods=1)).to_dict()
+    assert len(packets) == 2
+    cartesian = packets[1]["position"]["cartesian"]
+    assert len(cartesian) == 4  # one sample: [t, x, y, z]
+    assert cartesian[0] == 0.0  # the single offset is the reference epoch itself
+    start, end = packets[1]["availability"].split("/")
+    assert start == end  # a single instant
+    clock_start, clock_end = packets[0]["clock"]["interval"].split("/")
+    assert clock_start == clock_end
 
 
 # --- parameters ---------------------------------------------------------------------------
