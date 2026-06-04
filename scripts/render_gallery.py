@@ -6,12 +6,13 @@ example plus one animated GIF for the flagship LEO + ground-track scene. The com
 what the docs build embeds, so ``mkdocs build`` never needs a browser; this script is how they are
 regenerated, deliberately, the same way the golden corpus is.
 
-Requirements (all in the dev dependency group — ``uv sync --all-groups``):
+Requirements (this is a dev-only maintenance script — its dependencies are deliberately kept out of
+the project lockfile so the gallery never affects the published package or its install):
 
-- Playwright browsers: ``uv run playwright install chromium``.
+- Playwright (in the dev group) and its browser: ``uv run playwright install chromium``.
 - On Linux, the chromium system libraries: ``sudo uv run playwright install-deps chromium``
   (a headless GPU is not needed — rendering uses software WebGL via SwiftShader).
-- Pillow assembles the GIF (no external ffmpeg needed).
+- Pillow assembles the GIF (no external ffmpeg needed): ``pip install pillow``.
 
 Imagery: with a Cesium ion access token in the ``CESIUM_ION_TOKEN`` environment variable the globe
 uses ion world imagery; without one it falls back to the offline Natural Earth II imagery bundled

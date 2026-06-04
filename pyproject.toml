@@ -65,7 +65,6 @@ dev = [
   "types-jsonschema",
   "referencing>=0.30",
   "skyfield>=1.49",
-  "pillow>=12.2.0",
 ]
 docs = [
   "mkdocs-material>=9.5",
