@@ -22,6 +22,7 @@ from czml3.types import TimeInterval
 from orbit_formats import Attitude, Ephemeris, Maneuver
 
 from gmat_czml.convert.ephemeris import orbit_geometry
+from gmat_czml.convert.groundtrack import ground_track as build_ground_track
 from gmat_czml.convert.time import synthesize_clock, utc_span
 from gmat_czml.document import CzmlDocument
 from gmat_czml.schema import CanonicalInput, normalize_inputs
@@ -45,6 +46,7 @@ def to_czml(
     *,
     style: Style | None = None,
     playback_seconds: float = 60.0,
+    ground_track: bool = False,
     contacts: object = None,
     maneuvers: Iterable[Maneuver] | None = None,
     attitude: Attitude | None = None,
@@ -58,13 +60,20 @@ def to_czml(
     whole trajectory plays back in roughly that many seconds of wall-clock time (floored at 1x).
     The document is assembled entirely in memory.
 
+    ``ground_track`` adds each object's sub-satellite geodetic polyline (one packet per contiguous
+    segment, split at the antimeridian). It is **off by default**: the ground track is the only
+    path that loads the Earth-orientation rotation (and astropy, transitively, for an inertial
+    source), so the core ephemeris path stays free of it unless a ground track is asked for (D6).
+
     ``contacts``, ``maneuvers``, and ``attitude`` are accepted so the call signature is stable
     but are not yet emitted — they arrive in a later release. ``maneuvers`` and ``attitude``
     already take orbit-formats' canonical types; ``contacts`` is loosely typed until the
     contact-interval support that defines its shape lands.
 
     Raises a :class:`~gmat_czml.errors.SchemaError` (the typed family) for a malformed input,
-    naming exactly what is wrong, or :class:`ValueError` if ``playback_seconds`` is not positive.
+    naming exactly what is wrong, :class:`~gmat_czml.errors.UnsupportedCentralBodyError` for a
+    ground track about a non-Earth body, or :class:`ValueError` if ``playback_seconds`` is not
+    positive.
     """
     inputs = normalize_inputs(ephemeris)
     preamble = Packet(
@@ -73,20 +82,25 @@ def to_czml(
         version=CZML_VERSION,
         clock=synthesize_clock(inputs, playback_seconds=playback_seconds),
     )
-    entities = [_entity_packet(item, index, style) for index, item in enumerate(inputs)]
-    return CzmlDocument(Document(packets=[preamble, *entities]))
+    resolved_style = style if style is not None else Style()
+    packets: list[Packet] = [preamble]
+    for index, item in enumerate(inputs):
+        entity_id = _entity_id(item, index)
+        packets.append(_entity_packet(item, entity_id, resolved_style))
+        if ground_track:
+            packets.extend(_ground_track_packets(item, entity_id, resolved_style))
+    return CzmlDocument(Document(packets=packets))
 
 
-def _entity_packet(item: CanonicalInput, index: int, style: Style | None) -> Packet:
+def _entity_packet(item: CanonicalInput, entity_id: str, style: Style) -> Packet:
     """The CZML packet for one object — identity, UTC availability, and orbit-path geometry.
 
     Identity and availability are assembled here; the position property, path, point, and label —
-    and the application of ``style`` (defaulting to the single baked-in style) — come from the
-    ephemeris geometry converter, keyed to the same id used as the label's display name.
+    and the application of ``style`` — come from the ephemeris geometry converter, keyed to the same
+    id used as the label's display name.
     """
     start, end = utc_span(item)
-    entity_id = _entity_id(item, index)
-    geometry = orbit_geometry(item, style if style is not None else Style(), label_text=entity_id)
+    geometry = orbit_geometry(item, style, label_text=entity_id)
     return Packet(
         id=entity_id,
         name=item.object_name,
@@ -96,6 +110,23 @@ def _entity_packet(item: CanonicalInput, index: int, style: Style | None) -> Pac
         point=geometry.point,
         label=geometry.label,
     )
+
+
+def _ground_track_packets(item: CanonicalInput, entity_id: str, style: Style) -> list[Packet]:
+    """The ground-track packets for one object — one polyline packet per antimeridian segment.
+
+    Each carries a static sub-satellite geodetic polyline (no availability — the track is valid for
+    the whole document). A single-segment track is ``<entity_id>/groundtrack``; a track split at the
+    antimeridian numbers its segments ``<entity_id>/groundtrack/<k>``. A degenerate track with no
+    renderable segment yields no packets.
+    """
+    segments = build_ground_track(item, style).segments
+    if len(segments) == 1:
+        return [Packet(id=f"{entity_id}/groundtrack", name=item.object_name, polyline=segments[0])]
+    return [
+        Packet(id=f"{entity_id}/groundtrack/{index}", name=item.object_name, polyline=segment)
+        for index, segment in enumerate(segments)
+    ]
 
 
 def _entity_id(item: CanonicalInput, index: int) -> str:
