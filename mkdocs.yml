@@ -34,6 +34,15 @@ theme:
 
 nav:
   - Home: index.md
+  - Getting started: getting-started.md
+  - Guide:
+      - Canonical input schema: schema.md
+      - Orbit path: conversion/orbit-path.md
+      - Ground track: conversion/ground-track.md
+      - Styling: styling.md
+      - Command line: cli.md
+  - Gallery: gallery.md
+  - API reference: api.md
   - Design:
       - Decisions: design/decisions.md
 
@@ -45,6 +54,9 @@ plugins:
         python:
           paths: [src]
           options:
+            # Render the source docstrings' reST cross-reference roles as clean inline code.
+            extensions:
+              - scripts/griffe_sphinx_roles.py
             show_source: false
             show_root_heading: true
             show_root_full_path: false
@@ -60,6 +72,8 @@ plugins:
 
 markdown_extensions:
   - admonition
+  - attr_list
+  - md_in_html
   - pymdownx.details
   - pymdownx.superfences
   - pymdownx.highlight:

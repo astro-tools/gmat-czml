@@ -214,11 +214,19 @@ encodes right* — so the harness has three independent layers, each catching wh
   radius stays in the expected band, is near-constant (a LEO is near-circular), and varies over
   time. Positions are read in the document's inertial frame, so no Earth-orientation data is needed
   and the check stays hermetic. This catches valid-but-unrenderable output the schema check passes.
-- **Golden-output regression.** Fixed inputs produce byte-exact reference documents; `to_czml` must
-  reproduce them verbatim. The goldens are the drift detector for the serialization-backend and
-  producer pins — they are regenerated **deliberately** (gated behind an environment flag), never
-  silently, and carry `-text` so the byte comparison survives line-ending normalisation on every
-  platform.
+- **Golden-output regression.** Fixed inputs reproduce reference documents committed under
+  `tests/data/golden/`. The comparison is **byte-exact first**; only on a mismatch does it fall back
+  to a structural compare that forgives a sub-ULP floating-point difference. The reason is the
+  ground track: the inertial → fixed rotation and the geodetic projection use transcendentals
+  (`arctan2` / `sin` / `cos`) that are not correctly-rounded and select CPU-dependent code paths, so
+  a ground-track longitude can differ by ~1 ULP — sub-nanometre on the ground — between CI runner
+  microarchitectures, which a byte comparison alone would flag as a failure. The fallback forgives
+  only that last-ULP noise (relative `1e-12`, absolute `1e-9`); any structural change, or a numeric
+  change beyond a few ULP, still fails. The orbit-path goldens use only correctly-rounded operations
+  (scaling, `sqrt`-based decimation) and stay byte-exact on every platform. The goldens remain the
+  drift detector for the serialization-backend and producer pins — regenerated **deliberately**
+  (gated behind an environment flag), never silently — and carry `-text` so the comparison survives
+  line-ending normalisation on every platform.
 
 **Producer fixtures.** Both correctness heads run end-to-end on two real producers, not synthetic
 toys: a **real GMAT LEO CCSDS-OEM ephemeris** (committed as bytes and read through orbit-formats —

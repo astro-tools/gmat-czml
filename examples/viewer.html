@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>gmat-czml viewer</title>
+    <!--
+      A self-contained CesiumJS viewer for the .czml documents the examples produce.
+
+      Serve it over a local web server, not file:// — CesiumJS needs Web Workers, which browsers
+      refuse to create on a file:// (null-origin) page, so the globe won't render. The simplest way
+      is  python examples/serve.py  (it serves this folder and opens the viewer); or run
+      python -m http.server  here and open http://localhost:8000/viewer.html
+
+      Two ways to use it:
+        1. Manual: optionally paste a Cesium ion access token in the box (top-left), then drag a
+           .czml file onto the page (or use "Choose file"). The token is stored in your browser's
+           localStorage only — it is never sent anywhere but Cesium ion and is not in this repo.
+        2. Headless: scripts/render_gallery.py serves the repo over HTTP and calls window.boot()
+           with the token (from the CESIUM_ION_TOKEN environment variable) and a .czml URL.
+
+      With a token, the globe uses Cesium ion world imagery. Without one, it falls back to the
+      offline Natural Earth II imagery bundled with CesiumJS — no token, no network imagery.
+    -->
+    <script>
+      window.CESIUM_BASE_URL = "https://cdn.jsdelivr.net/npm/cesium@1.142.0/Build/Cesium/";
+    </script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/cesium@1.142.0/Build/Cesium/Widgets/widgets.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/cesium@1.142.0/Build/Cesium/Cesium.js"></script>
+    <style>
+      html,
+      body,
+      #cesiumContainer {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        font-family: system-ui, sans-serif;
+      }
+      #panel {
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        z-index: 10;
+        background: rgba(20, 20, 28, 0.82);
+        color: #eee;
+        padding: 10px 12px;
+        border-radius: 8px;
+        font-size: 13px;
+        max-width: 320px;
+      }
+      #panel input[type="text"] {
+        width: 100%;
+        box-sizing: border-box;
+        margin: 4px 0;
+        padding: 5px;
+        border-radius: 4px;
+        border: 1px solid #555;
+        background: #11141c;
+        color: #eee;
+      }
+      #panel button,
+      #panel label.file {
+        display: inline-block;
+        margin-top: 4px;
+        padding: 5px 10px;
+        border-radius: 4px;
+        border: 1px solid #3a8;
+        background: #1d6;
+        color: #042;
+        cursor: pointer;
+        font-size: 13px;
+      }
+      #panel .hint {
+        opacity: 0.7;
+        font-size: 12px;
+      }
+      #status {
+        margin-top: 6px;
+        font-size: 12px;
+        opacity: 0.85;
+      }
+      #fileWarning {
+        display: none;
+        position: absolute;
+        inset: 0;
+        z-index: 20;
+        background: #0b0e16;
+        color: #eee;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 24px;
+      }
+      #fileWarning .box {
+        max-width: 560px;
+        line-height: 1.5;
+      }
+      #fileWarning code {
+        background: #11141c;
+        border: 1px solid #333;
+        border-radius: 4px;
+        padding: 2px 6px;
+        color: #8fd6c0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="panel">
+      <strong>gmat-czml viewer</strong>
+      <div class="hint">Optional Cesium ion token (else offline imagery):</div>
+      <input id="token" type="text" placeholder="paste ion token (stored locally only)" />
+      <div>
+        <button id="apply">Apply token</button>
+        <label class="file">Choose .czml<input id="file" type="file" accept=".czml,application/json" hidden /></label>
+      </div>
+      <div class="hint">…or drag a .czml file anywhere onto the page.</div>
+      <div id="status"></div>
+    </div>
+    <div id="cesiumContainer"></div>
+    <div id="fileWarning">
+      <div class="box">
+        <h2>Open this over a local web server</h2>
+        <p>
+          This page is loaded from a <code>file://</code> URL. Browsers treat that as a unique
+          origin and block the cross-origin Web Workers CesiumJS needs, so the 3D globe can't load.
+        </p>
+        <p>From the repository, run</p>
+        <p><code>python examples/serve.py</code></p>
+        <p>and it will serve this folder and open the viewer for you.</p>
+      </div>
+    </div>
+    <script>
+      const TOKEN_KEY = "gmat_czml_ion_token";
+      const statusEl = document.getElementById("status");
+      const tokenEl = document.getElementById("token");
+      tokenEl.value = localStorage.getItem(TOKEN_KEY) || "";
+
+      function setStatus(message) {
+        statusEl.textContent = message;
+      }
+
+      // Build (or rebuild) the Viewer. With a token, default ion world imagery is used; without
+      // one, the offline Natural Earth II layer bundled with CesiumJS.
+      function makeViewer(token) {
+        if (window.__viewer) {
+          window.__viewer.destroy();
+          window.__viewer = null;
+        }
+        if (token) {
+          Cesium.Ion.defaultAccessToken = token;
+        }
+        const options = {
+          baseLayerPicker: false,
+          geocoder: false,
+          homeButton: false,
+          sceneModePicker: false,
+          navigationHelpButton: false,
+          infoBox: false,
+          selectionIndicator: false,
+        };
+        if (!token) {
+          options.baseLayer = Cesium.ImageryLayer.fromProviderAsync(
+            Cesium.TileMapServiceImageryProvider.fromUrl(
+              Cesium.buildModuleUrl("Assets/Textures/NaturalEarthII")
+            )
+          );
+        }
+        const viewer = new Cesium.Viewer("cesiumContainer", options);
+        viewer.scene.globe.enableLighting = false;
+        window.__viewer = viewer;
+        return viewer;
+      }
+
+      // The radius (metres) of a sphere centred on Earth that encloses the whole trajectory, so
+      // the camera framing works for a hugging LEO and a distant GEO alike. zoomTo() frames only
+      // the satellite's current point, which for a high orbit leaves Earth off-screen.
+      function trajectoryRadius(dataSource) {
+        const inertial = Cesium.ReferenceFrame.INERTIAL;
+        const start = dataSource.clock.startTime;
+        const stop = dataSource.clock.stopTime;
+        const span = Cesium.JulianDate.secondsDifference(stop, start);
+        let radius = Cesium.Ellipsoid.WGS84.maximumRadius;
+        const scratch = new Cesium.Cartesian3();
+        for (const entity of dataSource.entities.values) {
+          if (!entity.position) continue; // polyline ground tracks carry no point position
+          for (let i = 0; i <= 60; i++) {
+            const t = Cesium.JulianDate.addSeconds(start, (span * i) / 60, new Cesium.JulianDate());
+            const p = entity.position.getValueInReferenceFrame(t, inertial, scratch);
+            if (Cesium.defined(p)) radius = Math.max(radius, Cesium.Cartesian3.magnitude(p));
+          }
+        }
+        return radius;
+      }
+
+      // Load a CZML source (a URL string or a parsed array), frame it, and start the clock.
+      // Resolves once the scene is ready; sets window.__czmlReady for the headless harness.
+      async function loadCzml(source) {
+        window.__czmlReady = false;
+        const viewer = window.__viewer || makeViewer(tokenEl.value.trim());
+        const dataSource = await Cesium.CzmlDataSource.load(source);
+        await viewer.dataSources.add(dataSource);
+        const sphere = new Cesium.BoundingSphere(
+          Cesium.Cartesian3.ZERO,
+          trajectoryRadius(dataSource) * 1.25
+        );
+        viewer.camera.flyToBoundingSphere(sphere, { duration: 0 });
+        viewer.clock.shouldAnimate = true;
+        viewer.scene.requestRender();
+        setStatus(`loaded ${dataSource.entities.values.length} entities`);
+        window.__czmlReady = true;
+        return dataSource;
+      }
+
+      // The entry point the headless render harness calls: {token, czml}.
+      window.boot = async function (opts) {
+        opts = opts || {};
+        makeViewer(opts.token || "");
+        if (opts.czml) {
+          await loadCzml(opts.czml);
+        }
+      };
+
+      document.getElementById("apply").addEventListener("click", () => {
+        const token = tokenEl.value.trim();
+        localStorage.setItem(TOKEN_KEY, token);
+        makeViewer(token);
+        setStatus(token ? "ion imagery enabled" : "offline imagery");
+      });
+
+      document.getElementById("file").addEventListener("change", (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => loadCzml(JSON.parse(reader.result)).catch((e) => setStatus(String(e)));
+        reader.readAsText(file);
+      });
+
+      // Drag-and-drop a .czml file anywhere.
+      window.addEventListener("dragover", (e) => e.preventDefault());
+      window.addEventListener("drop", (e) => {
+        e.preventDefault();
+        const file = e.dataTransfer.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => loadCzml(JSON.parse(reader.result)).catch((err) => setStatus(String(err)));
+        reader.readAsText(file);
+      });
+
+      // Auto-load when a ?czml=<url> query parameter is present (shared links / harness).
+      window.addEventListener("DOMContentLoaded", () => {
+        if (location.protocol === "file:") {
+          // Cesium's Web Workers cannot load cross-origin from a file:// (unique-origin) page,
+          // so the globe can't render. Show how to serve it instead of a black screen.
+          document.getElementById("fileWarning").style.display = "flex";
+          return;
+        }
+        makeViewer(tokenEl.value.trim());
+        const url = new URLSearchParams(location.search).get("czml");
+        if (url) {
+          setStatus(`loading ${url}…`);
+          loadCzml(url).catch((e) => setStatus(String(e)));
+        } else {
+          setStatus("drop a .czml file to begin");
+        }
+      });
+    </script>
+  </body>
+</html>
