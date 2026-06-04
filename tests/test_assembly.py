@@ -117,15 +117,15 @@ def test_entity_carries_identity_and_availability() -> None:
     assert _parse_czml_time(end_s) == dt.datetime(2026, 1, 1, 0, 20, tzinfo=dt.timezone.utc)
 
 
-def test_entity_carries_no_geometry_yet() -> None:
-    # The position property and the rest of the geometry belong to the ephemeris converter; the
-    # skeleton emits identity only. Guard that seam so geometry does not leak in here.
+def test_entity_carries_the_orbit_path_geometry() -> None:
+    # The ephemeris converter fills the geometry seam: the entity now carries the position
+    # property, path, point, and label alongside its identity and availability.
     entity = to_czml(_conforming_df()).to_dict()[1]
-    assert "position" not in entity
-    assert "path" not in entity
-    assert "billboard" not in entity
-    assert "point" not in entity
-    assert "label" not in entity
+    assert "position" in entity
+    assert "path" in entity
+    assert "point" in entity
+    assert "label" in entity
+    assert entity["position"]["referenceFrame"] == "INERTIAL"
 
 
 def test_unnamed_object_gets_a_positional_id_and_no_name() -> None:

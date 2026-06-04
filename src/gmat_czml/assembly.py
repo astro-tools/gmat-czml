@@ -5,10 +5,10 @@
 drives the per-entity converters, and returns a :class:`~gmat_czml.document.CzmlDocument` whose
 JSON / dict / file forms are all produced in memory.
 
-The assembly is the skeleton the per-entity converters fill: it lays down the document preamble
-and one packet per object. The clock and each object's UTC availability are synthesized by
-:mod:`gmat_czml.convert.time`; the position property, path, billboard, and label — and the
-application of a ``style`` — are produced by the ephemeris geometry converter.
+The assembly lays down the document preamble and one packet per object. The clock and each object's
+UTC availability are synthesized by :mod:`gmat_czml.convert.time`; the position property, path,
+point, and label — and the application of a ``style`` — are produced by the ephemeris geometry
+converter (:mod:`gmat_czml.convert.ephemeris`).
 """
 
 from __future__ import annotations
@@ -21,6 +21,7 @@ from czml3 import CZML_VERSION, Document, Packet
 from czml3.types import TimeInterval
 from orbit_formats import Attitude, Ephemeris, Maneuver
 
+from gmat_czml.convert.ephemeris import orbit_geometry
 from gmat_czml.convert.time import synthesize_clock, utc_span
 from gmat_czml.document import CzmlDocument
 from gmat_czml.schema import CanonicalInput, normalize_inputs
@@ -77,16 +78,23 @@ def to_czml(
 
 
 def _entity_packet(item: CanonicalInput, index: int, style: Style | None) -> Packet:
-    """The CZML packet for one object — its identity and UTC availability.
+    """The CZML packet for one object — identity, UTC availability, and orbit-path geometry.
 
-    The position property, path, billboard, and label, and the application of ``style``, are
-    filled in by the ephemeris geometry converter; ``style`` is threaded through to that seam.
+    Identity and availability are assembled here; the position property, path, point, and label —
+    and the application of ``style`` (defaulting to the single baked-in style) — come from the
+    ephemeris geometry converter, keyed to the same id used as the label's display name.
     """
     start, end = utc_span(item)
+    entity_id = _entity_id(item, index)
+    geometry = orbit_geometry(item, style if style is not None else Style(), label_text=entity_id)
     return Packet(
-        id=_entity_id(item, index),
+        id=entity_id,
         name=item.object_name,
         availability=TimeInterval(start=start, end=end),
+        position=geometry.position,
+        path=geometry.path,
+        point=geometry.point,
+        label=geometry.label,
     )
 
 
