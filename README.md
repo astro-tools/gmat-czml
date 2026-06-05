@@ -84,11 +84,38 @@ The output is a standard CZML document — any Cesium client renders it:
 | Client | How |
 |--------|-----|
 | [CesiumJS](https://cesium.com/platform/cesiumjs/) | `Cesium.CzmlDataSource.load(czml)` in the core library |
-| [Cesium ion](https://cesium.com/platform/cesium-ion/) | stream/host assets and imagery; load the document with the same call |
+| [Cesium ion](https://cesium.com/platform/cesium-ion/) | stream/host assets and imagery; `upload_to_ion()` pushes a document as a hosted asset (the `[ion]` extra) |
 | [Resium](https://resium.reearth.io/) | the CesiumJS components for React |
+| Bundled viewer | `gmat-czml serve` / `to_czml(...).serve()` hosts a document behind an embedded CesiumJS viewer (the `[server]` extra) |
 
 No setup beyond a Cesium viewer is needed; for a zero-install look, drop a `.czml` onto
 [Cesium Sandcastle](https://sandcastle.cesium.com/).
+
+## Serving and sharing
+
+Two optional extras take a document the last step — to a browser, or to the cloud.
+
+**Server mode** (`pip install gmat-czml[server]`) hosts a document over http behind an embedded
+CesiumJS viewer and opens it for you — the one-click local look, no file written:
+
+```python
+to_czml(trajectory, ground_track=True).serve()      # opens http://127.0.0.1:8080/
+```
+
+`gmat-czml serve mission.oem` is the CLI equivalent. Full detail in the
+[server-mode docs](https://astro-tools.github.io/gmat-czml/server/).
+
+**Cesium ion upload** (`pip install gmat-czml[ion]`) pushes a document to
+[Cesium ion](https://cesium.com/platform/cesium-ion/) as a hosted asset a client loads by id — token
+passthrough, so you supply the ion access token and gmat-czml forwards it and nothing more:
+
+```python
+asset = to_czml(trajectory).upload_to_ion(token, name="Mission LEO")
+print(asset.dashboard_url)
+```
+
+`gmat-czml upload mission.oem --name "Mission LEO"` is the CLI equivalent. Full detail in the
+[ion-upload docs](https://astro-tools.github.io/gmat-czml/ion/).
 
 ## What this is not
 
@@ -107,9 +134,9 @@ gmat-czml requires Python 3.10, 3.11, or 3.12.
 
 ## Documentation
 
-Full docs — getting started, the schema, per-entity conversion, the CLI, the gallery, and the API
-reference — at **<https://astro-tools.github.io/gmat-czml/>**. The design rationale lives in the
-[design decisions](docs/design/decisions.md).
+Full docs — getting started, the schema, per-entity conversion, the CLI, server mode, ion upload,
+the gallery, and the API reference — at **<https://astro-tools.github.io/gmat-czml/>**. The design
+rationale lives in the [design decisions](docs/design/decisions.md).
 
 ## Development
 
