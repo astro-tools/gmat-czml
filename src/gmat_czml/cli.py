@@ -12,8 +12,10 @@ byte-for-byte in step.
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 from collections.abc import Sequence
+from pathlib import Path
 
 from orbit_formats import Ephemeris, OrbitFormatsError, read
 
@@ -35,6 +37,10 @@ _DEFAULT_PLAYBACK_SECONDS = 60.0
 # The serve subcommand's default bind — loopback only (a local-sharing tool, not a public host).
 _DEFAULT_HOST = "127.0.0.1"
 _DEFAULT_PORT = 8080
+
+# The upload subcommand reads the Cesium ion access token from --token, falling back to this
+# environment variable. The token is forwarded to ion and nothing more (token passthrough).
+_ION_TOKEN_ENV = "CESIUM_ION_TOKEN"
 
 
 class _CliError(Exception):
@@ -97,6 +103,42 @@ def build_parser() -> argparse.ArgumentParser:
     )
     _add_render_arguments(serve)
 
+    upload = subparsers.add_parser(
+        "upload",
+        help="Upload a trajectory's CZML to Cesium ion as a hosted asset (needs [ion]).",
+        description=(
+            "Read a trajectory, assemble the same CZML document convert would, and upload it to "
+            "Cesium ion as a hosted asset, authenticated with a Cesium ion access token (passed "
+            "with --token or read from the CESIUM_ION_TOKEN environment variable). Needs the "
+            "optional [ion] extra (pip install gmat-czml[ion]). The token is forwarded to ion and "
+            "nothing more."
+        ),
+    )
+    _add_input_argument(upload)
+    upload.add_argument(
+        "--name",
+        metavar="NAME",
+        help="Asset name on ion (default: the input file's base name).",
+    )
+    upload.add_argument(
+        "--description",
+        default="",
+        metavar="TEXT",
+        help="Optional asset description.",
+    )
+    upload.add_argument(
+        "--token",
+        metavar="TOKEN",
+        help=f"Cesium ion access token (falls back to the {_ION_TOKEN_ENV} environment variable).",
+    )
+    upload.add_argument(
+        "--no-wait",
+        action="store_true",
+        help="Return as soon as the upload is accepted, without waiting for ion to finish "
+        "processing the asset.",
+    )
+    _add_render_arguments(upload)
+
     return parser
 
 
@@ -148,6 +190,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _run_convert(args)
     if args.command == "serve":
         return _run_serve(args)
+    if args.command == "upload":
+        return _run_upload(args)
 
     parser.print_help()
     return 1
@@ -188,6 +232,38 @@ def _run_serve(args: argparse.Namespace) -> int:
         return _fail(str(exc))
     except KeyboardInterrupt:  # pragma: no cover - interactive Ctrl-C
         return 0
+    return 0
+
+
+def _run_upload(args: argparse.Namespace) -> int:
+    """Run ``gmat-czml upload``: assemble the CZML and upload it to Cesium ion as a hosted asset.
+
+    Returns the process exit code — ``0`` on success (the asset id, status, and dashboard URL are
+    printed to stdout), ``1`` for a missing token, a read failure, a non-trajectory input, an
+    assembly error, an ion-side upload failure, or the missing ``[ion]`` extra — each a one-line
+    ``gmat-czml: ...`` message on stderr. A missing token fails before any network call or any
+    document assembly.
+    """
+    token = args.token or os.environ.get(_ION_TOKEN_ENV)
+    if not token:
+        return _fail(f"no Cesium ion access token; pass --token or set {_ION_TOKEN_ENV}")
+
+    try:
+        document = _assemble_document(args)
+    except _CliError as exc:
+        return _fail(str(exc))
+
+    name = args.name or Path(args.input).stem
+    try:
+        asset = document.upload_to_ion(
+            token, name=name, description=args.description, wait=not args.no_wait
+        )
+    except ImportError as exc:  # the [ion] extra is not installed
+        return _fail(str(exc))
+    except GmatCzmlError as exc:  # an ion-side upload failure (IonUploadError)
+        return _fail(str(exc))
+
+    print(f"{_PROG}: uploaded asset {asset.id} ({asset.status}) — {asset.dashboard_url}")
     return 0
 
 

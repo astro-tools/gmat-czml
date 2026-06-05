@@ -48,6 +48,14 @@ server = [
   "fastapi>=0.110",
   "uvicorn>=0.29",
 ]
+# The optional [ion] extra: a Cesium ion upload helper (CzmlDocument.upload_to_ion / `gmat-czml
+# upload`). boto3 signs the S3 put ion's REST upload hands back; the three REST calls use the
+# standard library, so boto3 is the only added dependency. Kept out of the base dependencies so a
+# plain `pip install gmat-czml` stays light — the minimal-install smoke test asserts boto3 is not
+# pulled in; `pip install gmat-czml[ion]` adds it.
+ion = [
+  "boto3>=1.26",
+]
 
 [project.scripts]
 gmat-czml = "gmat_czml.cli:main"
@@ -87,6 +95,9 @@ dev = [
   "fastapi>=0.110",
   "uvicorn>=0.29",
   "httpx>=0.27",
+  # The [ion] extra's dep, exercised here so the ion upload tests run in the regular test matrix.
+  # boto3 is mocked at the network boundary in those tests — no AWS calls and no credentials.
+  "boto3>=1.26",
 ]
 docs = [
   "mkdocs-material>=9.5",
@@ -120,6 +131,12 @@ files = ["src/gmat_czml", "tests"]
 # skyfield (the non-GMAT producer fixture) ships no type information.
 [[tool.mypy.overrides]]
 module = ["skyfield.*"]
+ignore_missing_imports = true
+
+# boto3 (the optional [ion] extra) ships no type stubs; the upload helper treats its S3 client as
+# untyped (the client is bound to Any at the one call site, so no Any escapes into a typed return).
+[[tool.mypy.overrides]]
+module = ["boto3", "boto3.*"]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]

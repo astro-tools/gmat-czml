@@ -12,9 +12,12 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from czml3 import Document
+
+if TYPE_CHECKING:
+    from gmat_czml.ion import IonAsset
 
 __all__ = ["CzmlDocument"]
 
@@ -23,6 +26,12 @@ __all__ = ["CzmlDocument"]
 _SERVER_INSTALL_HINT = (
     "serving needs the optional '[server]' extra (fastapi + uvicorn), which is not installed; "
     "install it with `pip install gmat-czml[server]` (or `uv add 'gmat-czml[server]'`)"
+)
+
+# The same, for .upload_to_ion() without the optional [ion] extra (boto3) installed.
+_ION_INSTALL_HINT = (
+    "uploading to Cesium ion needs the optional '[ion]' extra (boto3), which is not installed; "
+    "install it with `pip install gmat-czml[ion]` (or `uv add 'gmat-czml[ion]'`)"
 )
 
 
@@ -93,3 +102,29 @@ class CzmlDocument:
         except ImportError as exc:  # the [server] extra (fastapi / uvicorn) is not installed
             raise ImportError(_SERVER_INSTALL_HINT) from exc
         server.serve(self, host=host, port=port, open_browser=open_browser)
+
+    def upload_to_ion(
+        self,
+        token: str,
+        *,
+        name: str,
+        description: str = "",
+        wait: bool = True,
+    ) -> IonAsset:
+        """Upload this document to Cesium ion as a hosted asset and return a reference to it.
+
+        Forwards ``token`` to ion as a bearer credential and nothing more — token passthrough, no
+        ion authentication is managed here. ``name`` titles the asset, ``description`` is optional
+        metadata, and ``wait`` (the default) blocks until ion finishes processing the asset, while
+        ``wait=False`` returns as soon as the upload is accepted. Returns an
+        :class:`~gmat_czml.ion.IonAsset` carrying the new asset's id and status.
+
+        Requires the optional ``[ion]`` extra (``pip install gmat-czml[ion]``); without it, this
+        raises :class:`ImportError` with an actionable install hint. An ion-side failure (a bad
+        token, a processing error, a timeout) raises :class:`~gmat_czml.errors.IonUploadError`.
+        """
+        try:
+            from gmat_czml import ion
+        except ImportError as exc:  # the [ion] extra (boto3) is not installed
+            raise ImportError(_ION_INSTALL_HINT) from exc
+        return ion.upload(self.to_json(), token, name=name, description=description, wait=wait)
