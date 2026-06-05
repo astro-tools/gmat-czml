@@ -19,8 +19,10 @@ What this module owns:
   (via :mod:`gmat_czml.convert.sampling`) with a ``min_samples`` floor of ``degree + 1`` so the
   declared curve keeps enough support (D9).
 - **The reference frame** comes from :func:`gmat_czml.convert.frames.czml_reference_frame`.
-- **The baked-in ``sat-default`` style** — the single v0.1 style — is applied to every object; the
-  per-name preset system and the customization API are v0.2.
+- **The visual style** — the marker (a coloured point or an image billboard), the name label, and
+  the orbit path — is driven by the supplied :class:`~gmat_czml.styles.Style`, whose defaults are
+  the ``sat-default`` look. Style fields set the colour, width, pixel size, font, and glyph; the
+  marker's layout (the label offset and anchoring) is the converter's, not the style's.
 
 Multiple objects are handled upstream (one trajectory per packet); a multi-segment ephemeris is one
 chronologically-ordered, concatenated sample series here, so it renders as a single position
@@ -34,6 +36,7 @@ from dataclasses import dataclass
 import numpy as np
 from czml3.enums import HorizontalOrigins, InterpolationAlgorithms, VerticalOrigins
 from czml3.properties import (
+    Billboard,
     Color,
     Label,
     Path,
@@ -50,7 +53,7 @@ from gmat_czml.convert.sampling import DEFAULT_TOLERANCE_KM, decimate
 from gmat_czml.convert.time import epoch_relative, to_utc
 from gmat_czml.errors import InvalidUnitsError, UnknownInterpolationError
 from gmat_czml.schema import CanonicalInput
-from gmat_czml.styles import Style
+from gmat_czml.styles import ImageBillboard, LabelStyle, PathStyle, PointStyle, Style
 
 __all__ = ["OrbitGeometry", "orbit_geometry"]
 
@@ -73,19 +76,10 @@ _INTERPOLATION = {
 _DEFAULT_ALGORITHM = InterpolationAlgorithms.LAGRANGE
 _DEFAULT_DEGREE = 5
 
-# The single baked-in "sat-default" style — the only style in v0.1; the customization API and the
-# per-name preset system are v0.2. The visual values live here as the converter's rendering defaults
-# (not in styles.py, whose per-name resolution is that later preset work) and are applied to every
-# object. RGBA channels are 0-255.
-_PATH_COLOR = (255, 255, 0, 255)  # a yellow orbit trail
-_PATH_WIDTH = 1.5
-_POINT_COLOR = (255, 255, 0, 255)
-_POINT_OUTLINE_COLOR = (0, 0, 0, 255)
-_POINT_PIXEL_SIZE = 10.0
-_POINT_OUTLINE_WIDTH = 1.0
-_LABEL_COLOR = (255, 255, 255, 255)
-_LABEL_FONT = "11pt Lucida Console"
-_LABEL_PIXEL_OFFSET = (12.0, 0.0)  # nudge the text clear of the point glyph
+# The colours, widths, pixel size, font, and glyph come from the supplied Style (its defaults are
+# the sat-default look). The label's *layout* is the converter's, not the style's: the text is
+# nudged clear of the marker glyph by this fixed pixel offset and anchored to its left.
+_LABEL_PIXEL_OFFSET = (12.0, 0.0)  # nudge the text clear of the marker glyph
 
 # Path lead default (seconds). Trail defaults to the full span (see :func:`orbit_geometry`), so a
 # lead of 0 and a full-span trail draw the whole orbit trail behind the point up to the current
@@ -97,15 +91,18 @@ _DEFAULT_LEAD_SECONDS = 0.0
 class OrbitGeometry:
     """The CZML geometry for one object's orbit path.
 
-    The four properties the converter produces for an entity packet: the sampled ``position``
-    (metres, carrying the interpolation hint and the reference frame), the ``path`` (lead / trail),
-    the ``point`` glyph, and the ``label``. :func:`gmat_czml.assembly` composes these onto the
-    packet that already carries the object's identity and availability.
+    The properties the converter produces for an entity packet: the sampled ``position`` (metres,
+    carrying the interpolation hint and reference frame), the ``path`` (lead / trail), the marker
+    glyph, and the ``label``. The marker is *either* a ``point`` (a coloured dot) *or* a
+    ``billboard`` (an image), per the style's ``marker`` — exactly one is set and the other is
+    ``None``. :func:`gmat_czml.assembly` composes these onto the packet that already carries the
+    object's identity and availability.
     """
 
     position: Position
     path: Path
-    point: Point
+    point: Point | None
+    billboard: Billboard | None
     label: Label
 
 
@@ -125,12 +122,12 @@ def orbit_geometry(
     (D4), over the samples a tolerance-bounded decimation pass keeps (D9, ``tolerance_km``). Epochs
     travel as a single reference epoch plus per-sample second offsets. The ``path`` shows the orbit
     trail with a configurable ``lead_seconds`` / ``trail_seconds`` (the trail defaults to the full
-    span); the ``point`` and ``label`` mark and name the object. ``label_text`` is the display name
+    span); the marker and ``label`` mark and name the object. ``label_text`` is the display name
     (the object's name, or its positional id when unnamed).
 
-    ``style`` selects the visual style; v0.1 has the single baked-in ``sat-default``, applied to
-    every object, so it is accepted as the stable seam the v0.2 preset system plugs into rather than
-    branched on here.
+    ``style`` drives the visual style: ``style.path`` colours and widths the orbit trail,
+    ``style.marker`` is the glyph (a coloured point, or an image billboard that replaces it), and
+    ``style.label`` colours and fonts the name label. ``Style()`` is the ``sat-default`` look.
 
     Raises :class:`~gmat_czml.errors.InvalidUnitsError` for an unsupported length unit and
     :class:`~gmat_czml.errors.UnknownInterpolationError` for an interpolation name with no CZML
@@ -152,11 +149,13 @@ def orbit_geometry(
         cartesian=_cartesian(offsets[kept], positions_m[kept]),
     )
     trail = float(offsets[-1]) if trail_seconds is None else trail_seconds
+    point, billboard = _marker(style.marker)
     return OrbitGeometry(
         position=position,
-        path=_path(lead_seconds, trail),
-        point=_point(),
-        label=_label(label_text),
+        path=_path(style.path, lead_seconds, trail),
+        point=point,
+        billboard=billboard,
+        label=_label(style.label, label_text),
     )
 
 
@@ -197,41 +196,53 @@ def _cartesian(offsets: NDArray[np.float64], positions: NDArray[np.float64]) -> 
     return [float(value) for value in samples.reshape(-1)]
 
 
-def _path(lead_seconds: float, trail_seconds: float) -> Path:
-    """The orbit-trail path in the ``sat-default`` style."""
+def _path(style: PathStyle, lead_seconds: float, trail_seconds: float) -> Path:
+    """The orbit-trail path in the style's path colour and width."""
     return Path(
         show=True,
         leadTime=lead_seconds,
         trailTime=trail_seconds,
-        width=_PATH_WIDTH,
+        width=style.width,
         material=PolylineMaterial(
-            solidColor=SolidColorMaterial(color=Color(rgba=list(_PATH_COLOR)))
+            solidColor=SolidColorMaterial(color=Color(rgba=list(style.color)))
         ),
     )
 
 
-def _point() -> Point:
-    """The object's marker glyph in the ``sat-default`` style.
+def _marker(marker: PointStyle | ImageBillboard) -> tuple[Point | None, Billboard | None]:
+    """The marker glyph: a coloured ``point``, or an image ``billboard`` that replaces it.
 
-    A self-contained :class:`~czml3.properties.Point` (a coloured dot), not an image billboard —
-    v0.1 ships no asset pipeline, so image-glyph billboards arrive with the v0.2 style system.
+    Exactly one is built and the other is ``None``: a :class:`~gmat_czml.styles.PointStyle`
+    yields the point, an :class:`~gmat_czml.styles.ImageBillboard` yields the billboard.
     """
+    if isinstance(marker, ImageBillboard):
+        return None, _billboard(marker)
+    return _point(marker), None
+
+
+def _point(style: PointStyle) -> Point:
+    """The marker as a coloured :class:`~czml3.properties.Point` (a dot with an outline)."""
     return Point(
         show=True,
-        pixelSize=_POINT_PIXEL_SIZE,
-        color=Color(rgba=list(_POINT_COLOR)),
-        outlineColor=Color(rgba=list(_POINT_OUTLINE_COLOR)),
-        outlineWidth=_POINT_OUTLINE_WIDTH,
+        pixelSize=style.pixel_size,
+        color=Color(rgba=list(style.color)),
+        outlineColor=Color(rgba=list(style.outline_color)),
+        outlineWidth=style.outline_width,
     )
 
 
-def _label(text: str) -> Label:
-    """The object's name label in the ``sat-default`` style, offset clear of the point."""
+def _billboard(style: ImageBillboard) -> Billboard:
+    """The marker as an image :class:`~czml3.properties.Billboard` from the style's image."""
+    return Billboard(show=True, image=style.image, scale=style.scale)
+
+
+def _label(style: LabelStyle, text: str) -> Label:
+    """The object's name label in the style's fill colour and font, offset clear of the marker."""
     return Label(
         show=True,
         text=text,
-        font=_LABEL_FONT,
-        fillColor=Color(rgba=list(_LABEL_COLOR)),
+        font=style.font,
+        fillColor=Color(rgba=list(style.color)),
         horizontalOrigin=HorizontalOrigins.LEFT,
         verticalOrigin=VerticalOrigins.CENTER,
         pixelOffset=Cartesian2Value(values=list(_LABEL_PIXEL_OFFSET)),

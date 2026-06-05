@@ -55,7 +55,7 @@ from gmat_czml.convert.frames import czml_reference_frame
 from gmat_czml.convert.time import to_utc, utc_span
 from gmat_czml.errors import InvalidUnitsError, ManeuverOutsideTrajectoryError
 from gmat_czml.schema import CanonicalInput
-from gmat_czml.styles import Style
+from gmat_czml.styles import LabelStyle, LineStyle, PointStyle, Style
 
 __all__ = ["maneuver_packets"]
 
@@ -66,19 +66,11 @@ __all__ = ["maneuver_packets"]
 _LENGTH_TO_METRES = {"KM": 1000.0, "M": 1.0}
 _SUPPORTED_LENGTH_UNITS = ("km", "m")
 
-# The single baked-in maneuver style — the only style until the v0.2 preset / customization system.
-# The values live here as the converter's rendering defaults, applied to every maneuver entity. RGBA
-# channels are 0-255. Maneuvers are drawn in orange so they read as their own layer, distinct from
-# the satellite's yellow orbit trail and the cyan contact line of sight.
-_MARKER_COLOR = (255, 140, 0, 255)
-_MARKER_OUTLINE_COLOR = (0, 0, 0, 255)
-_MARKER_PIXEL_SIZE = 11.0
-_MARKER_OUTLINE_WIDTH = 1.0
-_LABEL_COLOR = (255, 255, 255, 255)
-_LABEL_FONT = "11pt Lucida Console"
-_LABEL_PIXEL_OFFSET = (12.0, 0.0)  # nudge the text clear of the point glyph
-_ARC_COLOR = (255, 140, 0, 255)
-_ARC_WIDTH = 3.0
+# The maneuver layer's colours, widths, pixel size, and font come from the supplied Style's
+# `maneuver` field (its defaults are the orange maneuver look, drawn as its own layer distinct from
+# the satellite's orbit trail and the cyan contact line of sight). The label's *layout* is the
+# converter's, not the style's: the text is nudged clear of the marker by this fixed pixel offset.
+_LABEL_PIXEL_OFFSET = (12.0, 0.0)  # nudge the text clear of the marker glyph
 
 
 def maneuver_packets(
@@ -89,9 +81,9 @@ def maneuver_packets(
 
     ``item`` is the trajectory the maneuvers act on (the source of the interpolated marker position
     and the reference frame); ``entity_id`` is its packet id, under which the maneuver ids are
-    namespaced. ``style`` selects the visual style; the single baked-in maneuver style is applied to
-    every entity, so it is accepted as the stable seam the v0.2 preset system plugs into rather than
-    branched on here. Packets are returned in maneuver order: an impulsive maneuver yields one
+    namespaced. ``style.maneuver`` drives the visual style: ``marker`` and ``label`` style the burn
+    marker, and ``arc`` the finite-burn line; ``Style()`` is the default orange maneuver look.
+    Packets are returned in maneuver order: an impulsive maneuver yields one
     packet (``<entity_id>/maneuver/<k>``); a finite one yields its arc (same id) then its companion
     marker (``<entity_id>/maneuver/<k>/marker``).
 
@@ -108,6 +100,7 @@ def maneuver_packets(
     epoch_seconds = (epochs - reference) / np.timedelta64(1, "s")
     span_start_s, span_end_s = float(epoch_seconds[0]), float(epoch_seconds[-1])
     traj_start, traj_end = utc_span(item)
+    maneuver_style = style.maneuver
 
     packets: list[Packet] = []
     for index, maneuver in enumerate(maneuvers):
@@ -130,7 +123,10 @@ def maneuver_packets(
             arc = _arc_cartesian(epoch_seconds, positions_m, ignition_s, cutoff_s)
             packets.append(
                 Packet(
-                    id=maneuver_id, name=name, availability=availability, polyline=_arc(frame, arc)
+                    id=maneuver_id,
+                    name=name,
+                    availability=availability,
+                    polyline=_arc(maneuver_style.arc, frame, arc),
                 )
             )
             packets.append(
@@ -139,8 +135,8 @@ def maneuver_packets(
                     name=name,
                     availability=availability,
                     position=position,
-                    point=_marker_point(),
-                    label=_marker_label(_finite_label(maneuver)),
+                    point=_marker_point(maneuver_style.marker),
+                    label=_marker_label(maneuver_style.label, _finite_label(maneuver)),
                 )
             )
         else:
@@ -150,8 +146,8 @@ def maneuver_packets(
                     name=name,
                     availability=TimeInterval(start=ignition_utc, end=traj_end),
                     position=position,
-                    point=_marker_point(),
-                    label=_marker_label(_impulsive_label(maneuver)),
+                    point=_marker_point(maneuver_style.marker),
+                    label=_marker_label(maneuver_style.label, _impulsive_label(maneuver)),
                 )
             )
     return packets
@@ -228,37 +224,37 @@ def _finite_label(maneuver: Maneuver) -> str:
     return f"Δv {float(np.linalg.norm(maneuver.delta_v)):.3f} km/s over {duration}"
 
 
-def _arc(frame: ReferenceFrames, cartesian: list[float]) -> Polyline:
-    """The burn arc as an orange polyline of straight segments in the trajectory's frame."""
+def _arc(style: LineStyle, frame: ReferenceFrames, cartesian: list[float]) -> Polyline:
+    """The burn arc as a straight-chord polyline in the trajectory's frame, in the arc style."""
     return Polyline(
         show=True,
         positions=PositionList(referenceFrame=frame, cartesian=cartesian),
-        width=_ARC_WIDTH,
+        width=style.width,
         arcType=ArcTypes.NONE,
         material=PolylineMaterial(
-            solidColor=SolidColorMaterial(color=Color(rgba=list(_ARC_COLOR)))
+            solidColor=SolidColorMaterial(color=Color(rgba=list(style.color)))
         ),
     )
 
 
-def _marker_point() -> Point:
-    """The maneuver marker glyph in the baked-in maneuver style."""
+def _marker_point(style: PointStyle) -> Point:
+    """The maneuver marker glyph in the style's marker colour, size, and outline."""
     return Point(
         show=True,
-        pixelSize=_MARKER_PIXEL_SIZE,
-        color=Color(rgba=list(_MARKER_COLOR)),
-        outlineColor=Color(rgba=list(_MARKER_OUTLINE_COLOR)),
-        outlineWidth=_MARKER_OUTLINE_WIDTH,
+        pixelSize=style.pixel_size,
+        color=Color(rgba=list(style.color)),
+        outlineColor=Color(rgba=list(style.outline_color)),
+        outlineWidth=style.outline_width,
     )
 
 
-def _marker_label(text: str) -> Label:
-    """The maneuver label in the baked-in maneuver style, offset clear of the point."""
+def _marker_label(style: LabelStyle, text: str) -> Label:
+    """The maneuver label in the style's fill colour and font, offset clear of the marker."""
     return Label(
         show=True,
         text=text,
-        font=_LABEL_FONT,
-        fillColor=Color(rgba=list(_LABEL_COLOR)),
+        font=style.font,
+        fillColor=Color(rgba=list(style.color)),
         horizontalOrigin=HorizontalOrigins.LEFT,
         verticalOrigin=VerticalOrigins.CENTER,
         pixelOffset=Cartesian2Value(values=list(_LABEL_PIXEL_OFFSET)),

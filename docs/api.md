@@ -28,6 +28,26 @@ validate.
 
 ::: gmat_czml.Style
 
+::: gmat_czml.PointStyle
+
+::: gmat_czml.ImageBillboard
+
+::: gmat_czml.LabelStyle
+
+::: gmat_czml.PathStyle
+
+::: gmat_czml.TrackStyle
+
+::: gmat_czml.LineStyle
+
+::: gmat_czml.ManeuverStyle
+
+::: gmat_czml.ContactStyle
+
+::: gmat_czml.AttitudeStyle
+
+::: gmat_czml.preset
+
 ## Errors
 
 Every error gmat-czml raises on purpose descends from `GmatCzmlError`; the schema-validation

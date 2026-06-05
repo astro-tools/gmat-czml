@@ -69,7 +69,7 @@ from gmat_czml.errors import (
     UnsupportedAttitudeTypeError,
 )
 from gmat_czml.schema import recognised_frame
-from gmat_czml.styles import Style
+from gmat_czml.styles import AttitudeStyle, Style
 
 __all__ = ["attitude_packets"]
 
@@ -97,14 +97,11 @@ _ATTITUDE_DIR_B2A = "B2A"
 _ORIENTATION_ALGORITHM = InterpolationAlgorithms.LINEAR
 _ORIENTATION_DEGREE = 1
 
-# The single baked-in attitude style — the only style until the v0.2 preset / customization system,
-# applied to every attitude marker. The body marker is a schematic box, not a glTF model (gmat-czml
-# ships no asset pipeline yet), sized with three distinct, exaggerated dimensions so the
-# body frame's orientation reads unambiguously at orbital scale. Dimensions are metres; RGBA 0-255.
+# The attitude marker is a schematic box, not a glTF model (gmat-czml ships no asset pipeline yet),
+# sized with three distinct, exaggerated dimensions so the body frame's orientation reads
+# unambiguously at orbital scale. The dimensions are the converter's layout (metres); the box's fill
+# and outline colours come from the supplied Style's `attitude` field (translucent cyan by default).
 _BOX_DIMENSIONS_M = (600_000.0, 200_000.0, 200_000.0)  # body X, Y, Z — distinct so axes are legible
-_BOX_FILL_COLOR = (0, 200, 255, 110)  # translucent cyan body, distinct from the yellow orbit layer
-_BOX_OUTLINE_COLOR = (0, 200, 255, 255)
-_BOX_OUTLINE_WIDTH = 1.0
 
 
 def attitude_packets(attitude: Attitude, entity_id: str, style: Style) -> list[Packet]:
@@ -112,9 +109,8 @@ def attitude_packets(attitude: Attitude, entity_id: str, style: Style) -> list[P
 
     ``attitude`` is the canonical :class:`~orbit_formats.Attitude` (a CCSDS-AEM quaternion history);
     ``entity_id`` is the rendered object's packet id, under which the attitude id is namespaced and
-    whose position the marker references. ``style`` selects the visual style; the single baked-in
-    attitude style is applied, so it is accepted as the stable seam the preset system plugs into
-    rather than branched on here.
+    whose position the marker references. ``style.attitude`` drives the body box's fill and outline
+    colours; ``Style()`` is the default translucent-cyan box.
 
     Returns a single packet ``<entity_id>/attitude`` with the object's position by reference, the
     body → ECEF ``orientation`` sampled at the attitude's epochs (epoch-relative, with the LINEAR
@@ -160,7 +156,7 @@ def attitude_packets(attitude: Attitude, entity_id: str, style: Style) -> list[P
             interpolationDegree=_ORIENTATION_DEGREE,
             unitQuaternion=_sampled_quaternion(offsets, czml_quaternions),
         ),
-        box=_body_box(),
+        box=_body_box(style.attitude),
     )
     return [packet]
 
@@ -341,22 +337,23 @@ def _sampled_quaternion(
     return [float(value) for value in samples.reshape(-1)]
 
 
-def _body_box() -> Box:
-    """The schematic body-orientation box in the baked-in attitude style.
+def _body_box(style: AttitudeStyle) -> Box:
+    """The schematic body-orientation box in the style's fill and outline colours.
 
     A self-contained box (three distinct, exaggerated dimensions) rather than an image/glTF model —
-    gmat-czml ships no asset pipeline, so a model hook arrives with the later style system. The
-    box inherits the ``orientation``, so it turns with the attitude and makes the body frame
-    visible.
+    gmat-czml ships no asset pipeline, so a model hook arrives later. The box inherits the
+    ``orientation``, so it turns with the attitude and makes the body frame visible.
     """
     return Box(
         show=True,
         dimensions=BoxDimensions(cartesian=list(_BOX_DIMENSIONS_M)),
         fill=True,
-        material=Material(solidColor=SolidColorMaterial(color=Color(rgba=list(_BOX_FILL_COLOR)))),
+        material=Material(
+            solidColor=SolidColorMaterial(color=Color(rgba=list(style.box_fill_color)))
+        ),
         outline=True,
-        outlineColor=Color(rgba=list(_BOX_OUTLINE_COLOR)),
-        outlineWidth=_BOX_OUTLINE_WIDTH,
+        outlineColor=Color(rgba=list(style.box_outline_color)),
+        outlineWidth=style.box_outline_width,
     )
 
 

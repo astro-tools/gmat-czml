@@ -20,8 +20,8 @@ What this module owns:
 - **The Earth-only guard.** The projection is WGS84 / Earth-fixed throughout (D1, D5), so a
   trajectory *declared* about another central body is rejected rather than silently mis-projected;
   an undeclared body is accepted, since every recognised frame is already an Earth frame.
-- **The baked-in ``sat-default`` style** — the single v0.1 style — is applied to every track; the
-  customization API and the per-name preset system are v0.2.
+- **The track style** — its colour and width — comes from the supplied
+  :class:`~gmat_czml.styles.Style`'s ``track`` field, whose defaults are the ``sat-default`` look.
 """
 
 from __future__ import annotations
@@ -36,7 +36,7 @@ from numpy.typing import NDArray
 from gmat_czml.convert.frames import subsatellite_track
 from gmat_czml.errors import UnsupportedCentralBodyError
 from gmat_czml.schema import CanonicalInput
-from gmat_czml.styles import Style
+from gmat_czml.styles import Style, TrackStyle
 
 __all__ = ["GroundTrack", "ground_track"]
 
@@ -53,13 +53,6 @@ _KM_TO_METRES = 1000.0
 # motion. The seam is interpolated onto the ±180° meridian the track crossed.
 _WRAP_THRESHOLD_DEG = 180.0
 _ANTIMERIDIAN_DEG = 180.0
-
-# The single baked-in "sat-default" ground-track style — the only style in v0.1; the customization
-# API and the per-name preset system are v0.2. The values live here as the converter's rendering
-# defaults and are applied to every track. RGBA channels are 0-255; the track is drawn in the orbit
-# trail's yellow at a slightly heavier width so it reads clearly against the globe.
-_TRACK_COLOR = (255, 255, 0, 255)
-_TRACK_WIDTH = 2.0
 
 
 @dataclass(frozen=True)
@@ -81,13 +74,12 @@ def ground_track(item: CanonicalInput, style: Style) -> GroundTrack:
 
     Projects the trajectory to its sub-satellite longitude / latitude / height
     (:func:`gmat_czml.convert.frames.subsatellite_track`) and emits a geodetic
-    ``cartographicDegrees`` polyline in the ``sat-default`` style, splitting at antimeridian
+    ``cartographicDegrees`` polyline in the style's track colour and width, split at antimeridian
     crossings so the track renders without a spurious wrap line. Height travels in metres (scaled
     from the projection's kilometres); longitude / latitude in degrees.
 
-    ``style`` selects the visual style; v0.1 has the single baked-in ``sat-default``, applied to
-    every track, so it is accepted as the stable seam the v0.2 preset system plugs into rather than
-    branched on here.
+    ``style`` drives the visual style: ``style.track`` colours and widths the ground-track polyline.
+    ``Style()`` is the ``sat-default`` look.
 
     Raises :class:`~gmat_czml.errors.UnsupportedCentralBodyError` if the trajectory is declared
     about a body other than Earth, and propagates :class:`~gmat_czml.errors.InvalidUnitsError` from
@@ -98,7 +90,7 @@ def ground_track(item: CanonicalInput, style: Style) -> GroundTrack:
     height_m = height_km * _KM_TO_METRES
     runs = _split_at_antimeridian(lon, lat, height_m)
     # A run needs at least two points to draw; a single-sample track yields none.
-    segments = [_polyline(run) for run in runs if len(run[0]) >= 2]
+    segments = [_polyline(run, style.track) for run in runs if len(run[0]) >= 2]
     return GroundTrack(segments=segments)
 
 
@@ -192,16 +184,16 @@ def _seam(
     return boundary, -boundary, seam_lat, seam_height
 
 
-def _polyline(segment: _Segment) -> Polyline:
-    """One contiguous run as a ``sat-default``-styled geodetic ``cartographicDegrees`` polyline."""
+def _polyline(segment: _Segment, style: TrackStyle) -> Polyline:
+    """One contiguous run as a geodetic ``cartographicDegrees`` polyline in the track style."""
     lon, lat, height = segment
     cartographic = np.column_stack([lon, lat, height]).reshape(-1)
     return Polyline(
         show=True,
         positions=PositionList(cartographicDegrees=[float(value) for value in cartographic]),
-        width=_TRACK_WIDTH,
+        width=style.width,
         arcType=ArcTypes.GEODESIC,
         material=PolylineMaterial(
-            solidColor=SolidColorMaterial(color=Color(rgba=list(_TRACK_COLOR)))
+            solidColor=SolidColorMaterial(color=Color(rgba=list(style.color)))
         ),
     )

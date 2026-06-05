@@ -42,7 +42,7 @@ from gmat_czml.errors import (
     EmptyAttitudeError,
     UnsupportedAttitudeTypeError,
 )
-from gmat_czml.styles import Style
+from gmat_czml.styles import AttitudeStyle, Style
 
 _BASE = "2026-03-01T00:00:00"
 _SQRT_HALF = float(np.sqrt(0.5))
@@ -178,6 +178,25 @@ def test_box_is_the_baked_in_body_marker() -> None:
     assert box["dimensions"]["cartesian"] == [600000.0, 200000.0, 200000.0]  # distinct body axes
     assert box["material"]["solidColor"]["color"]["rgba"] == [0, 200, 255, 110]
     assert box["outline"] is True
+
+
+def test_custom_attitude_style_drives_the_box_colours() -> None:
+    style = Style(
+        attitude=AttitudeStyle(
+            box_fill_color=(10, 20, 30, 120),
+            box_outline_color=(1, 2, 3, 255),
+            box_outline_width=4.0,
+        )
+    )
+    packets = attitude_packets(
+        _attitude([[0, 0, 0, 1], [0, 0, 0, 1]], frame_a="ITRF"), "Sat", style
+    )
+    box = json.loads(packets[0].dumps())["box"]
+    # The dimensions stay the converter's fixed layout; only the colours and outline width change.
+    assert box["dimensions"]["cartesian"] == [600000.0, 200000.0, 200000.0]
+    assert box["material"]["solidColor"]["color"]["rgba"] == [10, 20, 30, 120]
+    assert box["outlineColor"]["rgba"] == [1, 2, 3, 255]
+    assert box["outlineWidth"] == 4.0
 
 
 # --- the frame composition (the load-bearing checks) --------------------------------------

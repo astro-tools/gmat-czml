@@ -52,5 +52,6 @@ An impulsive maneuver is one packet, `<object>/maneuver/<k>`. A finite maneuver 
 
 ## Styling
 
-Maneuvers use a single baked-in maneuver style. Customization arrives with the
-[style system](../styling.md).
+Maneuvers default to an orange layer — marker and arc in orange, a white label. Recolour them with
+the [`ManeuverStyle`][gmat_czml.ManeuverStyle] on the [`Style`][gmat_czml.Style]'s `maneuver` field;
+see [Styling](../styling.md#annotation-layers).

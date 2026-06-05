@@ -36,6 +36,7 @@ __all__ = [
     "UnknownContactTargetError",
     "UnknownFrameError",
     "UnknownInterpolationError",
+    "UnknownStyleError",
     "UnknownTimeScaleError",
     "UnmappableFrameError",
     "UnsupportedAttitudeTypeError",
@@ -105,6 +106,24 @@ class UnknownInterpolationError(GmatCzmlError):
             f"interpolation algorithm {algorithm!r} has no CZML equivalent; "
             f"recognised algorithms: {joined}"
         )
+
+
+class UnknownStyleError(GmatCzmlError):
+    """A style preset name that is not in the recognised set.
+
+    Raised by :func:`gmat_czml.preset` when asked for a preset outside the registry
+    (``sat-default`` plus the colour palette). The preset is resolved, never guessed — an
+    unrecognised name is rejected rather than silently falling back to the default — so this, like
+    :class:`UnknownInterpolationError`, is a render-time choice that descends from
+    :class:`GmatCzmlError` directly rather than :class:`SchemaError`. ``name`` is the offending
+    value and ``recognised`` the preset names that resolve.
+    """
+
+    def __init__(self, name: str, recognised: Iterable[str]) -> None:
+        self.name = name
+        self.recognised: tuple[str, ...] = tuple(recognised)
+        joined = ", ".join(self.recognised)
+        super().__init__(f"unknown style preset {name!r}; recognised presets: {joined}")
 
 
 class UnknownContactTargetError(GmatCzmlError):
