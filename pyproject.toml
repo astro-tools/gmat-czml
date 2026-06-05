@@ -38,6 +38,17 @@ dependencies = [
   "numpy>=1.24",
 ]
 
+[project.optional-dependencies]
+# The optional [server] extra: a FastAPI app that hosts a CZML document behind an embedded CesiumJS
+# viewer (CzmlDocument.serve / `gmat-czml serve`). Deliberately out of the base dependencies so a
+# plain `pip install gmat-czml` stays light — the minimal-install smoke test asserts neither fastapi
+# nor uvicorn is pulled in. server.py is a leaf module imported only when the server is used, so the
+# import never runs in a base install.
+server = [
+  "fastapi>=0.110",
+  "uvicorn>=0.29",
+]
+
 [project.scripts]
 gmat-czml = "gmat_czml.cli:main"
 
@@ -70,6 +81,12 @@ dev = [
   "types-jsonschema",
   "referencing>=0.30",
   "skyfield>=1.49",
+  # The [server] extra's deps, exercised here so the server tests run in the regular test matrix
+  # (and the cesium-parse job) without `--all-extras`. httpx backs fastapi's TestClient, which the
+  # unit-level server tests drive without binding a socket; the browser test runs a live uvicorn.
+  "fastapi>=0.110",
+  "uvicorn>=0.29",
+  "httpx>=0.27",
 ]
 docs = [
   "mkdocs-material>=9.5",
