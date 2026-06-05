@@ -173,6 +173,43 @@ def test_availability_spans_the_attitude_history() -> None:
     assert packet["availability"] == "2026-03-01T00:00:00.000000Z/2026-03-01T00:02:00.000000Z"
 
 
+def test_attitude_with_a_time_gap_preserves_per_sample_offsets() -> None:
+    # A non-uniform history (a 1 h gap between samples 2 and 3) offsets each sample by its real
+    # elapsed seconds from the first epoch — not an assumed uniform step — and the availability
+    # spans the whole gapped history. A fixed-frame (ITRF) reference keeps the orientation a
+    # passthrough, so the gap is the only variable; one sample per source epoch survives it.
+    records = [
+        [0.0, 0.0, 0.0, 1.0],
+        [0.0, 0.0, _SQRT_HALF, _SQRT_HALF],
+        [0.0, 0.0, 1.0, 0.0],
+        [0.0, 0.0, _SQRT_HALF, -_SQRT_HALF],
+    ]
+    epochs = np.array(
+        [
+            "2026-03-01T00:00:00",
+            "2026-03-01T00:01:00",
+            "2026-03-01T01:00:00",
+            "2026-03-01T01:01:00",
+        ],
+        dtype="datetime64[ns]",
+    )
+    attitude = Attitude(
+        metadata=Metadata(object_name="Sat", time_scale="UTC"),
+        attitude_type="QUATERNION",
+        epochs=epochs,
+        records=np.array(records, dtype=np.float64),
+        frame_a="ITRF",
+        frame_b="SC_BODY",
+    )
+    packet = _packet(attitude)
+    samples = np.array(packet["orientation"]["unitQuaternion"], dtype=np.float64).reshape(-1, 5)
+    np.testing.assert_array_equal(samples[:, 0], [0.0, 60.0, 3600.0, 3660.0])  # gap preserved
+    assert packet["availability"] == "2026-03-01T00:00:00.000000Z/2026-03-01T01:01:00.000000Z"
+    emitted = _emitted_quaternions(packet)
+    assert emitted.shape == (4, 4)  # one orientation sample per source epoch, across the gap
+    np.testing.assert_allclose(np.linalg.norm(emitted, axis=1), np.ones(4), atol=1e-12)
+
+
 def test_box_is_the_baked_in_body_marker() -> None:
     box = _packet(_attitude([[0, 0, 0, 1], [0, 0, 0, 1]]))["box"]
     assert box["dimensions"]["cartesian"] == [600000.0, 200000.0, 200000.0]  # distinct body axes

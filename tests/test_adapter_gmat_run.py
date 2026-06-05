@@ -194,6 +194,54 @@ def test_per_tick_contact_format_is_rejected() -> None:
         adapter._contacts_from_frame(frame, {"GS1": _CANBERRA}, resource="Contacts1")
 
 
+def test_window_report_without_a_target_is_rejected() -> None:
+    # A window-bearing report (Start/Stop present) that declares no target satellite cannot be
+    # attributed to an object, so it is rejected rather than producing an untargetable contact.
+    frame = pd.DataFrame(
+        {
+            "Observer": ["GS1"],
+            "Start": pd.to_datetime(["2026-03-01T00:10:00"]),
+            "Stop": pd.to_datetime(["2026-03-01T00:22:00"]),
+        }
+    )
+    with pytest.raises(ValueError, match="no target"):
+        adapter._contacts_from_frame(frame, {"GS1": _CANBERRA}, resource="Contacts1")
+
+
+def test_observer_order_falls_back_to_the_observer_column() -> None:
+    # With no attrs['observers'] tuple, observer identity and order come from the Observer column —
+    # first-seen and de-duplicated. Two windows for GS1 and one for GS2 yield one contact each, in
+    # column order, GS1's windows sorted by start.
+    frame = pd.DataFrame(
+        {
+            "Observer": ["GS1", "GS2", "GS1"],
+            "Start": pd.to_datetime(
+                ["2026-03-01T00:10:00", "2026-03-01T00:30:00", "2026-03-01T01:05:00"]
+            ),
+            "Stop": pd.to_datetime(
+                ["2026-03-01T00:22:00", "2026-03-01T00:42:00", "2026-03-01T01:17:00"]
+            ),
+        }
+    )
+    frame.attrs["target"] = "GmatLeo"
+    stations = {
+        "GS1": GroundStation(name="GS1", latitude=-35.0, longitude=149.0, height=0.0),
+        "GS2": GroundStation(name="GS2", latitude=10.0, longitude=20.0, height=0.0),
+    }
+    contacts = adapter._contacts_from_frame(frame, stations, resource="Contacts1")
+    assert [contact.observer.name for contact in contacts] == ["GS1", "GS2"]  # first-seen order
+    gs1 = next(contact for contact in contacts if contact.observer.name == "GS1")
+    assert len(gs1.windows) == 2  # both GS1 windows, sorted by start
+    assert gs1.windows[0][0] == dt.datetime(2026, 3, 1, 0, 10, tzinfo=dt.timezone.utc)
+
+
+def test_as_utc_converts_an_aware_timestamp() -> None:
+    # An already-aware window endpoint is converted to UTC, not relabelled: 05:10 at +05:00 is
+    # 00:10 UTC (the naive-is-UTC path is covered by the real-report windows test above).
+    aware = pd.Timestamp(dt.datetime(2026, 3, 1, 5, 10, tzinfo=dt.timezone(dt.timedelta(hours=5))))
+    assert adapter._as_utc(aware) == dt.datetime(2026, 3, 1, 0, 10, tzinfo=dt.timezone.utc)
+
+
 # --- the optional-dependency boundary ----------------------------------------------------
 
 
@@ -201,3 +249,10 @@ def test_absent_gmat_run_raises_an_actionable_error(monkeypatch: pytest.MonkeyPa
     monkeypatch.setitem(sys.modules, "gmat_run", None)
     with pytest.raises(ImportError, match="pip install gmat-run"):
         adapter._results_class()
+
+
+def test_non_results_argument_is_rejected() -> None:
+    # gmat-run is installed but the argument is not a Results: the adapter rejects it with a clear
+    # TypeError rather than failing deep in an attribute access on the wrong object.
+    with pytest.raises(TypeError, match="Results"):
+        results_to_trajectories("not a results")  # type: ignore[arg-type]

@@ -277,6 +277,29 @@ def test_maneuvers_are_numbered_in_order() -> None:
     assert ids == ["Sat/maneuver/0", "Sat/maneuver/1", "Sat/maneuver/1/marker", "Sat/maneuver/2"]
 
 
+def test_back_to_back_finite_burns_get_distinct_ids_and_abutting_availability() -> None:
+    # Two finite burns where the first's cut-off is the second's ignition (00:01:00 + 60 s ->
+    # 00:02:00). Each burn keeps its own index-namespaced ids (no collision between the abutting
+    # burns) and the first burn's availability ends exactly where the second's begins, so
+    # back-to-back burns annotate a contiguous, non-overlapping span.
+    packets = _packets(
+        [
+            _finite("2026-03-01T00:01:00", duration=60.0, dv=None),
+            _finite("2026-03-01T00:02:00", duration=60.0, dv=None),
+        ]
+    )
+    assert _ids(packets) == [
+        "Sat/maneuver/0",
+        "Sat/maneuver/0/marker",
+        "Sat/maneuver/1",
+        "Sat/maneuver/1/marker",
+    ]
+    first = _packet(packets, "Sat/maneuver/0")["availability"]
+    second = _packet(packets, "Sat/maneuver/1")["availability"]
+    assert first.endswith("/2026-03-01T00:02:00.000000Z")
+    assert second.startswith("2026-03-01T00:02:00.000000Z/")
+
+
 def test_no_maneuvers_yields_no_packets() -> None:
     assert _packets([]) == []
 
