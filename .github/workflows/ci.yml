@@ -71,8 +71,10 @@ jobs:
       - run: uv sync --all-groups
       - run: uv run mypy
 
-  # Smoke-check that `pip install gmat-czml` (no dev group) imports cleanly. Catches a
-  # dev-only dependency leaking into the default install path.
+  # Smoke-check that `pip install gmat-czml` (no dev group) imports cleanly and stays light, and
+  # that the optional [server] extra adds — but only adds — the server deps. Catches a dev-only
+  # dependency leaking into the default install path, and pins the [server] DoD: a base install
+  # pulls neither fastapi nor uvicorn; `pip install .[server]` pulls both.
   minimal-install:
     name: minimal install smoke
     runs-on: ubuntu-latest
@@ -84,6 +86,19 @@ jobs:
           python-version: '3.12'
       - run: pip install .
       - run: python -c "import gmat_czml; print(gmat_czml.__version__)"
+      # The base install is light: neither fastapi nor uvicorn is present.
+      - name: base install pulls no server deps
+        run: |
+          python - <<'PY'
+          import importlib.util, sys
+          leaked = [m for m in ("fastapi", "uvicorn") if importlib.util.find_spec(m) is not None]
+          if leaked:
+              sys.exit(f"base install unexpectedly pulled: {', '.join(leaked)}")
+          print("base install is server-free")
+          PY
+      # The [server] extra adds both server deps, so `.serve()` is reachable.
+      - run: pip install '.[server]'
+      - run: python -c "import fastapi, uvicorn; import gmat_czml.server; print('server extra ok')"
 
   # Validate the emitted CZML against the official CZML JSON schema (vendored under
   # tests/data/czml-schema/) and byte-diff it against the committed golden corpus, on the real

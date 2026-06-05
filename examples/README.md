@@ -35,6 +35,19 @@ python examples/attitude_mission.py
 `skyfield_tle.py` is the only one with an extra dependency — Skyfield is a non-GMAT producer, not
 a gmat-czml runtime dependency.
 
+**Live serving** — host a document over http behind an embedded viewer, no file written:
+
+| Script | Shows |
+|--------|-------|
+| [`serve_document.py`](serve_document.py) | `to_czml(...).serve()` — the one-click local-sharing path (needs `pip install gmat-czml[server]`) |
+
+```bash
+pip install gmat-czml[server]    # fastapi + uvicorn
+python examples/serve_document.py    # opens http://127.0.0.1:8080/; Ctrl-C to stop
+```
+
+`gmat-czml serve examples/data/gmat-leo.oem --ground-track` is the CLI equivalent.
+
 ## Viewing the output
 
 [`viewer.html`](viewer.html) must be loaded over **http**, not opened as a `file://` — CesiumJS

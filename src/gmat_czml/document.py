@@ -4,7 +4,8 @@ The object :func:`gmat_czml.to_czml` returns. It is an in-memory-first handle on
 CZML: :meth:`~CzmlDocument.to_dict` and :meth:`~CzmlDocument.to_json` produce the whole document
 without ever touching disk (the downstream consumer needs it as a dict / string, not only as a
 file), and :meth:`~CzmlDocument.save` writes exactly what :meth:`~CzmlDocument.to_json` returns.
-Serving the document over HTTP is a later release.
+:meth:`~CzmlDocument.serve` hosts it over http behind an embedded CesiumJS viewer; that path needs
+the optional ``[server]`` extra, imported lazily so the base install stays free of it.
 """
 
 from __future__ import annotations
@@ -16,6 +17,13 @@ from typing import Any
 from czml3 import Document
 
 __all__ = ["CzmlDocument"]
+
+# Raised (as the message of a re-wrapped ImportError) when .serve() is called without the optional
+# [server] extra installed. Names the install so the failure is actionable.
+_SERVER_INSTALL_HINT = (
+    "serving needs the optional '[server]' extra (fastapi + uvicorn), which is not installed; "
+    "install it with `pip install gmat-czml[server]` (or `uv add 'gmat-czml[server]'`)"
+)
 
 
 class CzmlDocument:
@@ -62,3 +70,26 @@ class CzmlDocument:
         destination = Path(path)
         destination.write_text(self.to_json(), encoding="utf-8")
         return destination
+
+    def serve(
+        self,
+        port: int = 8080,
+        *,
+        host: str = "127.0.0.1",
+        open_browser: bool = True,
+    ) -> None:
+        """Serve this document over http behind an embedded CesiumJS viewer, blocking until stopped.
+
+        Hosts a small FastAPI app — the viewer page at ``/`` and this document's JSON at
+        ``/document.czml`` — and runs it under uvicorn, so the viewer's CesiumJS loads the document
+        over http (a ``file://`` page cannot, its Web Workers are blocked). Blocks until interrupted
+        (Ctrl-C). When ``open_browser`` is set, a browser tab is opened once the server is up.
+
+        Requires the optional ``[server]`` extra (``pip install gmat-czml[server]``); without it,
+        this raises :class:`ImportError` with an actionable install hint.
+        """
+        try:
+            from gmat_czml import server
+        except ImportError as exc:  # the [server] extra (fastapi / uvicorn) is not installed
+            raise ImportError(_SERVER_INSTALL_HINT) from exc
+        server.serve(self, host=host, port=port, open_browser=open_browser)

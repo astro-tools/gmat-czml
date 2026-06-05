@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>gmat-czml</title>
+    <!--
+      The embedded CesiumJS viewer the [server] extra hosts. CzmlDocument.serve (and the
+      `gmat-czml serve` CLI) serve this page at / and the document JSON at /document.czml; because
+      the page is served over http (not file://), CesiumJS's Web Workers and imagery load — a
+      file:// page is a null origin and browsers block the cross-origin workers Cesium needs.
+
+      It auto-loads the served document, frames the whole trajectory, and starts the clock. By
+      default it uses the Natural Earth II imagery bundled with CesiumJS, so the globe renders with
+      no token and no network beyond the CesiumJS CDN. Two optional query params switch the base
+      imagery (the .czml carries none, so this is purely viewer-side):
+        ?imagery=offline|osm|ion|mapbox   pick the base imagery (default: offline)
+        ?token=<token>                    a Cesium ion / Mapbox token, when ion / mapbox is picked
+      A token-requiring imagery with no token falls back to offline, so the globe is never blank.
+    -->
+    <script>
+      window.CESIUM_BASE_URL = "https://cdn.jsdelivr.net/npm/cesium@1.142.0/Build/Cesium/";
+    </script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/cesium@1.142.0/Build/Cesium/Widgets/widgets.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/cesium@1.142.0/Build/Cesium/Cesium.js"></script>
+    <style>
+      html,
+      body,
+      #cesiumContainer {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        font-family: system-ui, sans-serif;
+      }
+      #status {
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        z-index: 10;
+        background: rgba(20, 20, 28, 0.82);
+        color: #eee;
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 13px;
+        max-width: 320px;
+      }
+      #status .title {
+        font-weight: 600;
+      }
+      #status .note {
+        opacity: 0.8;
+        font-size: 12px;
+        margin-top: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="status">
+      <div class="title">gmat-czml</div>
+      <div class="note" id="note">loading…</div>
+    </div>
+    <div id="cesiumContainer"></div>
+    <script>
+      // The served document — relative to /, so it resolves to /document.czml.
+      const DOCUMENT_URL = "document.czml";
+      const noteEl = document.getElementById("note");
+
+      function setNote(message) {
+        noteEl.textContent = message;
+      }
+
+      const params = new URLSearchParams(location.search);
+      const imagery = params.get("imagery") || "offline";
+      const token = (params.get("token") || "").trim();
+
+      // The offline Natural Earth II layer bundled with CesiumJS — no token, no network. The
+      // fallback whenever a token-requiring source has no token, so the globe is never blank.
+      function offlineLayer() {
+        return Cesium.ImageryLayer.fromProviderAsync(
+          Cesium.TileMapServiceImageryProvider.fromUrl(
+            Cesium.buildModuleUrl("Assets/Textures/NaturalEarthII")
+          )
+        );
+      }
+
+      // The base imagery layer for the chosen id, or null for ion (the Viewer's default world
+      // imagery). A token-requiring id (ion / mapbox) with no token falls back to offline.
+      function baseLayerFor(kind) {
+        if ((kind === "ion" || kind === "mapbox") && !token) {
+          setNote(`${kind} needs a token — using offline imagery`);
+          return offlineLayer();
+        }
+        if (kind === "osm") {
+          return Cesium.ImageryLayer.fromProviderAsync(
+            Promise.resolve(
+              new Cesium.UrlTemplateImageryProvider({
+                url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                credit: "© OpenStreetMap contributors",
+                maximumLevel: 19,
+              })
+            )
+          );
+        }
+        if (kind === "mapbox") {
+          return Cesium.ImageryLayer.fromProviderAsync(
+            Promise.resolve(
+              new Cesium.MapboxStyleImageryProvider({
+                styleId: "satellite-streets-v12",
+                accessToken: token,
+              })
+            )
+          );
+        }
+        if (kind === "ion") {
+          return null; // ion: the Viewer's default world imagery
+        }
+        return offlineLayer();
+      }
+
+      function makeViewer() {
+        if (token) {
+          Cesium.Ion.defaultAccessToken = token;
+        }
+        const options = {
+          baseLayerPicker: false,
+          geocoder: false,
+          homeButton: false,
+          sceneModePicker: false,
+          navigationHelpButton: false,
+          infoBox: false,
+          selectionIndicator: false,
+        };
+        const layer = baseLayerFor(imagery);
+        if (layer) {
+          options.baseLayer = layer;
+        }
+        const viewer = new Cesium.Viewer("cesiumContainer", options);
+        viewer.scene.globe.enableLighting = false;
+        return viewer;
+      }
+
+      // The radius (metres) of an Earth-centred sphere enclosing the whole trajectory, so the
+      // camera frames a hugging LEO and a distant GEO alike — zoomTo() frames only the current
+      // point, which for a high orbit leaves Earth off-screen.
+      function trajectoryRadius(dataSource) {
+        const inertial = Cesium.ReferenceFrame.INERTIAL;
+        const start = dataSource.clock.startTime;
+        const stop = dataSource.clock.stopTime;
+        const span = Cesium.JulianDate.secondsDifference(stop, start);
+        let radius = Cesium.Ellipsoid.WGS84.maximumRadius;
+        const scratch = new Cesium.Cartesian3();
+        for (const entity of dataSource.entities.values) {
+          if (!entity.position) continue; // polyline ground tracks carry no point position
+          for (let i = 0; i <= 60; i++) {
+            const t = Cesium.JulianDate.addSeconds(start, (span * i) / 60, new Cesium.JulianDate());
+            const p = entity.position.getValueInReferenceFrame(t, inertial, scratch);
+            if (Cesium.defined(p)) radius = Math.max(radius, Cesium.Cartesian3.magnitude(p));
+          }
+        }
+        return radius;
+      }
+
+      // Boot in two stages so the headless server-render check is robust:
+      //   1. parse the served document over http (Cesium.CzmlDataSource.load — no WebGL). Sets
+      //      window.__dataSource / window.__czmlParsed, or window.__czmlError on a parse failure.
+      //   2. build the Viewer and frame the scene (needs a WebGL context). Sets window.__czmlReady,
+      //      or window.__viewerError if no WebGL is available — the document still parsed, so the
+      //      hermetic parse check does not depend on a GPU.
+      async function boot() {
+        window.__czmlReady = false;
+        let dataSource;
+        try {
+          dataSource = await Cesium.CzmlDataSource.load(DOCUMENT_URL);
+        } catch (err) {
+          window.__czmlError = String(err);
+          setNote(`failed to load document: ${err}`);
+          return;
+        }
+        window.__dataSource = dataSource;
+        window.__entityCount = dataSource.entities.values.length;
+        window.__czmlParsed = true;
+        setNote(`loaded ${dataSource.entities.values.length} entities`);
+        try {
+          const viewer = makeViewer();
+          await viewer.dataSources.add(dataSource);
+          const sphere = new Cesium.BoundingSphere(
+            Cesium.Cartesian3.ZERO,
+            trajectoryRadius(dataSource) * 1.25
+          );
+          viewer.camera.flyToBoundingSphere(sphere, { duration: 0 });
+          viewer.clock.shouldAnimate = true;
+          viewer.scene.requestRender();
+          window.__czmlReady = true;
+        } catch (err) {
+          window.__viewerError = String(err);
+          setNote(`loaded ${dataSource.entities.values.length} entities (viewer unavailable)`);
+        }
+      }
+
+      window.addEventListener("DOMContentLoaded", boot);
+    </script>
+  </body>
+</html>
