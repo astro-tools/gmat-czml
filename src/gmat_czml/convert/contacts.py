@@ -43,7 +43,7 @@ from czml3.properties import (
 from czml3.types import Cartesian2Value, TimeInterval, TimeIntervalCollection
 
 from gmat_czml.errors import ContactEntityCollisionError, UnknownContactTargetError
-from gmat_czml.styles import Style
+from gmat_czml.styles import ContactStyle, LabelStyle, LineStyle, PointStyle, Style
 
 __all__ = ["Contact", "GroundStation", "contact_packets"]
 
@@ -52,19 +52,11 @@ __all__ = ["Contact", "GroundStation", "contact_packets"]
 # GroundStation altitude unit), so it is scaled here exactly as the ground track scales its height.
 _KM_TO_METRES = 1000.0
 
-# The contact layer's own baked-in style, applied to every contact entity. RGBA channels are 0-255.
-# The observer and the access link are drawn in cyan so they read as the ground / line-of-sight
-# layer, distinct from the satellite's orbit trail; this layer is deliberately separate from the
-# satellite style's colour / width / glyph customization API (gmat_czml.Style).
-_LINK_COLOR = (0, 255, 255, 255)
-_LINK_WIDTH = 1.0
-_OBSERVER_COLOR = (0, 255, 255, 255)
-_OBSERVER_OUTLINE_COLOR = (0, 0, 0, 255)
-_OBSERVER_PIXEL_SIZE = 8.0
-_OBSERVER_OUTLINE_WIDTH = 1.0
-_OBSERVER_LABEL_COLOR = (255, 255, 255, 255)
-_OBSERVER_LABEL_FONT = "11pt Lucida Console"
-_OBSERVER_LABEL_PIXEL_OFFSET = (12.0, 0.0)  # nudge the text clear of the point glyph
+# The contact layer's colours, widths, pixel size, and font come from the supplied Style's `contact`
+# field (its defaults are the cyan observer / line-of-sight look, distinct from the satellite
+# orbit trail). The label's *layout* is the converter's, not the style's: the text is nudged clear
+# of the observer point by this fixed pixel offset.
+_OBSERVER_LABEL_PIXEL_OFFSET = (12.0, 0.0)  # nudge the text clear of the observer point
 
 
 @dataclass(frozen=True)
@@ -107,11 +99,10 @@ def contact_packets(
     """Build the CZML packets for a set of contacts: one observer entity, one per-window link each.
 
     ``known_targets`` is the entity ids of the rendered objects (a contact may only target one of
-    them). ``style`` is accepted for signature parity with the satellite converters but is not read
-    here: the contact layer carries its own baked-in style, separate from the satellite style's
-    customization API. Returns the observer packets (each distinct station placed once, in
-    first-seen order) followed by the link packets (one per contact that has at least one window, in
-    contact order).
+    them). ``style.contact`` drives the visual style: ``observer`` and ``label`` style the observer
+    entity, and ``link`` the line of sight; ``Style()`` is the default cyan look. Returns the
+    observer packets (each distinct station placed once, in first-seen order) followed by the link
+    packets (one per contact that has at least one window, in contact order).
 
     Raises :class:`~gmat_czml.errors.UnknownContactTargetError` if a contact targets an object not
     in the document, and :class:`~gmat_czml.errors.ContactEntityCollisionError` if a contact entity
@@ -119,6 +110,7 @@ def contact_packets(
     name placed two different ways, or two contacts sharing an observer and target).
     """
     targets = set(known_targets)
+    contact_style = style.contact
     for contact in contacts:
         if contact.target not in targets:
             raise UnknownContactTargetError(contact.target, sorted(targets))
@@ -134,7 +126,7 @@ def contact_packets(
                 raise ContactEntityCollisionError(station.name)
             placed[station.name] = station
             used.add(station.name)
-            observers.append(_observer_packet(station))
+            observers.append(_observer_packet(station, contact_style))
         elif existing != station:
             raise ContactEntityCollisionError(station.name)
 
@@ -146,7 +138,7 @@ def contact_packets(
         if link_id in used:
             raise ContactEntityCollisionError(link_id)
         used.add(link_id)
-        links.append(_link_packet(contact, link_id))
+        links.append(_link_packet(contact, link_id, contact_style.link))
 
     return observers + links
 
@@ -156,7 +148,7 @@ def _link_id(observer_name: str, target: str) -> str:
     return f"{observer_name}-to-{target}"
 
 
-def _observer_packet(station: GroundStation) -> Packet:
+def _observer_packet(station: GroundStation, style: ContactStyle) -> Packet:
     """One ground station as a static-position entity with a point glyph and a name label."""
     return Packet(
         id=station.name,
@@ -168,42 +160,42 @@ def _observer_packet(station: GroundStation) -> Packet:
                 float(station.height) * _KM_TO_METRES,
             ]
         ),
-        point=_observer_point(),
-        label=_observer_label(station.name),
+        point=_observer_point(style.observer),
+        label=_observer_label(style.label, station.name),
     )
 
 
-def _observer_point() -> Point:
-    """The ground-station marker glyph in the baked-in contact style."""
+def _observer_point(style: PointStyle) -> Point:
+    """The ground-station marker glyph in the style's observer colour, size, and outline."""
     return Point(
         show=True,
-        pixelSize=_OBSERVER_PIXEL_SIZE,
-        color=Color(rgba=list(_OBSERVER_COLOR)),
-        outlineColor=Color(rgba=list(_OBSERVER_OUTLINE_COLOR)),
-        outlineWidth=_OBSERVER_OUTLINE_WIDTH,
+        pixelSize=style.pixel_size,
+        color=Color(rgba=list(style.color)),
+        outlineColor=Color(rgba=list(style.outline_color)),
+        outlineWidth=style.outline_width,
     )
 
 
-def _observer_label(text: str) -> Label:
-    """The ground-station name label in the baked-in contact style, offset clear of the point."""
+def _observer_label(style: LabelStyle, text: str) -> Label:
+    """The ground-station name label in the style's fill colour and font, clear of the point."""
     return Label(
         show=True,
         text=text,
-        font=_OBSERVER_LABEL_FONT,
-        fillColor=Color(rgba=list(_OBSERVER_LABEL_COLOR)),
+        font=style.font,
+        fillColor=Color(rgba=list(style.color)),
         horizontalOrigin=HorizontalOrigins.LEFT,
         verticalOrigin=VerticalOrigins.CENTER,
         pixelOffset=Cartesian2Value(values=list(_OBSERVER_LABEL_PIXEL_OFFSET)),
     )
 
 
-def _link_packet(contact: Contact, link_id: str) -> Packet:
+def _link_packet(contact: Contact, link_id: str, style: LineStyle) -> Packet:
     """One observer → satellite link: a referenced line of sight shown only during the windows."""
     return Packet(
         id=link_id,
         name=f"{contact.observer.name} to {contact.target}",
         availability=_availability(contact.windows),
-        polyline=_link_polyline(contact.observer.name, contact.target),
+        polyline=_link_polyline(contact.observer.name, contact.target, style),
     )
 
 
@@ -214,15 +206,15 @@ def _availability(windows: Sequence[tuple[datetime, datetime]]) -> TimeIntervalC
     )
 
 
-def _link_polyline(observer_id: str, target_id: str) -> Polyline:
+def _link_polyline(observer_id: str, target_id: str, style: LineStyle) -> Polyline:
     """The line of sight as a polyline referencing the observer and target position properties."""
     return Polyline(
         show=True,
         positions=PositionList(references=[f"{observer_id}#position", f"{target_id}#position"]),
-        width=_LINK_WIDTH,
+        width=style.width,
         arcType=ArcTypes.NONE,
         material=PolylineMaterial(
-            solidColor=SolidColorMaterial(color=Color(rgba=list(_LINK_COLOR)))
+            solidColor=SolidColorMaterial(color=Color(rgba=list(style.color)))
         ),
     )
 
