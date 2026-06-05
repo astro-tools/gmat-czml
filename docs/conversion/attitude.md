@@ -60,5 +60,7 @@ The attitude is one packet, `<object>/attitude`. It references the object's posi
 
 ## Styling
 
-The body marker uses a single baked-in style — a translucent box with three distinct dimensions. A
-glTF-model hook and customization arrive with the [style system](../styling.md).
+The body box defaults to translucent cyan. Recolour its fill and outline with the
+[`AttitudeStyle`][gmat_czml.AttitudeStyle] on the [`Style`][gmat_czml.Style]'s `attitude` field; see
+[Styling](../styling.md#annotation-layers). The box's dimensions are fixed by the converter; a
+glTF-model hook waits on an asset pipeline.

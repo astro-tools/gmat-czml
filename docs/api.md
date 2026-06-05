@@ -38,6 +38,14 @@ validate.
 
 ::: gmat_czml.TrackStyle
 
+::: gmat_czml.LineStyle
+
+::: gmat_czml.ManeuverStyle
+
+::: gmat_czml.ContactStyle
+
+::: gmat_czml.AttitudeStyle
+
 ::: gmat_czml.preset
 
 ## Errors

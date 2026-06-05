@@ -70,8 +70,31 @@ to_czml(trajectory, style=style).save("orbit.czml")
 The billboard replaces the coloured point. gmat-czml ships no asset pipeline, so the caller supplies
 the image.
 
-## Other layers
+## Annotation layers
 
-The maneuver, contact, and attitude annotations carry their own fixed layer styles — orange burns,
-cyan ground links and observers, a translucent-cyan attitude box — so each reads as a distinct layer.
-This customization API covers the satellite layer.
+The maneuver, contact, and attitude annotations are separate layers, each with its own default look
+— orange burns, cyan ground links and observers, a translucent-cyan attitude box — and its own style
+field on `Style`:
+
+| Layer | Style | Fields |
+|-------|-------|--------|
+| Maneuvers | [`ManeuverStyle`][gmat_czml.ManeuverStyle] | `marker` ([`PointStyle`][gmat_czml.PointStyle]), `label` ([`LabelStyle`][gmat_czml.LabelStyle]), `arc` ([`LineStyle`][gmat_czml.LineStyle]) |
+| Contacts | [`ContactStyle`][gmat_czml.ContactStyle] | `observer` ([`PointStyle`][gmat_czml.PointStyle]), `label` ([`LabelStyle`][gmat_czml.LabelStyle]), `link` ([`LineStyle`][gmat_czml.LineStyle]) |
+| Attitude | [`AttitudeStyle`][gmat_czml.AttitudeStyle] | `box_fill_color`, `box_outline_color`, `box_outline_width` |
+
+```python
+from gmat_czml import Style, ManeuverStyle, ContactStyle, PointStyle, LineStyle, to_czml
+
+style = Style(
+    maneuver=ManeuverStyle(
+        marker=PointStyle(color=(200, 0, 0, 255)),
+        arc=LineStyle(color=(200, 0, 0, 255), width=5.0),
+    ),
+    contact=ContactStyle(link=LineStyle(color=(0, 180, 0, 255), width=2.0)),
+)
+to_czml(trajectory, style=style, maneuvers=maneuvers).save("orbit.czml")
+```
+
+[`LineStyle`][gmat_czml.LineStyle] (`color`, `width`) is the generic line style the burn arc and the
+line of sight reuse. The palette presets recolour only the satellite layer; the annotation layers
+keep their semantic defaults unless you override them.
