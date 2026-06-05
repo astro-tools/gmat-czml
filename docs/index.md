@@ -28,6 +28,9 @@ source of geometric truth, and Cesium is the renderer. gmat-czml is the bridge b
 - **[Canonical input schema](schema.md)** — the state-series contract every producer feeds.
 - **[Orbit path](conversion/orbit-path.md)** and **[ground track](conversion/ground-track.md)** —
   what each entity becomes in CZML.
+- **[Maneuvers](conversion/maneuvers.md)**, **[attitude](conversion/attitude.md)**, and
+  **[contacts](conversion/contacts.md)** — the annotation layers, with **[styling](styling.md)** over
+  all of them.
 - **[Command line](cli.md)** — the `gmat-czml convert` subcommand.
 - **[Gallery](gallery.md)** — runnable examples with rendered output.
 - **[API reference](api.md)** — the full public surface.

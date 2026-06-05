@@ -41,8 +41,10 @@ nav:
       - Ground track: conversion/ground-track.md
       - Maneuvers: conversion/maneuvers.md
       - Attitude: conversion/attitude.md
+      - Contacts: conversion/contacts.md
       - Styling: styling.md
       - Command line: cli.md
+      - gmat-run adapter: conversion/gmat-run-adapter.md
   - Gallery: gallery.md
   - API reference: api.md
   - Design:
