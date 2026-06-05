@@ -13,14 +13,28 @@
       python -m http.server  here and open http://localhost:8000/viewer.html
 
       Two ways to use it:
-        1. Manual: optionally paste a Cesium ion access token in the box (top-left), then drag a
-           .czml file onto the page (or use "Choose file"). The token is stored in your browser's
-           localStorage only — it is never sent anywhere but Cesium ion and is not in this repo.
+        1. Manual: pick a base imagery in the "Base imagery" dropdown (top-left), optionally paste a
+           token in the box, then drag a .czml file onto the page (or use "Choose file"). The token
+           is stored in your browser's localStorage only — it is never sent anywhere but the imagery
+           provider you selected and is not in this repo.
         2. Headless: scripts/render_gallery.py serves the repo over HTTP and calls window.boot()
-           with the token (from the CESIUM_ION_TOKEN environment variable) and a .czml URL.
+           with {token, czml, imagery} — the token from the CESIUM_ION_TOKEN environment variable, a
+           .czml URL, and an optional imagery id. A ?czml=<url>&imagery=<id> query string does the
+           same for a shareable link.
 
-      With a token, the globe uses Cesium ion world imagery. Without one, it falls back to the
-      offline Natural Earth II imagery bundled with CesiumJS — no token, no network imagery.
+      Base imagery options (the "Base imagery" dropdown / boot's imagery / the ?imagery= param):
+        - offline  Natural Earth II bundled with CesiumJS — no token, no network. The default.
+        - osm      OpenStreetMap tiles — no token; needs network. © OpenStreetMap contributors.
+        - ion      Cesium ion world imagery — needs a Cesium ion token in the box.
+        - mapbox   Mapbox satellite-streets — needs a Mapbox access token in the box.
+      A token-requiring option falls back to offline imagery when no token is supplied, so the globe
+      is never blank. CZML carries no base imagery, so this is purely viewer-side configuration; the
+      .czml document is identical whatever underlay you pick.
+
+      The "Clamp ground track to surface" checkbox drapes the ground-track polylines onto the globe
+      (Cesium clampToGround) so they hug the imagery in a tilted view, instead of floating at the
+      satellite's own height (the document's default). It only affects the <object>/groundtrack
+      polylines, not the orbit path, contact links, or maneuver arcs.
     -->
     <script>
       window.CESIUM_BASE_URL = "https://cdn.jsdelivr.net/npm/cesium@1.142.0/Build/Cesium/";
@@ -53,7 +67,8 @@
         font-size: 13px;
         max-width: 320px;
       }
-      #panel input[type="text"] {
+      #panel input[type="text"],
+      #panel select {
         width: 100%;
         box-sizing: border-box;
         margin: 4px 0;
@@ -62,6 +77,17 @@
         border: 1px solid #555;
         background: #11141c;
         color: #eee;
+      }
+      #panel label.check {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 8px;
+        font-size: 12px;
+        cursor: pointer;
+      }
+      #panel label.check input {
+        margin: 0;
       }
       #panel button,
       #panel label.file {
@@ -112,12 +138,20 @@
   <body>
     <div id="panel">
       <strong>gmat-czml viewer</strong>
-      <div class="hint">Optional Cesium ion token (else offline imagery):</div>
-      <input id="token" type="text" placeholder="paste ion token (stored locally only)" />
+      <div class="hint">Base imagery:</div>
+      <select id="imagery">
+        <option value="offline">Offline (bundled)</option>
+        <option value="osm">OpenStreetMap</option>
+        <option value="ion">Cesium ion world imagery</option>
+        <option value="mapbox">Mapbox</option>
+      </select>
+      <div class="hint">Token (for Cesium ion or Mapbox):</div>
+      <input id="token" type="text" placeholder="paste ion / Mapbox token (stored locally only)" />
       <div>
-        <button id="apply">Apply token</button>
+        <button id="apply">Apply</button>
         <label class="file">Choose .czml<input id="file" type="file" accept=".czml,application/json" hidden /></label>
       </div>
+      <label class="check"><input id="clamp" type="checkbox" /> Clamp ground track to surface</label>
       <div class="hint">…or drag a .czml file anywhere onto the page.</div>
       <div id="status"></div>
     </div>
@@ -136,17 +170,79 @@
     </div>
     <script>
       const TOKEN_KEY = "gmat_czml_ion_token";
+      const IMAGERY_KEY = "gmat_czml_imagery";
+      const CLAMP_KEY = "gmat_czml_clamp_ground_track";
       const statusEl = document.getElementById("status");
       const tokenEl = document.getElementById("token");
+      const imageryEl = document.getElementById("imagery");
+      const clampEl = document.getElementById("clamp");
       tokenEl.value = localStorage.getItem(TOKEN_KEY) || "";
+      imageryEl.value = localStorage.getItem(IMAGERY_KEY) || "offline";
+      clampEl.checked = localStorage.getItem(CLAMP_KEY) === "1";
+
+      // The last-loaded source (a URL string or a parsed CZML array), so switching imagery or token
+      // can re-render the same scene instead of dropping it.
+      let lastSource = null;
+
+      // Ground-track packets are ids like "<object>/groundtrack" or "<object>/groundtrack/<seg>";
+      // the clamp toggle drapes only these, never the orbit path / contact links / maneuver arcs.
+      const GROUND_TRACK_ID = /(^|\/)groundtrack(\/|$)/;
 
       function setStatus(message) {
         statusEl.textContent = message;
       }
 
-      // Build (or rebuild) the Viewer. With a token, default ion world imagery is used; without
-      // one, the offline Natural Earth II layer bundled with CesiumJS.
-      function makeViewer(token) {
+      // The offline Natural Earth II layer bundled with CesiumJS — no token, no network. The
+      // fallback whenever a token-requiring source has no token, so the globe is never blank.
+      function offlineLayer() {
+        return Cesium.ImageryLayer.fromProviderAsync(
+          Cesium.TileMapServiceImageryProvider.fromUrl(
+            Cesium.buildModuleUrl("Assets/Textures/NaturalEarthII")
+          )
+        );
+      }
+
+      // The base imagery actually used, after falling back to offline when a token-requiring source
+      // (ion / mapbox) has no token. Returns the resolved id plus a status note.
+      function resolveImagery(imagery, token) {
+        if ((imagery === "ion" || imagery === "mapbox") && !token) {
+          return { kind: "offline", note: `${imagery} needs a token — using offline imagery` };
+        }
+        return { kind: imagery, note: imagery };
+      }
+
+      // The base imagery layer for a resolved id, or null for "ion" (the Viewer's default world
+      // imagery, enabled by Cesium.Ion.defaultAccessToken). CZML carries no base imagery, so this is
+      // pure viewer-side configuration — the .czml is identical whatever underlay is picked.
+      function baseLayerFor(kind, token) {
+        if (kind === "osm") {
+          return Cesium.ImageryLayer.fromProviderAsync(
+            Promise.resolve(
+              new Cesium.UrlTemplateImageryProvider({
+                url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                credit: "© OpenStreetMap contributors",
+                maximumLevel: 19,
+              })
+            )
+          );
+        }
+        if (kind === "mapbox") {
+          return Cesium.ImageryLayer.fromProviderAsync(
+            Promise.resolve(
+              new Cesium.MapboxStyleImageryProvider({ styleId: "satellite-streets-v12", accessToken: token })
+            )
+          );
+        }
+        if (kind === "offline") {
+          return offlineLayer();
+        }
+        return null; // ion: the Viewer's default world imagery
+      }
+
+      // Build (or rebuild) the Viewer with the chosen base imagery. "ion" with a token uses ion world
+      // imagery; "osm"/"mapbox"/"offline" install their own base layer; a token-requiring source
+      // with no token falls back to offline imagery.
+      function makeViewer(token, imagery) {
         if (window.__viewer) {
           window.__viewer.destroy();
           window.__viewer = null;
@@ -154,6 +250,7 @@
         if (token) {
           Cesium.Ion.defaultAccessToken = token;
         }
+        const resolved = resolveImagery(imagery || "offline", token);
         const options = {
           baseLayerPicker: false,
           geocoder: false,
@@ -163,17 +260,34 @@
           infoBox: false,
           selectionIndicator: false,
         };
-        if (!token) {
-          options.baseLayer = Cesium.ImageryLayer.fromProviderAsync(
-            Cesium.TileMapServiceImageryProvider.fromUrl(
-              Cesium.buildModuleUrl("Assets/Textures/NaturalEarthII")
-            )
-          );
+        const layer = baseLayerFor(resolved.kind, token);
+        if (layer) {
+          options.baseLayer = layer;
         }
         const viewer = new Cesium.Viewer("cesiumContainer", options);
         viewer.scene.globe.enableLighting = false;
         window.__viewer = viewer;
+        setStatus(resolved.note);
         return viewer;
+      }
+
+      // Drape (or un-drape) the loaded ground-track polylines onto the globe per the clamp toggle.
+      function applyClamp() {
+        const dataSource = window.__dataSource;
+        if (!dataSource) return;
+        const on = clampEl.checked;
+        for (const entity of dataSource.entities.values) {
+          if (entity.polyline && GROUND_TRACK_ID.test(entity.id)) {
+            entity.polyline.clampToGround = on;
+          }
+        }
+        if (window.__viewer) window.__viewer.scene.requestRender();
+      }
+
+      // Rebuild the Viewer for a new token / imagery and re-load the current scene if there is one.
+      function rebuild() {
+        makeViewer(tokenEl.value.trim(), imageryEl.value);
+        if (lastSource) loadCzml(lastSource).catch((e) => setStatus(String(e)));
       }
 
       // The radius (metres) of a sphere centred on Earth that encloses the whole trajectory, so
@@ -201,9 +315,12 @@
       // Resolves once the scene is ready; sets window.__czmlReady for the headless harness.
       async function loadCzml(source) {
         window.__czmlReady = false;
-        const viewer = window.__viewer || makeViewer(tokenEl.value.trim());
+        lastSource = source;
+        const viewer = window.__viewer || makeViewer(tokenEl.value.trim(), imageryEl.value);
         const dataSource = await Cesium.CzmlDataSource.load(source);
         await viewer.dataSources.add(dataSource);
+        window.__dataSource = dataSource;
+        applyClamp();
         const sphere = new Cesium.BoundingSphere(
           Cesium.Cartesian3.ZERO,
           trajectoryRadius(dataSource) * 1.25
@@ -216,20 +333,35 @@
         return dataSource;
       }
 
-      // The entry point the headless render harness calls: {token, czml}.
+      // The entry point the headless render harness calls: {token, czml, imagery, clamp}.
+      // Back-compat: with a token but no imagery id (the gallery harness's call), default to ion
+      // world imagery — the behaviour before the imagery selector existed; otherwise use the
+      // supplied / selected id (offline by default).
       window.boot = async function (opts) {
         opts = opts || {};
-        makeViewer(opts.token || "");
+        const imagery = opts.imagery || (opts.token ? "ion" : imageryEl.value);
+        imageryEl.value = imagery;
+        if (typeof opts.clamp === "boolean") clampEl.checked = opts.clamp;
+        makeViewer(opts.token || "", imagery);
         if (opts.czml) {
           await loadCzml(opts.czml);
         }
       };
 
       document.getElementById("apply").addEventListener("click", () => {
-        const token = tokenEl.value.trim();
-        localStorage.setItem(TOKEN_KEY, token);
-        makeViewer(token);
-        setStatus(token ? "ion imagery enabled" : "offline imagery");
+        localStorage.setItem(TOKEN_KEY, tokenEl.value.trim());
+        localStorage.setItem(IMAGERY_KEY, imageryEl.value);
+        rebuild();
+      });
+
+      imageryEl.addEventListener("change", () => {
+        localStorage.setItem(IMAGERY_KEY, imageryEl.value);
+        rebuild();
+      });
+
+      clampEl.addEventListener("change", () => {
+        localStorage.setItem(CLAMP_KEY, clampEl.checked ? "1" : "0");
+        applyClamp();
       });
 
       document.getElementById("file").addEventListener("change", (event) => {
@@ -259,8 +391,11 @@
           document.getElementById("fileWarning").style.display = "flex";
           return;
         }
-        makeViewer(tokenEl.value.trim());
-        const url = new URLSearchParams(location.search).get("czml");
+        const params = new URLSearchParams(location.search);
+        const qImagery = params.get("imagery");
+        if (qImagery) imageryEl.value = qImagery;
+        makeViewer(tokenEl.value.trim(), imageryEl.value);
+        const url = params.get("czml");
         if (url) {
           setStatus(`loading ${url}…`);
           loadCzml(url).catch((e) => setStatus(String(e)));

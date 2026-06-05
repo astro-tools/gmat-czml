@@ -289,6 +289,24 @@ was its sole consumer. Attitude is a second consumer of that same rotation. This
 that under-count: it reuses the existing ground-track-grade rotation at the same visualization
 tolerance, so the charter's EOP non-goal stands intact (recorded as a charter erratum).
 
+## D12 — imagery underlay is viewer-side configuration, not a CZML hint
+
+The optional ground-track tile underlay (OpenStreetMap / Mapbox / Cesium ion) is **viewer
+configuration**, not part of the emitted document. `to_czml`'s output is unchanged: a `.czml` carries
+no base imagery, and the underlay is selected in the Cesium client.
+
+- The bundled `examples/viewer.html` gains a **Base imagery** selector (offline / OSM / ion / Mapbox)
+  and a **Clamp ground track to surface** toggle; both are wired into the headless `boot()` seam and a
+  `?imagery=` query parameter. No converter, schema, or golden-output change.
+- The ground-track converter keeps floating the polyline at the satellite's own geodetic height; a
+  client that wants the track to hug imagery drapes it with `clampToGround` (the viewer's checkbox), so
+  legibility over an underlay is a render-time choice rather than a second emitted geometry.
+
+**Rationale.** CZML has no portable field for base imagery, so a `to_czml` "imagery hint" would be a
+non-standard extension only this project's viewer could honour — every other Cesium client would
+ignore it, while it coupled the portable document to one renderer's configuration. Keeping imagery
+purely viewer-side leaves the document portable and the underlay a property of wherever it is rendered.
+
 ---
 
 ## Forward notes (not v0.1 decisions)

@@ -32,9 +32,12 @@ won't render there. The simplest way:
 python examples/serve.py        # serves this folder and opens the viewer
 ```
 
-Then **drag a `.czml` file from `examples/output/` onto the page** (or use *Choose file*). It
-renders with the offline imagery bundled in CesiumJS; paste a Cesium ion access token in the box for
-ion world imagery — the token is stored in your browser only and is never committed.
+Then **drag a `.czml` file from `examples/output/` onto the page** (or use *Choose file*). The
+**Base imagery** dropdown picks the globe underlay — offline (the default, bundled in CesiumJS),
+OpenStreetMap, Cesium ion, or Mapbox; paste a Cesium ion or Mapbox token in the box for the two that
+need one (stored in your browser only, never committed). A **Clamp ground track to surface** checkbox
+drapes the ground track onto the globe so it hugs the imagery. See
+[Imagery underlay](../docs/getting-started.md#imagery-underlay-osm-mapbox) for the recipe.
 
 (Equivalently, run `python -m http.server` in this folder and open
 `http://localhost:8000/viewer.html`.)

@@ -100,9 +100,76 @@ CZML is rendered by a Cesium client, not by gmat-czml. The quickest ways to see 
   snippet, or drag your `.czml` onto the page. Nothing to install.
 - **The bundled viewer** — run `python examples/serve.py` (CesiumJS needs Web Workers, which
   browsers block on a `file://` page, so it must be served over http) and drag a `.czml` onto the
-  page. It uses CesiumJS's offline imagery by default; paste a Cesium ion token for ion world
-  imagery.
+  page. Its **Base imagery** dropdown picks the globe underlay — offline (the default), OpenStreetMap,
+  Cesium ion, or Mapbox — see [Imagery underlay](#imagery-underlay-osm-mapbox) below.
 - **Your own app** — load the document with `Cesium.CzmlDataSource.load()` in CesiumJS, Cesium ion,
   or [Resium](https://resium.reearth.io/) (React). See the [client matrix](https://github.com/astro-tools/gmat-czml#supported-cesium-clients).
 
 See the [Gallery](gallery.md) for complete, runnable examples.
+
+## Imagery underlay (OSM / Mapbox)
+
+CZML carries no base imagery — the underlay is a property of the Cesium client, not the document — so
+the same `.czml` renders over whatever globe imagery the viewer is configured for. The bundled viewer
+offers four base layers in its **Base imagery** dropdown:
+
+| Option | Imagery | Token |
+|--------|---------|-------|
+| Offline (bundled) | Natural Earth II shipped with CesiumJS | none (no network) |
+| OpenStreetMap | OSM street tiles | none |
+| Cesium ion world imagery | ion's high-resolution imagery | a Cesium ion token |
+| Mapbox | Mapbox `satellite-streets` | a Mapbox access token |
+
+Paste a token for ion or Mapbox (stored in your browser only); a token-requiring option falls back to
+the offline imagery when no token is supplied, so the globe is never blank. A `?imagery=osm` (or
+`ion` / `mapbox` / `offline`) query parameter selects the underlay for a shareable link.
+
+### In your own app
+
+The underlay is a few lines of CesiumJS. For an OpenStreetMap base layer (no token):
+
+```js
+const viewer = new Cesium.Viewer("cesiumContainer", {
+  baseLayer: Cesium.ImageryLayer.fromProviderAsync(
+    Promise.resolve(
+      new Cesium.UrlTemplateImageryProvider({
+        url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+        credit: "© OpenStreetMap contributors",
+        maximumLevel: 19,
+      })
+    )
+  ),
+});
+const dataSource = await Cesium.CzmlDataSource.load("orbit.czml");
+viewer.dataSources.add(dataSource);
+```
+
+For Mapbox, swap the base layer for a `MapboxStyleImageryProvider` carrying your access token:
+
+```js
+baseLayer: Cesium.ImageryLayer.fromProviderAsync(
+  Promise.resolve(
+    new Cesium.MapboxStyleImageryProvider({ styleId: "satellite-streets-v12", accessToken: MAPBOX_TOKEN })
+  )
+),
+```
+
+The public OSM tile server is fine for a quick look but is governed by the
+[OSM tile usage policy](https://operations.osmfoundation.org/policies/tiles/) — use a dedicated tile
+host (or Mapbox / ion) for anything beyond casual use.
+
+### Clamping the ground track
+
+The ground track floats at the satellite's own geodetic height (see
+[Ground track](conversion/ground-track.md)), which lines up with the underlay seen from straight
+overhead but rides above it in a tilted view. To make the track hug the imagery, drape its polylines
+onto the globe with `clampToGround` — the bundled viewer's **Clamp ground track to surface** checkbox
+does exactly this:
+
+```js
+for (const entity of dataSource.entities.values) {
+  if (entity.polyline && /(^|\/)groundtrack(\/|$)/.test(entity.id)) {
+    entity.polyline.clampToGround = true;
+  }
+}
+```
