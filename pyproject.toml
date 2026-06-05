@@ -55,6 +55,11 @@ dev = [
   "ruff>=0.6",
   "mypy>=1.11",
   "pandas-stubs",
+  # gmat-run is the source object the optional gmat-run adapter converts. It is a dev-only
+  # dependency — never a runtime one (the adapter imports it lazily) — so it is exercised here and
+  # by the typechecker but stays absent from the minimal install. Its only runtime dep is pandas
+  # (gmatpy is discovered at call time, so no GMAT engine is pulled in).
+  "gmat-run>=0.6",
   # The headless-browser harness for the CesiumJS-parse check (the `browser`-marked tests).
   "pytest-playwright>=0.5",
   # The validation harness. jsonschema + referencing validate every emitted document against

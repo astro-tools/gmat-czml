@@ -492,6 +492,7 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "gmat-run" },
     { name = "jsonschema" },
     { name = "mypy" },
     { name = "pandas-stubs", version = "2.3.3.260113", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
@@ -519,6 +520,7 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "gmat-run", specifier = ">=0.6" },
     { name = "jsonschema", specifier = ">=4.20" },
     { name = "mypy", specifier = ">=1.11" },
     { name = "pandas-stubs" },
@@ -533,6 +535,21 @@ dev = [
 docs = [
     { name = "mkdocs-material", specifier = ">=9.5" },
     { name = "mkdocstrings", extras = ["python"], specifier = ">=0.26" },
+]
+
+[[package]]
+name = "gmat-run"
+version = "0.6.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+    { name = "pandas", version = "2.3.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "pandas", version = "3.0.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/f5/52/3d0bfe5e4b420435645807978825107e2d0d15882d78abe96c8c17950062/gmat_run-0.6.0.tar.gz", hash = "sha256:6e5777891944fa1603337185b8be8215c66875f6a2fa437202e8489558f6e378", size = 1485136, upload-time = "2026-05-22T21:32:46.04Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/4b/d8/5bb6a96515609ad30606709badeb16e1b761abe9041bdc2255727f06f0c0/gmat_run-0.6.0-py3-none-any.whl", hash = "sha256:ac452ab7f3036568f32a7e6b5b094c822354b8c5d284dedb87961352d49b2c8b", size = 100224, upload-time = "2026-05-22T21:32:44.408Z" },
 ]
 
 [[package]]
