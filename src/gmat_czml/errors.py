@@ -27,6 +27,7 @@ __all__ = [
     "EmptyTrajectoryError",
     "GmatCzmlError",
     "InvalidUnitsError",
+    "IonUploadError",
     "MalformedStateError",
     "ManeuverOutsideTrajectoryError",
     "MissingColumnError",
@@ -276,6 +277,23 @@ class AttitudeFrameError(GmatCzmlError):
 
 class EmptyAttitudeError(GmatCzmlError):
     """An attitude history with no samples — there is no orientation to render."""
+
+
+class IonUploadError(GmatCzmlError):
+    """A Cesium ion upload did not complete.
+
+    Raised by the optional ion upload helper (:meth:`gmat_czml.CzmlDocument.upload_to_ion`) when ion
+    rejects a step of the upload — an HTTP error from the REST API (e.g. a ``401`` from an invalid
+    access token, which token passthrough leaves the caller to fix), an asset that finishes in an
+    ``ERROR`` / ``DATA_ERROR`` state, or a wait that times out before it reaches ``COMPLETE``.
+    The trajectory and the assembled document were valid — the failure is on the ion side or in the
+    supplied token — so this descends from :class:`GmatCzmlError` directly rather than
+    :class:`SchemaError`. ``detail`` describes what went wrong.
+    """
+
+    def __init__(self, detail: str) -> None:
+        self.detail = detail
+        super().__init__(f"Cesium ion upload failed: {detail}")
 
 
 class SchemaError(GmatCzmlError, ValueError):
