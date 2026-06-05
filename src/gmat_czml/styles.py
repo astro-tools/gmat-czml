@@ -11,8 +11,9 @@ orbit trail / ground track — so ``Style()`` (and an unflagged :func:`gmat_czml
 exactly that. Named presets resolve through :func:`preset`: ``sat-default`` plus a small palette of
 single-colour variants for telling several objects apart in a multi-object scene.
 
-The maneuver, contact, and attitude converters carry their own distinct layer styles (orange /
-cyan) rather than this satellite style; this customization API covers the satellite layer only.
+The maneuver, contact, and attitude annotations are separate layers with their own styles (orange /
+cyan by default) — :class:`ManeuverStyle`, :class:`ContactStyle`, and :class:`AttitudeStyle`, also
+carried on :class:`Style` — so a custom style can recolour those layers too.
 """
 
 from __future__ import annotations
@@ -24,8 +25,12 @@ from gmat_czml.errors import UnknownStyleError
 __all__ = [
     "PRESET_NAMES",
     "RGBA",
+    "AttitudeStyle",
+    "ContactStyle",
     "ImageBillboard",
     "LabelStyle",
+    "LineStyle",
+    "ManeuverStyle",
     "PathStyle",
     "PointStyle",
     "Style",
@@ -105,11 +110,74 @@ class TrackStyle:
 
 
 @dataclass(frozen=True)
-class Style:
-    """The visual style applied to one rendered object's satellite layer.
+class LineStyle:
+    """A line — its colour and width.
 
-    ``name`` is the style's identity (the preset name a :func:`preset` lookup returns); the four
-    element fields drive the emitted geometry:
+    ``color`` (channels 0-255) and ``width`` (pixels) draw a generic line: the maneuver burn arc and
+    the contact line of sight. Unlike :class:`PathStyle` / :class:`TrackStyle`, which name the
+    satellite's own orbit trail and ground track, this is the neutral line style the annotation
+    layers reuse.
+    """
+
+    color: RGBA
+    width: float
+
+
+@dataclass(frozen=True)
+class ManeuverStyle:
+    """The maneuver annotation layer — its marker, label, and burn-arc styles.
+
+    A maneuver renders as a marker (a point + label, for an impulsive burn or a finite burn's
+    companion) and, for a finite burn, a burn arc. ``marker`` styles the point, ``label`` the text,
+    and ``arc`` the finite-burn line. The defaults are the baked-in maneuver look: an orange marker
+    and arc with a white label, drawn as their own layer distinct from the satellite.
+    """
+
+    marker: PointStyle = field(
+        default_factory=lambda: PointStyle(color=(255, 140, 0, 255), pixel_size=11.0)
+    )
+    label: LabelStyle = field(default_factory=LabelStyle)
+    arc: LineStyle = field(default_factory=lambda: LineStyle(color=(255, 140, 0, 255), width=3.0))
+
+
+@dataclass(frozen=True)
+class ContactStyle:
+    """The contact annotation layer — its observer marker, label, and line-of-sight styles.
+
+    A contact renders an observer entity (a point + label at the ground station) and an observer ->
+    satellite link. ``observer`` styles the point, ``label`` the text, and ``link`` the line of
+    sight. The defaults are the baked-in contact look: a cyan observer and link with a white label,
+    drawn as the ground / line-of-sight layer distinct from the satellite.
+    """
+
+    observer: PointStyle = field(
+        default_factory=lambda: PointStyle(color=(0, 255, 255, 255), pixel_size=8.0)
+    )
+    label: LabelStyle = field(default_factory=LabelStyle)
+    link: LineStyle = field(default_factory=lambda: LineStyle(color=(0, 255, 255, 255), width=1.0))
+
+
+@dataclass(frozen=True)
+class AttitudeStyle:
+    """The attitude annotation layer — the body box's fill and outline colours.
+
+    The attitude marker is a schematic body box; ``box_fill_color`` fills it (channels 0-255, with a
+    translucent alpha by default) and ``box_outline_color`` / ``box_outline_width`` draw its edges.
+    The box's dimensions are fixed by the converter (three distinct, exaggerated axes so the
+    orientation reads), not styled here. The defaults are the baked-in translucent-cyan body box.
+    """
+
+    box_fill_color: RGBA = (0, 200, 255, 110)
+    box_outline_color: RGBA = (0, 200, 255, 255)
+    box_outline_width: float = 1.0
+
+
+@dataclass(frozen=True)
+class Style:
+    """The visual style applied to one rendered object and its annotation layers.
+
+    ``name`` is the style's identity (the preset name a :func:`preset` lookup returns). The
+    **satellite-layer** fields drive the object's own geometry:
 
     - ``marker`` — the object's glyph, either a coloured :class:`PointStyle` (the default) or an
       :class:`ImageBillboard` image, exactly one of the two;
@@ -117,10 +185,17 @@ class Style:
     - ``path`` — the orbit-trail :class:`PathStyle`;
     - ``track`` — the ground-:class:`TrackStyle`.
 
+    The **annotation-layer** fields style the optional annotations, each with its own default look:
+
+    - ``maneuver`` — the :class:`ManeuverStyle` for burn markers and arcs (orange);
+    - ``contact`` — the :class:`ContactStyle` for observers and lines of sight (cyan);
+    - ``attitude`` — the :class:`AttitudeStyle` for the body-orientation box (translucent cyan).
+
     The defaults are ``sat-default``, so ``Style()`` is the baked-in look :func:`gmat_czml.to_czml`
     applies when given no ``style``. Build a custom style by overriding any field —
     ``Style(marker=PointStyle(color=(0, 255, 0, 255)), path=PathStyle(width=3.0))`` — or resolve a
-    named preset with :func:`preset`.
+    named preset with :func:`preset`. The palette presets recolour only the satellite layer; the
+    annotation layers keep their semantic colours unless you override them.
     """
 
     name: str = "sat-default"
@@ -128,6 +203,9 @@ class Style:
     label: LabelStyle = field(default_factory=LabelStyle)
     path: PathStyle = field(default_factory=PathStyle)
     track: TrackStyle = field(default_factory=TrackStyle)
+    maneuver: ManeuverStyle = field(default_factory=ManeuverStyle)
+    contact: ContactStyle = field(default_factory=ContactStyle)
+    attitude: AttitudeStyle = field(default_factory=AttitudeStyle)
 
 
 # The single-colour palette presets, beyond ``sat-default``: well-separated hues (distinct from each
