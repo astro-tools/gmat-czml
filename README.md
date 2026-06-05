@@ -14,9 +14,12 @@ visualization.
 gmat-czml takes an already-computed trajectory — a state history in the canonical state-series
 form — and turns it into a [CZML](https://github.com/AnalyticalGraphicsInc/czml-writer/wiki/CZML-Structure)
 document a Cesium client can animate: an orbit path, a ground track, a point and a label, on a
-clock synthesized from the trajectory's own time span. The input is not GMAT-specific — any
-producer that yields the canonical schema (a TLE propagation, a transfer, a read ephemeris) works
-through one call.
+clock synthesized from the trajectory's own time span. Optional layers add **ground-station
+contacts** (an observer and a line of sight shown only during each access window), **maneuvers**
+(impulsive and finite burns marked on the orbit), and an animated **attitude** (the body axes
+turning over the pass) — each restyleable through a small preset + customization API. The input is
+not GMAT-specific — any producer that yields the canonical schema (a TLE propagation, a transfer, a
+read ephemeris) works through one call.
 
 It does not propagate, integrate, or solve orbits, and it does not render: the producer is the
 source of geometric truth, and Cesium is the renderer. gmat-czml is the bridge between them.
@@ -35,6 +38,31 @@ czml.save("orbit.czml")          # load in any Cesium viewer
 orbit-formats can read (OEM, GMAT report, SP3, STK ephemeris, …), or an iterable of these for a
 multi-object scene. See the [gallery](https://astro-tools.github.io/gmat-czml/gallery/) for
 runnable examples.
+
+## Annotations and styling
+
+The same call layers on the optional v0.2 entities and a visual style:
+
+```python
+from gmat_czml import to_czml, preset
+
+to_czml(
+    trajectory,
+    ground_track=True,        # the sub-satellite ground track (Earth-only)
+    contacts=contacts,        # ground stations + a line of sight per access window
+    maneuvers=maneuvers,      # impulsive / finite burns marked on the orbit
+    attitude=attitude,        # an animated body-axes orientation
+    style=preset("sat-red"),  # a named preset, or a full Style(...) of colours / widths / glyphs
+    playback_seconds=120.0,   # the whole span plays back in ~this many wall-clock seconds
+).save("mission.czml")
+```
+
+`contacts` are gmat-czml [`Contact`](https://astro-tools.github.io/gmat-czml/conversion/contacts/) /
+`GroundStation` records; `maneuvers` and `attitude` are the orbit-formats `Maneuver` / `Attitude`
+records a CCSDS OPM / OCM / AEM reads. `style` is a named [preset](https://astro-tools.github.io/gmat-czml/styling/)
+or a `Style` of colour / width / glyph overrides. A gmat-run mission converts in one hop through the
+[`gmat_czml.adapters.gmat_run`](https://astro-tools.github.io/gmat-czml/conversion/gmat-run-adapter/)
+adapter.
 
 ## The canonical input
 

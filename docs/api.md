@@ -24,6 +24,15 @@ validate.
 
 ::: gmat_czml.CanonicalInput
 
+## Contacts
+
+The contact record gmat-czml owns — an observer's placement and the access windows it sees a
+satellite over. See the [contacts conversion](conversion/contacts.md) for what each becomes in CZML.
+
+::: gmat_czml.GroundStation
+
+::: gmat_czml.Contact
+
 ## Styling
 
 ::: gmat_czml.Style
@@ -54,3 +63,11 @@ Every error gmat-czml raises on purpose descends from `GmatCzmlError`; the schem
 failures additionally descend from `SchemaError`, which is also a `ValueError`.
 
 ::: gmat_czml.errors
+
+## gmat-run adapter
+
+The optional one-hop bridge from a gmat-run `Results` to a document — see the
+[gmat-run adapter guide](conversion/gmat-run-adapter.md). It lives in its own module because
+gmat-run is an optional dependency, imported only inside these functions.
+
+::: gmat_czml.adapters.gmat_run
