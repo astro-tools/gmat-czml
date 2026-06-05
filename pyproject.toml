@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "gmat-czml"
-version = "0.1.0"
+version = "0.2.0"
 description = "Convert GMAT (and any canonical-schema) trajectories to CZML for browser-based 3D Cesium visualization."
 readme = "README.md"
 requires-python = ">=3.10"
