@@ -29,7 +29,7 @@ from orbit_formats import Maneuver
 from gmat_czml.convert.maneuvers import maneuver_packets
 from gmat_czml.errors import InvalidUnitsError, ManeuverOutsideTrajectoryError
 from gmat_czml.schema import CanonicalInput, validate
-from gmat_czml.styles import Style
+from gmat_czml.styles import LabelStyle, LineStyle, ManeuverStyle, PointStyle, Style
 
 # The linear ephemeris epoch base. Every fixture starts here; a maneuver ``s`` seconds in sits at
 # the ``s``-th kilometre of the X axis, so an interpolated marker is trivially hand-checkable.
@@ -279,3 +279,25 @@ def test_maneuvers_are_numbered_in_order() -> None:
 
 def test_no_maneuvers_yields_no_packets() -> None:
     assert _packets([]) == []
+
+
+# --- custom styling -----------------------------------------------------------------------
+
+
+def test_custom_maneuver_style_drives_marker_arc_and_label() -> None:
+    style = Style(
+        maneuver=ManeuverStyle(
+            marker=PointStyle(color=(10, 20, 30, 255), pixel_size=5.0),
+            label=LabelStyle(color=(1, 2, 3, 255), font="20pt Arial"),
+            arc=LineStyle(color=(40, 50, 60, 255), width=8.0),
+        )
+    )
+    packets = maneuver_packets([_finite()], _item(), "Sat", style)
+    arc = _packet(packets, "Sat/maneuver/0")
+    marker = _packet(packets, "Sat/maneuver/0/marker")
+    assert arc["polyline"]["width"] == 8.0
+    assert arc["polyline"]["material"]["solidColor"]["color"]["rgba"] == [40, 50, 60, 255]
+    assert marker["point"]["color"]["rgba"] == [10, 20, 30, 255]
+    assert marker["point"]["pixelSize"] == 5.0
+    assert marker["label"]["fillColor"]["rgba"] == [1, 2, 3, 255]
+    assert marker["label"]["font"] == "20pt Arial"

@@ -34,12 +34,17 @@ from referencing import Registry, Resource
 from referencing.jsonschema import DRAFT7
 
 from gmat_czml import (
+    AttitudeStyle,
     Contact,
+    ContactStyle,
     CzmlDocument,
     GroundStation,
     ImageBillboard,
     LabelStyle,
+    LineStyle,
+    ManeuverStyle,
     PathStyle,
+    PointStyle,
     Style,
     TrackStyle,
     preset,
@@ -220,14 +225,44 @@ def styled_gmat_leo() -> CzmlDocument:
     return to_czml(gmat_leo_dataframe(), style=style, ground_track=True)
 
 
+def styled_annotations_gmat_leo() -> CzmlDocument:
+    """The GMAT LEO with custom-styled annotation layers — maneuvers, contacts, and attitude.
+
+    Recolours each annotation layer away from its orange / cyan default (red maneuvers, green
+    contacts, magenta attitude box) so the golden locks the annotation customization API end to end.
+    The satellite layer keeps ``sat-default``; only the annotation styles differ.
+    """
+    style = Style(
+        maneuver=ManeuverStyle(
+            marker=PointStyle(color=(200, 0, 0, 255), pixel_size=12.0),
+            arc=LineStyle(color=(200, 0, 0, 255), width=5.0),
+        ),
+        contact=ContactStyle(
+            observer=PointStyle(color=(0, 180, 0, 255)),
+            link=LineStyle(color=(0, 180, 0, 255), width=2.0),
+        ),
+        attitude=AttitudeStyle(
+            box_fill_color=(180, 0, 180, 120), box_outline_color=(180, 0, 180, 255)
+        ),
+    )
+    return to_czml(
+        gmat_leo_dataframe(),
+        style=style,
+        contacts=gmat_leo_contacts(),
+        maneuvers=gmat_leo_maneuvers(),
+        attitude=gmat_leo_attitude(),
+    )
+
+
 # --- the catalogue the goldens and the schema check share ---------------------------------
 
 # Each entry is a golden filename -> a factory producing the document for that fixed input. The
 # set spans both producers, the orbit-path and ground-track (multi-segment) paths, the contacts
 # path (observer placement + per-window link), the maneuver path (impulsive marker + finite arc),
 # the attitude path (a sampled orientation from a CCSDS-AEM quaternion history), a named style
-# preset, a fully custom style (image billboard + custom colours / widths), and a multi-object
-# document, so the goldens and the official-schema check cover the surface.
+# preset, a fully custom satellite style (image billboard + custom colours / widths), custom-styled
+# annotation layers, and a multi-object document, so the goldens and the official-schema check cover
+# the surface.
 DOCUMENTS: dict[str, Callable[[], CzmlDocument]] = {
     "gmat-leo.czml": lambda: to_czml(gmat_leo_dataframe()),
     "gmat-leo-groundtrack.czml": lambda: to_czml(gmat_leo_dataframe(), ground_track=True),
@@ -240,6 +275,7 @@ DOCUMENTS: dict[str, Callable[[], CzmlDocument]] = {
         gmat_leo_dataframe(), style=preset("sat-red"), ground_track=True
     ),
     "gmat-leo-styled.czml": styled_gmat_leo,
+    "gmat-leo-styled-annotations.czml": styled_annotations_gmat_leo,
     "skyfield-iss.czml": lambda: to_czml(skyfield_iss_dataframe()),
     "skyfield-iss-groundtrack.czml": lambda: to_czml(skyfield_iss_dataframe(), ground_track=True),
     "multi-object.czml": lambda: to_czml(

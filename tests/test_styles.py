@@ -18,8 +18,12 @@ import pytest
 
 from gmat_czml import (
     PRESET_NAMES,
+    AttitudeStyle,
+    ContactStyle,
     ImageBillboard,
     LabelStyle,
+    LineStyle,
+    ManeuverStyle,
     PathStyle,
     PointStyle,
     Style,
@@ -116,3 +120,39 @@ def test_unknown_preset_is_rejected_with_the_recognised_set() -> None:
         preset("sat-bogus")
     assert excinfo.value.name == "sat-bogus"
     assert excinfo.value.recognised == PRESET_NAMES
+
+
+# --- annotation layer styles --------------------------------------------------------------
+
+
+def test_annotation_layer_defaults_match_the_baked_in_looks() -> None:
+    # The maneuver layer: an orange marker + arc with a white label.
+    maneuver = ManeuverStyle()
+    assert maneuver.marker == PointStyle(color=(255, 140, 0, 255), pixel_size=11.0)
+    assert maneuver.arc == LineStyle(color=(255, 140, 0, 255), width=3.0)
+    assert maneuver.label == LabelStyle()
+    # The contact layer: a cyan observer + link with a white label.
+    contact = ContactStyle()
+    assert contact.observer == PointStyle(color=(0, 255, 255, 255), pixel_size=8.0)
+    assert contact.link == LineStyle(color=(0, 255, 255, 255), width=1.0)
+    assert contact.label == LabelStyle()
+    # The attitude layer: a translucent-cyan body box.
+    attitude = AttitudeStyle()
+    assert attitude.box_fill_color == (0, 200, 255, 110)
+    assert attitude.box_outline_color == (0, 200, 255, 255)
+    assert attitude.box_outline_width == 1.0
+
+
+def test_style_carries_the_annotation_layer_defaults() -> None:
+    style = Style()
+    assert style.maneuver == ManeuverStyle()
+    assert style.contact == ContactStyle()
+    assert style.attitude == AttitudeStyle()
+
+
+def test_palette_presets_keep_the_annotation_defaults() -> None:
+    # The palette recolours only the satellite layer; the annotation layers stay at their defaults.
+    style = preset("sat-red")
+    assert style.maneuver == ManeuverStyle()
+    assert style.contact == ContactStyle()
+    assert style.attitude == AttitudeStyle()

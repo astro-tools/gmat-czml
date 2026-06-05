@@ -21,7 +21,7 @@ import pytest
 
 from gmat_czml.convert.contacts import Contact, GroundStation, contact_packets
 from gmat_czml.errors import ContactEntityCollisionError, UnknownContactTargetError
-from gmat_czml.styles import Style
+from gmat_czml.styles import ContactStyle, LabelStyle, LineStyle, PointStyle, Style
 
 
 def _window(
@@ -82,6 +82,25 @@ def test_observer_carries_a_point_and_a_label() -> None:
     assert observer["point"]["show"] is True
     assert observer["point"]["color"]["rgba"] == [0, 255, 255, 255]
     assert observer["label"]["text"] == "GS1"
+
+
+def test_custom_contact_style_drives_observer_and_link() -> None:
+    style = Style(
+        contact=ContactStyle(
+            observer=PointStyle(color=(10, 20, 30, 255), pixel_size=5.0),
+            label=LabelStyle(color=(1, 2, 3, 255), font="20pt Arial"),
+            link=LineStyle(color=(40, 50, 60, 255), width=8.0),
+        )
+    )
+    packets = contact_packets([_contact()], {"Sat"}, style)
+    observer = _packet(packets, "GS1")
+    link = _packet(packets, "GS1-to-Sat")
+    assert observer["point"]["color"]["rgba"] == [10, 20, 30, 255]
+    assert observer["point"]["pixelSize"] == 5.0
+    assert observer["label"]["fillColor"]["rgba"] == [1, 2, 3, 255]
+    assert observer["label"]["font"] == "20pt Arial"
+    assert link["polyline"]["width"] == 8.0
+    assert link["polyline"]["material"]["solidColor"]["color"]["rgba"] == [40, 50, 60, 255]
 
 
 # --- the per-window link ------------------------------------------------------------------
