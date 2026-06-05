@@ -180,6 +180,17 @@ def test_contact_with_no_windows_places_the_observer_but_no_link() -> None:
     assert _ids(packets) == ["GS1"]  # observer placed, no link
 
 
+def test_single_window_contact_link_availability_is_a_one_element_list() -> None:
+    # A contact with exactly one window still emits its availability as an interval *collection* (a
+    # one-element list), not a bare interval string, so a client reads availability uniformly
+    # whether a contact has one window or many.
+    link = _packet(
+        contact_packets([_contact(windows=[_window((0, 10), (0, 20))])], {"Sat"}, Style()),
+        "GS1-to-Sat",
+    )
+    assert link["availability"] == ["2026-03-01T00:10:00.000000Z/2026-03-01T00:20:00.000000Z"]
+
+
 def test_no_contacts_yields_no_packets() -> None:
     assert contact_packets([], {"Sat"}, Style()) == []
 
