@@ -51,3 +51,12 @@ degenerate track with no renderable segment yields no packets.
 The ground track's colour and width come from the supplied [`Style`][gmat_czml.Style]'s `track`
 field; the `sat-default` default is the orbit trail's yellow, drawn a touch heavier so it reads
 clearly against the globe. See [Styling](../styling.md) for presets and customization.
+
+## Viewing over an imagery underlay
+
+A ground track reads especially well over street-map or satellite imagery. CZML carries no base
+imagery, so the underlay is chosen in the viewer, not the document — see
+[Imagery underlay (OSM / Mapbox)](../getting-started.md#imagery-underlay-osm-mapbox). Because the
+track floats at the satellite's own height, it aligns with the underlay seen from straight overhead;
+to make it hug the imagery in a tilted view, drape it with `clampToGround` (the bundled viewer's
+**Clamp ground track to surface** checkbox).
