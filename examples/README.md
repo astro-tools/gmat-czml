@@ -10,6 +10,7 @@ Runnable scripts that turn a trajectory into a CZML document. Each writes its `.
 | [`leo_ground_track.py`](leo_ground_track.py) | a real GMAT CCSDS-OEM ([`data/gmat-leo.oem`](data/gmat-leo.oem)) | LEO orbit path **and** ground track |
 | [`geo.py`](geo.py) | analytic, in-script (no file) | a geostationary orbit, built straight as the canonical schema |
 | [`skyfield_tle.py`](skyfield_tle.py) | an ISS TLE ([`data/iss.tle`](data/iss.tle)) propagated with Skyfield | a non-GMAT producer through the same one call |
+| [`lunar_transfer.py`](lunar_transfer.py) | a real GMAT CCSDS-OEM ([`data/gmat-lunar-transfer.oem`](data/gmat-lunar-transfer.oem)) | a translunar transfer out past the Moon — a deep-space, multi-segment ephemeris |
 
 **v0.2 entities** — the same GMAT LEO, annotated:
 
@@ -27,6 +28,7 @@ From the repository root, with the package installed (`uv sync` or `pip install 
 python examples/leo_ground_track.py
 python examples/geo.py
 python examples/skyfield_tle.py      # needs Skyfield: pip install skyfield
+python examples/lunar_transfer.py
 python examples/contacts_mission.py
 python examples/maneuver_mission.py
 python examples/attitude_mission.py

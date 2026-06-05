@@ -1,6 +1,6 @@
 # Gallery
 
-Runnable examples — three producer archetypes and three v0.2 annotation entities. Each lives under
+Runnable examples — four producer archetypes and three annotation entities. Each lives under
 [`examples/`](https://github.com/astro-tools/gmat-czml/tree/main/examples) and writes a `.czml` you
 can open in any Cesium client — see [viewing the output](getting-started.md#viewing-the-result).
 
@@ -10,6 +10,7 @@ Run them from the repository root with the package installed:
 python examples/leo_ground_track.py
 python examples/geo.py
 python examples/skyfield_tle.py      # needs Skyfield: pip install skyfield
+python examples/lunar_transfer.py
 python examples/contacts_mission.py
 python examples/maneuver_mission.py
 python examples/attitude_mission.py
@@ -52,6 +53,31 @@ same one call, ground track included.
 ![An ISS orbit and ground track in Cesium](assets/gallery/skyfield-iss.png){ width="520" }
 
 Source: [`examples/skyfield_tle.py`](https://github.com/astro-tools/gmat-czml/blob/main/examples/skyfield_tle.py).
+
+## A lunar transfer — out past the Moon, from GMAT
+
+The deep-space case. GMAT targets a full translunar mission — a low-perigee departure, a trans-lunar
+injection, a powered swing past the Moon, and capture into lunar orbit — and writes it as a
+four-segment CCSDS-OEM in Earth-centred EME2000. orbit-formats reads the segments as one continuous
+state series, and the same one call turns the whole eight-day voyage into a scene that reaches past
+lunar distance.
+
+![A translunar transfer trajectory drawing itself out from Earth to the Moon in Cesium](assets/gallery/lunar-transfer.gif){ width="640" }
+
+```python
+from orbit_formats import read
+from gmat_czml import to_czml
+
+trajectory = read("examples/data/gmat-lunar-transfer.oem")
+to_czml(trajectory, playback_seconds=90).save("lunar-transfer.czml")
+```
+
+The scene spans ~400,000 km, so the viewer zooms out until Earth is a bright point and the path
+fills the frame; the Moon's gravity shows as the bend where the trajectory swings around and
+captures. The trajectory is Earth-centred — gmat-czml renders the geometry GMAT computed, it does
+not model the third body — and the ground track is left off, as an Earth-surface projection is
+meaningless out at lunar distance. Source:
+[`examples/lunar_transfer.py`](https://github.com/astro-tools/gmat-czml/blob/main/examples/lunar_transfer.py).
 
 ## Contacts — ground stations and a windowed line of sight
 
