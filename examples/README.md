@@ -1,13 +1,23 @@
 # Examples
 
-Runnable scripts that turn a trajectory into a CZML document, one per producer archetype. Each
-writes its `.czml` to `examples/output/` (git-ignored — regenerate any time).
+Runnable scripts that turn a trajectory into a CZML document. Each writes its `.czml` to
+`examples/output/` (git-ignored — regenerate any time).
+
+**Producer archetypes** — one trajectory, one call:
 
 | Script | Producer | Shows |
 |--------|----------|-------|
 | [`leo_ground_track.py`](leo_ground_track.py) | a real GMAT CCSDS-OEM ([`data/gmat-leo.oem`](data/gmat-leo.oem)) | LEO orbit path **and** ground track |
 | [`geo.py`](geo.py) | analytic, in-script (no file) | a geostationary orbit, built straight as the canonical schema |
 | [`skyfield_tle.py`](skyfield_tle.py) | an ISS TLE ([`data/iss.tle`](data/iss.tle)) propagated with Skyfield | a non-GMAT producer through the same one call |
+
+**v0.2 entities** — the same GMAT LEO, annotated:
+
+| Script | Shows |
+|--------|-------|
+| [`contacts_mission.py`](contacts_mission.py) | ground stations and a line of sight shown only during each access window |
+| [`maneuver_mission.py`](maneuver_mission.py) | an impulsive burn pinned on the orbit and a finite burn as a highlighted arc |
+| [`attitude_mission.py`](attitude_mission.py) | the spacecraft's body axes animated over the orbit (the gallery GIF) |
 
 ## Running
 
@@ -17,6 +27,9 @@ From the repository root, with the package installed (`uv sync` or `pip install 
 python examples/leo_ground_track.py
 python examples/geo.py
 python examples/skyfield_tle.py      # needs Skyfield: pip install skyfield
+python examples/contacts_mission.py
+python examples/maneuver_mission.py
+python examples/attitude_mission.py
 ```
 
 `skyfield_tle.py` is the only one with an extra dependency — Skyfield is a non-GMAT producer, not
