@@ -102,10 +102,14 @@ CZML is rendered by a Cesium client, not by gmat-czml. The quickest ways to see 
   browsers block on a `file://` page, so it must be served over http) and drag a `.czml` onto the
   page. Its **Base imagery** dropdown picks the globe underlay — offline (the default), OpenStreetMap,
   Cesium ion, or Mapbox — see [Imagery underlay](#imagery-underlay-osm-mapbox) below.
+- **Server mode** — `to_czml(...).serve()` (or `gmat-czml serve mission.oem`) hosts the document
+  behind that same viewer and opens it for you, no file written. Needs the optional `[server]`
+  extra — see [Server mode](server.md).
 - **Your own app** — load the document with `Cesium.CzmlDataSource.load()` in CesiumJS, Cesium ion,
   or [Resium](https://resium.reearth.io/) (React). See the [client matrix](https://github.com/astro-tools/gmat-czml#supported-cesium-clients).
 
-See the [Gallery](gallery.md) for complete, runnable examples.
+To share a document instead of viewing it locally, [upload it to Cesium ion](ion.md) as a hosted
+asset (the optional `[ion]` extra). See the [Gallery](gallery.md) for complete, runnable examples.
 
 ## Imagery underlay (OSM / Mapbox)
 

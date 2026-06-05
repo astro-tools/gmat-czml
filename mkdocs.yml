@@ -44,6 +44,8 @@ nav:
       - Contacts: conversion/contacts.md
       - Styling: styling.md
       - Command line: cli.md
+      - Server mode: server.md
+      - Cesium ion upload: ion.md
       - gmat-run adapter: conversion/gmat-run-adapter.md
   - Gallery: gallery.md
   - API reference: api.md

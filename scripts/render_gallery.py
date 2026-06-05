@@ -77,6 +77,10 @@ SCENES = [
     Scene("leo_ground_track.py", "leo-ground-track.czml", "leo-ground-track.png", animate=True),
     Scene("geo.py", "geo.czml", "geo.png"),
     Scene("skyfield_tle.py", "skyfield-iss.czml", "skyfield-iss.png"),
+    # The deep-space scene: the whole transfer arc reaches ~400,000 km, so the viewer's own
+    # enclosing-sphere framing zooms out until Earth is a dot and the path to the Moon fills the
+    # frame. Animated, so the eight-day voyage draws itself out from Earth to the lunar capture.
+    Scene("lunar_transfer.py", "lunar-transfer.czml", "lunar-transfer.png", animate=True),
     # The annotation scenes freeze mid-span where their windowed entity is live: a contact link
     # shown only during the pass (~0.31), and the finite-burn arc shown only while it fires (~0.53).
     Scene("contacts_mission.py", "contacts.czml", "contacts.png", freeze=0.31),
