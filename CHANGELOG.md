@@ -7,6 +7,34 @@ time, not per pull request.
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-06-05
+
+The sharing release. v0.1 produced the document and v0.2 annotated it; v0.3 takes that document the
+last step — to a browser or to the cloud — through two optional, dependency-isolated extras, and
+catches the docs and gallery up to the full surface. The conversion contract is untouched: both
+extras are leaf modules imported only on demand, so a plain `pip install gmat-czml` pulls neither,
+and `to_czml`'s output is unchanged.
+
+### Added
+
+- **Server mode** (the `[server]` extra). `CzmlDocument.serve()` and a `gmat-czml serve` subcommand
+  host a document over http behind an embedded CesiumJS viewer and open it — the one-click local
+  look, no file written. server.py is a leaf module imported only on demand, so a base install pulls
+  neither fastapi nor uvicorn, and `.serve()` without the extra raises an `ImportError` with an
+  actionable install hint. The packaged viewer loads CesiumJS from a CDN, defaults to token-less
+  offline imagery, and parses in two stages so the headless check needs no WebGL.
+- **Cesium ion upload** (the `[ion]` extra). `CzmlDocument.upload_to_ion(token, name=...)` and a
+  `gmat-czml upload` subcommand push a document to Cesium ion as a hosted asset a client loads by id.
+  The token is forwarded as a bearer credential and nothing more; the four-step REST upload (create,
+  S3 put, complete, poll) needs boto3 only for the signed put, so boto3 is the single dependency
+  behind the extra. An ion-side failure — a bad token, an errored asset, a timed-out wait — raises a
+  typed `IonUploadError`; a missing token fails fast before any network call.
+- **Documentation.** New server-mode and ion-upload guide pages (the extras, the `serve()` /
+  `upload_to_ion()` calls, the CLI verbs and options), the CLI page covering all three subcommands,
+  the `IonAsset` return type in the API reference, and a refreshed supported-Cesium-client matrix. A
+  lunar-transfer gallery example — a GMAT-targeted four-segment translunar CCSDS-OEM converted through
+  the same one call, with an animated GIF of the eight-day voyage — exercises the ~400,000 km scale.
+
 ## [0.2.0] - 2026-06-04
 
 The annotation release. v0.1 turned a trajectory into an orbit path, a ground track, and a clock;
