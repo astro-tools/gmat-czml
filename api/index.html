@@ -1,0 +1,5697 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Convert GMAT (and any canonical-schema) trajectories to CZML for browser-based 3D Cesium visualization.">
+      
+      
+      
+        <link rel="canonical" href="https://astro-tools.github.io/gmat-czml/api/">
+      
+      
+        <link rel="prev" href="../gallery/">
+      
+      
+        <link rel="next" href="../design/decisions/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>API reference - gmat-czml</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="teal">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#api-reference" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="gmat-czml" class="md-header__button md-logo" aria-label="gmat-czml" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            gmat-czml
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              API reference
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="teal"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="teal"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/astro-tools/gmat-czml" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    astro-tools/gmat-czml
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="gmat-czml" class="md-nav__button md-logo" aria-label="gmat-czml" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    gmat-czml
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/astro-tools/gmat-czml" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    astro-tools/gmat-czml
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guide
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../schema/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Canonical input schema
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../conversion/orbit-path/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Orbit path
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../conversion/ground-track/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ground track
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../conversion/maneuvers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Maneuvers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../conversion/attitude/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Attitude
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../conversion/contacts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contacts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../styling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Styling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Command line
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../server/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Server mode
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ion/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cesium ion upload
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../conversion/gmat-run-adapter/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    gmat-run adapter
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../gallery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gallery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API reference
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#conversion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conversion
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gmat_czml.to_czml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;to_czml
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#documents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Documents
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gmat_czml.CzmlDocument" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;CzmlDocument
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" CzmlDocument">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.CzmlDocument.document" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;document
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.CzmlDocument.to_json" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;to_json
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.CzmlDocument.to_dict" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;to_dict
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.CzmlDocument.save" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;save
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.CzmlDocument.serve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;serve
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.CzmlDocument.upload_to_ion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;upload_to_ion
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#server-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Server mode
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cesium-ion-upload" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cesium ion upload
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gmat_czml.ion.IonAsset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;IonAsset
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" IonAsset">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.ion.IonAsset.dashboard_url" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;dashboard_url
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#input-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Input schema
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gmat_czml.validate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;validate
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gmat_czml.normalize_inputs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;normalize_inputs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gmat_czml.recognised_frame" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;recognised_frame
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gmat_czml.CanonicalInput" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;CanonicalInput
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" CanonicalInput">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.CanonicalInput.object_name" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;object_name
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.CanonicalInput.central_body" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;central_body
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.CanonicalInput.time_scale" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;time_scale
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contacts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contacts
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gmat_czml.GroundStation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;GroundStation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gmat_czml.Contact" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;Contact
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#styling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Styling
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gmat_czml.Style" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;Style
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gmat_czml.PointStyle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;PointStyle
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gmat_czml.ImageBillboard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;ImageBillboard
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gmat_czml.LabelStyle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;LabelStyle
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gmat_czml.PathStyle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;PathStyle
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gmat_czml.TrackStyle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;TrackStyle
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gmat_czml.LineStyle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;LineStyle
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gmat_czml.ManeuverStyle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;ManeuverStyle
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gmat_czml.ContactStyle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;ContactStyle
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gmat_czml.AttitudeStyle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;AttitudeStyle
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gmat_czml.preset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;preset
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Errors
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gmat_czml.errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-module"></code>&nbsp;errors
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" errors">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.errors.GmatCzmlError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;GmatCzmlError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.errors.UnmappableFrameError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;UnmappableFrameError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.errors.UnsupportedCentralBodyError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;UnsupportedCentralBodyError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.errors.UnknownInterpolationError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;UnknownInterpolationError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.errors.UnknownStyleError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;UnknownStyleError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.errors.UnknownContactTargetError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;UnknownContactTargetError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.errors.ContactEntityCollisionError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;ContactEntityCollisionError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.errors.ManeuverOutsideTrajectoryError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;ManeuverOutsideTrajectoryError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.errors.AmbiguousManeuverTargetError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;AmbiguousManeuverTargetError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.errors.AmbiguousAttitudeTargetError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;AmbiguousAttitudeTargetError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.errors.UnsupportedAttitudeTypeError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;UnsupportedAttitudeTypeError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.errors.AttitudeFrameError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;AttitudeFrameError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.errors.EmptyAttitudeError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;EmptyAttitudeError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.errors.IonUploadError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;IonUploadError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.errors.SchemaError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;SchemaError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.errors.MissingColumnError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;MissingColumnError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.errors.MissingFrameError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;MissingFrameError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.errors.UnknownFrameError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;UnknownFrameError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.errors.MissingTimeScaleError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;MissingTimeScaleError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.errors.UnknownTimeScaleError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;UnknownTimeScaleError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.errors.InvalidUnitsError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;InvalidUnitsError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.errors.EmptyTrajectoryError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;EmptyTrajectoryError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.errors.DuplicateObjectNameError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;DuplicateObjectNameError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.errors.MalformedStateError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;MalformedStateError
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gmat-run-adapter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        gmat-run adapter
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gmat_czml.adapters.gmat_run" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-module"></code>&nbsp;gmat_run
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" gmat_run">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.adapters.gmat_run.MissingStationError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;MissingStationError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.adapters.gmat_run.UnsupportedContactFormatError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;UnsupportedContactFormatError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.adapters.gmat_run.to_czml_from_results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;to_czml_from_results
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.adapters.gmat_run.results_to_trajectories" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;results_to_trajectories
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.adapters.gmat_run.results_to_contacts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;results_to_contacts
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Design
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/decisions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#conversion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conversion
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gmat_czml.to_czml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;to_czml
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#documents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Documents
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gmat_czml.CzmlDocument" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;CzmlDocument
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" CzmlDocument">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.CzmlDocument.document" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;document
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.CzmlDocument.to_json" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;to_json
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.CzmlDocument.to_dict" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;to_dict
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.CzmlDocument.save" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;save
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.CzmlDocument.serve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;serve
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.CzmlDocument.upload_to_ion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;upload_to_ion
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#server-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Server mode
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cesium-ion-upload" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cesium ion upload
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gmat_czml.ion.IonAsset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;IonAsset
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" IonAsset">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.ion.IonAsset.dashboard_url" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;dashboard_url
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#input-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Input schema
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gmat_czml.validate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;validate
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gmat_czml.normalize_inputs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;normalize_inputs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gmat_czml.recognised_frame" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;recognised_frame
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gmat_czml.CanonicalInput" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;CanonicalInput
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" CanonicalInput">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.CanonicalInput.object_name" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;object_name
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.CanonicalInput.central_body" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;central_body
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.CanonicalInput.time_scale" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;time_scale
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contacts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contacts
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gmat_czml.GroundStation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;GroundStation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gmat_czml.Contact" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;Contact
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#styling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Styling
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gmat_czml.Style" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;Style
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gmat_czml.PointStyle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;PointStyle
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gmat_czml.ImageBillboard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;ImageBillboard
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gmat_czml.LabelStyle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;LabelStyle
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gmat_czml.PathStyle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;PathStyle
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gmat_czml.TrackStyle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;TrackStyle
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gmat_czml.LineStyle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;LineStyle
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gmat_czml.ManeuverStyle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;ManeuverStyle
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gmat_czml.ContactStyle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;ContactStyle
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gmat_czml.AttitudeStyle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;AttitudeStyle
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gmat_czml.preset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;preset
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Errors
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gmat_czml.errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-module"></code>&nbsp;errors
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" errors">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.errors.GmatCzmlError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;GmatCzmlError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.errors.UnmappableFrameError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;UnmappableFrameError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.errors.UnsupportedCentralBodyError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;UnsupportedCentralBodyError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.errors.UnknownInterpolationError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;UnknownInterpolationError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.errors.UnknownStyleError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;UnknownStyleError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.errors.UnknownContactTargetError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;UnknownContactTargetError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.errors.ContactEntityCollisionError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;ContactEntityCollisionError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.errors.ManeuverOutsideTrajectoryError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;ManeuverOutsideTrajectoryError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.errors.AmbiguousManeuverTargetError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;AmbiguousManeuverTargetError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.errors.AmbiguousAttitudeTargetError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;AmbiguousAttitudeTargetError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.errors.UnsupportedAttitudeTypeError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;UnsupportedAttitudeTypeError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.errors.AttitudeFrameError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;AttitudeFrameError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.errors.EmptyAttitudeError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;EmptyAttitudeError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.errors.IonUploadError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;IonUploadError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.errors.SchemaError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;SchemaError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.errors.MissingColumnError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;MissingColumnError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.errors.MissingFrameError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;MissingFrameError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.errors.UnknownFrameError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;UnknownFrameError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.errors.MissingTimeScaleError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;MissingTimeScaleError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.errors.UnknownTimeScaleError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;UnknownTimeScaleError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.errors.InvalidUnitsError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;InvalidUnitsError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.errors.EmptyTrajectoryError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;EmptyTrajectoryError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.errors.DuplicateObjectNameError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;DuplicateObjectNameError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.errors.MalformedStateError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;MalformedStateError
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gmat-run-adapter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        gmat-run adapter
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gmat_czml.adapters.gmat_run" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-module"></code>&nbsp;gmat_run
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" gmat_run">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.adapters.gmat_run.MissingStationError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;MissingStationError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.adapters.gmat_run.UnsupportedContactFormatError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;UnsupportedContactFormatError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.adapters.gmat_run.to_czml_from_results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;to_czml_from_results
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.adapters.gmat_run.results_to_trajectories" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;results_to_trajectories
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gmat_czml.adapters.gmat_run.results_to_contacts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;results_to_contacts
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="api-reference">API reference<a class="headerlink" href="#api-reference" title="Permanent link">&para;</a></h1>
+<p>The full public surface of <code>gmat_czml</code>. Every name here is importable from the top-level package
+(for example <code>from gmat_czml import to_czml</code>).</p>
+<h2 id="conversion">Conversion<a class="headerlink" href="#conversion" title="Permanent link">&para;</a></h2>
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="gmat_czml.to_czml" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <span class="doc doc-object-name doc-function-name">to_czml</span>
+
+
+<a href="#gmat_czml.to_czml" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">to_czml</span><span class="p">(</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">ephemeris</span><span class="p">:</span> <span class="n"><span title="gmat_czml.assembly.TrajectorySource">TrajectorySource</span></span><span class="p">,</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="o">*</span><span class="p">,</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">style</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="            Style
+
+
+  
+      dataclass
+   (gmat_czml.styles.Style)" href="#gmat_czml.Style">Style</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">playback_seconds</span><span class="p">:</span> <span class="n"><span title="float">float</span></span> <span class="o">=</span> <span class="mf">60.0</span><span class="p">,</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">ground_track</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">contacts</span><span class="p">:</span> <span class="n"><span title="collections.abc.Sequence">Sequence</span></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="            Contact
+
+
+  
+      dataclass
+   (gmat_czml.convert.contacts.Contact)" href="#gmat_czml.Contact">Contact</a></span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">maneuvers</span><span class="p">:</span> <span class="n"><span title="collections.abc.Iterable">Iterable</span></span><span class="p">[</span><span class="n"><span title="orbit_formats.Maneuver">Maneuver</span></span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="n">attitude</span><span class="p">:</span> <span class="n"><span title="orbit_formats.Attitude">Attitude</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="            CzmlDocument (gmat_czml.document.CzmlDocument)" href="#gmat_czml.CzmlDocument">CzmlDocument</a></span>
+</code></pre></div>
+
+    <div class="doc doc-contents first">
+
+        <p>Convert a canonical trajectory into a <code>CzmlDocument</code>.</p>
+<p><code>ephemeris</code> is a canonical state-series <code>DataFrame</code>, an orbit-formats
+<code>Ephemeris</code>, or an iterable of either (one trajectory per object) — whatever
+<code>gmat_czml.schema.normalize_inputs</code> accepts. <code>style</code> selects the visual style;
+<code>None</code> uses the default. <code>playback_seconds</code> sets the document clock's default speed: the
+whole trajectory plays back in roughly that many seconds of wall-clock time (floored at 1x).
+The document is assembled entirely in memory.</p>
+<p><code>ground_track</code> adds each object's sub-satellite geodetic polyline (one packet per contiguous
+segment, split at the antimeridian). It is <strong>off by default</strong>: the ground track is the only
+path that loads the Earth-orientation rotation (and astropy, transitively, for an inertial
+source), so the core ephemeris path stays free of it unless a ground track is asked for (D6).</p>
+<p><code>contacts</code> adds, per <code>Contact</code>, an observer entity at its
+geodetic position and an observer → satellite link shown only during each access window. Each
+distinct observer is placed once, and each contact's target must be one of the rendered objects.</p>
+<p><code>maneuvers</code> adds, per orbit-formats <code>Maneuver</code>, a marker on the orbit at the burn: an
+impulsive burn becomes a point + label pinned at the burn epoch (shown from then on); a finite
+burn becomes an orange arc over the burn span plus a companion marker. The marker position is
+interpolated from the trajectory, so maneuvers attach to the one rendered object — passing them
+for a multi-object document raises <code>AmbiguousManeuverTargetError</code>.</p>
+<p><code>attitude</code> adds, from an <code>Attitude</code> (a CCSDS-AEM quaternion history), a sampled
+<code>orientation</code> on a child entity that references the object's position and carries a schematic
+body box, so the object's axes animate over the trajectory. The orientation is composed into
+Cesium's body→Earth-fixed convention (the source attitude's reference frame is rotated to ECEF
+per epoch), so an inertial-referenced attitude renders correctly. Like maneuvers it attaches to
+the one rendered object — passing it for a multi-object document raises
+<code>AmbiguousAttitudeTargetError</code>.</p>
+<p>Raises a <code>SchemaError</code> (the typed family) for a malformed input,
+naming exactly what is wrong, <code>UnsupportedCentralBodyError</code> for a
+ground track about a non-Earth body, <code>UnknownContactTargetError</code> /
+<code>ContactEntityCollisionError</code> for a contact that targets a missing
+object or collides with another entity,
+<code>AmbiguousManeuverTargetError</code> for maneuvers on a multi-object
+document, <code>ManeuverOutsideTrajectoryError</code> for a burn outside the
+trajectory's time span, <code>AmbiguousAttitudeTargetError</code> for an attitude
+on a multi-object document, <code>UnsupportedAttitudeTypeError</code> /
+<code>AttitudeFrameError</code> for a non-quaternion or unresolvable-frame
+attitude, or <code>ValueError</code> if <code>playback_seconds</code> is not positive.</p>
+
+
+    </div>
+
+</div><h2 id="documents">Documents<a class="headerlink" href="#documents" title="Permanent link">&para;</a></h2>
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="gmat_czml.CzmlDocument" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">CzmlDocument</span>
+
+
+<a href="#gmat_czml.CzmlDocument" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">CzmlDocument</span><span class="p">(</span><span class="n">document</span><span class="p">:</span> <span class="n"><span title="czml3.Document">Document</span></span><span class="p">)</span>
+</code></pre></div>
+
+    <div class="doc doc-contents first">
+
+
+
+        <p>A handle on an assembled CZML document.</p>
+<p>Wraps the czml3 <code>Document</code> the converters produce. The three accessors are the
+public surface:</p>
+<ul>
+<li><code>to_json</code> — the document as a CZML JSON string;</li>
+<li><code>to_dict</code> — the same document as parsed JSON (CZML's top level is a JSON <em>array</em> of
+  packets, so this is a <code>list</code>);</li>
+<li><code>save</code> — write the JSON to a file, byte-for-byte identical to <code>to_json</code>.</li>
+</ul>
+<p>The wrapped czml3 object is available as <code>document</code> for callers that need the model.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="gmat_czml.CzmlDocument.document" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <span class="doc doc-object-name doc-attribute-name">document</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#gmat_czml.CzmlDocument.document" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">document</span><span class="p">:</span> <span class="n"><span title="czml3.Document">Document</span></span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>The wrapped czml3 <code>Document</code>.</p>
+
+    </div>
+
+</div>
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="gmat_czml.CzmlDocument.to_json" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">to_json</span>
+
+
+<a href="#gmat_czml.CzmlDocument.to_json" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">to_json</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><span title="str">str</span></span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>The document as a CZML JSON string — a JSON array whose first element is the preamble.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="gmat_czml.CzmlDocument.to_dict" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">to_dict</span>
+
+
+<a href="#gmat_czml.CzmlDocument.to_dict" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">to_dict</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><span title="list">list</span></span><span class="p">[</span><span class="n"><span title="typing.Any">Any</span></span><span class="p">]</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>The document as a list of packet dicts, parsed from <code>to_json</code>.</p>
+<p>Parsing the serialized JSON (rather than walking the model) guarantees the dict form and
+the string form describe exactly the same document.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="gmat_czml.CzmlDocument.save" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">save</span>
+
+
+<a href="#gmat_czml.CzmlDocument.save" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">save</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">|</span> <span class="n"><span title="pathlib.Path">Path</span></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="pathlib.Path">Path</span></span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Write the document to <code>path</code> (UTF-8) and return the path it was written to.</p>
+<p>The file holds exactly what <code>to_json</code> returns — no trailing newline is added — so a
+saved document and an in-memory <code>to_json()</code> are byte-for-byte identical.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="gmat_czml.CzmlDocument.serve" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">serve</span>
+
+
+<a href="#gmat_czml.CzmlDocument.serve" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">serve</span><span class="p">(</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">port</span><span class="p">:</span> <span class="n"><span title="int">int</span></span> <span class="o">=</span> <span class="mi">8080</span><span class="p">,</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="o">*</span><span class="p">,</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">host</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">=</span> <span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">open_browser</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Serve this document over http behind an embedded CesiumJS viewer, blocking until stopped.</p>
+<p>Hosts a small FastAPI app — the viewer page at <code>/</code> and this document's JSON at
+<code>/document.czml</code> — and runs it under uvicorn, so the viewer's CesiumJS loads the document
+over http (a <code>file://</code> page cannot, its Web Workers are blocked). Blocks until interrupted
+(Ctrl-C). When <code>open_browser</code> is set, a browser tab is opened once the server is up.</p>
+<p>Requires the optional <code>[server]</code> extra (<code>pip install gmat-czml[server]</code>); without it,
+this raises <code>ImportError</code> with an actionable install hint.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="gmat_czml.CzmlDocument.upload_to_ion" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">upload_to_ion</span>
+
+
+<a href="#gmat_czml.CzmlDocument.upload_to_ion" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">upload_to_ion</span><span class="p">(</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">token</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="o">*</span><span class="p">,</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">name</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">description</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">wait</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="            IonAsset
+
+
+  
+      dataclass
+   (gmat_czml.ion.IonAsset)" href="#gmat_czml.ion.IonAsset">IonAsset</a></span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Upload this document to Cesium ion as a hosted asset and return a reference to it.</p>
+<p>Forwards <code>token</code> to ion as a bearer credential and nothing more — token passthrough, no
+ion authentication is managed here. <code>name</code> titles the asset, <code>description</code> is optional
+metadata, and <code>wait</code> (the default) blocks until ion finishes processing the asset, while
+<code>wait=False</code> returns as soon as the upload is accepted. Returns an
+<code>IonAsset</code> carrying the new asset's id and status.</p>
+<p>Requires the optional <code>[ion]</code> extra (<code>pip install gmat-czml[ion]</code>); without it, this
+raises <code>ImportError</code> with an actionable install hint. An ion-side failure (a bad
+token, a processing error, a timeout) raises <code>IonUploadError</code>.</p>
+
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div><h2 id="server-mode">Server mode<a class="headerlink" href="#server-mode" title="Permanent link">&para;</a></h2>
+<p>Hosting a document over http behind an embedded CesiumJS viewer — see the
+<a href="../server/">server mode guide</a>. The entry point is
+<a class="autorefs autorefs-internal" title="            serve" href="#gmat_czml.CzmlDocument.serve"><code>CzmlDocument.serve</code></a>, documented on <code>CzmlDocument</code> above.</p>
+<h2 id="cesium-ion-upload">Cesium ion upload<a class="headerlink" href="#cesium-ion-upload" title="Permanent link">&para;</a></h2>
+<p>Uploading a document to Cesium ion as a hosted asset — see the
+<a href="../ion/">ion upload guide</a>. The entry point is
+<a class="autorefs autorefs-internal" title="            upload_to_ion" href="#gmat_czml.CzmlDocument.upload_to_ion"><code>CzmlDocument.upload_to_ion</code></a>; it returns the <code>IonAsset</code>
+below, which lives in the <code>gmat_czml.ion</code> submodule (it is a return value, not a top-level export).</p>
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="gmat_czml.ion.IonAsset" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">IonAsset</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#gmat_czml.ion.IonAsset" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">IonAsset</span><span class="p">(</span><span class="nb">id</span><span class="p">:</span> <span class="n"><span title="int">int</span></span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">status</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">)</span>
+</code></pre></div>
+
+    <div class="doc doc-contents first">
+
+
+
+        <p>A reference to an asset created on Cesium ion.</p>
+<p>Returned by <code>upload</code>. <code>id</code> is ion's numeric asset id — the handle a Cesium client loads
+the asset by (<code>IonResource.fromAssetId(id)</code>); <code>status</code> is the asset's processing state when
+the upload call returned (<code>COMPLETE</code> when it waited for processing, otherwise whatever ion
+reported once the bytes were accepted). <code>dashboard_url</code> is where the asset is browsable in
+the ion dashboard.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="gmat_czml.ion.IonAsset.dashboard_url" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <span class="doc doc-object-name doc-attribute-name">dashboard_url</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#gmat_czml.ion.IonAsset.dashboard_url" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">dashboard_url</span><span class="p">:</span> <span class="n"><span title="str">str</span></span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>The ion dashboard URL the asset is browsable at.</p>
+
+    </div>
+
+</div>
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div><h2 id="input-schema">Input schema<a class="headerlink" href="#input-schema" title="Permanent link">&para;</a></h2>
+<p>The canonical input boundary — see the <a href="../schema/">schema reference</a> for the contract these
+validate.</p>
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="gmat_czml.validate" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <span class="doc doc-object-name doc-function-name">validate</span>
+
+
+<a href="#gmat_czml.validate" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">validate</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n"><span title="pandas.DataFrame">DataFrame</span></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="            CanonicalInput
+
+
+  
+      dataclass
+   (gmat_czml.schema.CanonicalInput)" href="#gmat_czml.CanonicalInput">CanonicalInput</a></span>
+</code></pre></div>
+
+    <div class="doc doc-contents first">
+
+        <p>Validate a single-object canonical DataFrame and return a <code>CanonicalInput</code>.</p>
+<p>Checks the gmat-czml guards (required columns, a recognised frame, a required-and-recognised
+time scale, well-formed units), then delegates the array / spine parsing to
+<code>Ephemeris.from_dataframe</code>. A position-only frame (no <code>VX, VY, VZ</code>) is accepted; the
+velocity is filled with <code>NaN</code> and <code>CanonicalInput.has_velocity</code> is <code>False</code>.</p>
+<p>Raises a specific <code>SchemaError</code> for each malformed case, naming
+what is wrong rather than surfacing a bare <code>KeyError</code> / <code>ValueError</code>.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="gmat_czml.normalize_inputs" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <span class="doc doc-object-name doc-function-name">normalize_inputs</span>
+
+
+<a href="#gmat_czml.normalize_inputs" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">normalize_inputs</span><span class="p">(</span><span class="n">source</span><span class="p">:</span> <span class="n"><span title="object">object</span></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="list">list</span></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="            CanonicalInput
+
+
+  
+      dataclass
+   (gmat_czml.schema.CanonicalInput)" href="#gmat_czml.CanonicalInput">CanonicalInput</a></span><span class="p">]</span>
+</code></pre></div>
+
+    <div class="doc doc-contents first">
+
+        <p>Validate one trajectory or a collection of them into a list of <code>CanonicalInput</code>.</p>
+<p>Accepts a single canonical <code>DataFrame</code>, a single upstream <code>Ephemeris</code>, or an iterable
+of either (the multi-object contract: one trajectory per object, identity from
+<code>attrs['object_name']</code>). Returns one <code>CanonicalInput</code> per object. Object names, when
+declared, must be unique across the collection.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="gmat_czml.recognised_frame" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <span class="doc doc-object-name doc-function-name">recognised_frame</span>
+
+
+<a href="#gmat_czml.recognised_frame" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">recognised_frame</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="str">str</span></span> <span class="o">|</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents first">
+
+        <p>The canonical frame id for <code>name</code>, or <code>None</code> if it is outside the recognised set.</p>
+<p>Case- and whitespace-insensitive. Defers to orbit-formats' shared frame alias table and
+supplements it with GMAT's own <code>EarthMJ2000Eq</code> / <code>EarthFixed</code> spellings, so the two
+libraries agree on every name they share and a GMAT-tagged state is recognised too. The
+returned id is the orbit-formats canonical frame id the downstream frame mapping consumes.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="gmat_czml.CanonicalInput" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">CanonicalInput</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#gmat_czml.CanonicalInput" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">CanonicalInput</span><span class="p">(</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">ephemeris</span><span class="p">:</span> <span class="n"><span title="orbit_formats.Ephemeris">Ephemeris</span></span><span class="p">,</span> <span class="n">frame</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">has_velocity</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span>
+</code></pre></div>
+
+    <div class="doc doc-contents first">
+
+
+
+        <p>A validated single-object trajectory ready for conversion.</p>
+<p><code>ephemeris</code> is the parsed upstream canonical object (epochs, positions, velocities, and
+the metadata spine); <code>frame</code> is the recognised canonical frame id (e.g. <code>"EME2000"</code> /
+<code>"ITRF"</code>); <code>has_velocity</code> records whether real velocity columns were supplied, since
+the schema makes velocity optional and a position-only source carries <code>NaN</code> velocities.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="gmat_czml.CanonicalInput.object_name" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <span class="doc doc-object-name doc-attribute-name">object_name</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#gmat_czml.CanonicalInput.object_name" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">object_name</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">|</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>The object's identity, from <code>attrs['object_name']</code> (<code>None</code> when undeclared).</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="gmat_czml.CanonicalInput.central_body" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <span class="doc doc-object-name doc-attribute-name">central_body</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#gmat_czml.CanonicalInput.central_body" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">central_body</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">|</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>The central body (e.g. <code>"Earth"</code>), from <code>attrs['central_body']</code> if declared.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="gmat_czml.CanonicalInput.time_scale" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <span class="doc doc-object-name doc-attribute-name">time_scale</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#gmat_czml.CanonicalInput.time_scale" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">time_scale</span><span class="p">:</span> <span class="n"><span title="str">str</span></span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>The time scale (one of <code>UTC TAI TT TDB GPS UT1</code>), from <code>attrs['time_scale']</code>.</p>
+<p>Unlike <code>object_name</code> / <code>central_body</code>, the scale is required: validation
+resolves it (falling back to <code>attrs['epoch_scales']['Epoch']</code>) and rejects an absent or
+unrecognised one, so a constructed <code>CanonicalInput</code> always carries a recognised,
+non-<code>None</code> scale. The <code>cast</code> records that established guarantee for the type checker.</p>
+
+    </div>
+
+</div>
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div><h2 id="contacts">Contacts<a class="headerlink" href="#contacts" title="Permanent link">&para;</a></h2>
+<p>The contact record gmat-czml owns — an observer's placement and the access windows it sees a
+satellite over. See the <a href="../conversion/contacts/">contacts conversion</a> for what each becomes in CZML.</p>
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="gmat_czml.GroundStation" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">GroundStation</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#gmat_czml.GroundStation" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">GroundStation</span><span class="p">(</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">name</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">latitude</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">longitude</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">height</span><span class="p">:</span> <span class="n"><span title="float">float</span></span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="p">)</span>
+</code></pre></div>
+
+    <div class="doc doc-contents first">
+
+
+
+        <p>An observer's identity and geodetic placement.</p>
+<p><code>name</code> is the observer's id (and label text); <code>latitude</code> and <code>longitude</code> are geodetic
+degrees (east-positive longitude); <code>height</code> is kilometres above the WGS84 ellipsoid (scaled
+to the metres CZML cartographic height uses). Equality is structural, so the same station may
+appear in several <code>Contact</code> records (one per satellite it tracks) and is placed once —
+but two differently-placed stations sharing a name are rejected.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="gmat_czml.Contact" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">Contact</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#gmat_czml.Contact" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">Contact</span><span class="p">(</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">observer</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="            GroundStation
+
+
+  
+      dataclass
+   (gmat_czml.convert.contacts.GroundStation)" href="#gmat_czml.GroundStation">GroundStation</a></span><span class="p">,</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">target</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">windows</span><span class="p">:</span> <span class="n"><span title="collections.abc.Sequence">Sequence</span></span><span class="p">[</span><span class="n"><span title="tuple">tuple</span></span><span class="p">[</span><span class="n"><span title="datetime.datetime">datetime</span></span><span class="p">,</span> <span class="n"><span title="datetime.datetime">datetime</span></span><span class="p">]],</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="p">)</span>
+</code></pre></div>
+
+    <div class="doc doc-contents first">
+
+
+
+        <p>Access windows between one observer and one target satellite.</p>
+<p><code>observer</code> is the ground station; <code>target</code> is the target satellite's object name — it must
+match a rendered object's entity id (its declared name, or its <code>object-&lt;index&gt;</code> positional
+fallback). <code>windows</code> is the access intervals, each a <code>(start, end)</code> pair of
+<code>datetime</code>; the link is shown only during them. Times are UTC — a naive
+datetime is read as UTC and an aware one is converted. A contact with no windows still places
+its observer but emits no link.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div><h2 id="styling">Styling<a class="headerlink" href="#styling" title="Permanent link">&para;</a></h2>
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="gmat_czml.Style" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">Style</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#gmat_czml.Style" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">Style</span><span class="p">(</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">name</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">=</span> <span class="s2">&quot;sat-default&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">marker</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="            PointStyle
+
+
+  
+      dataclass
+   (gmat_czml.styles.PointStyle)" href="#gmat_czml.PointStyle">PointStyle</a></span> <span class="o">|</span> <span class="n"><a class="autorefs autorefs-internal" title="            ImageBillboard
+
+
+  
+      dataclass
+   (gmat_czml.styles.ImageBillboard)" href="#gmat_czml.ImageBillboard">ImageBillboard</a></span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-internal" title="            PointStyle
+
+
+  
+      dataclass
+   (gmat_czml.styles.PointStyle)" href="#gmat_czml.PointStyle">PointStyle</a></span><span class="p">(),</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">label</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="            LabelStyle
+
+
+  
+      dataclass
+   (gmat_czml.styles.LabelStyle)" href="#gmat_czml.LabelStyle">LabelStyle</a></span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-internal" title="            LabelStyle
+
+
+  
+      dataclass
+   (gmat_czml.styles.LabelStyle)" href="#gmat_czml.LabelStyle">LabelStyle</a></span><span class="p">(),</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">path</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="            PathStyle
+
+
+  
+      dataclass
+   (gmat_czml.styles.PathStyle)" href="#gmat_czml.PathStyle">PathStyle</a></span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-internal" title="            PathStyle
+
+
+  
+      dataclass
+   (gmat_czml.styles.PathStyle)" href="#gmat_czml.PathStyle">PathStyle</a></span><span class="p">(),</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">track</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="            TrackStyle
+
+
+  
+      dataclass
+   (gmat_czml.styles.TrackStyle)" href="#gmat_czml.TrackStyle">TrackStyle</a></span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-internal" title="            TrackStyle
+
+
+  
+      dataclass
+   (gmat_czml.styles.TrackStyle)" href="#gmat_czml.TrackStyle">TrackStyle</a></span><span class="p">(),</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">maneuver</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="            ManeuverStyle
+
+
+  
+      dataclass
+   (gmat_czml.styles.ManeuverStyle)" href="#gmat_czml.ManeuverStyle">ManeuverStyle</a></span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-internal" title="            ManeuverStyle
+
+
+  
+      dataclass
+   (gmat_czml.styles.ManeuverStyle)" href="#gmat_czml.ManeuverStyle">ManeuverStyle</a></span><span class="p">(),</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">contact</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="            ContactStyle
+
+
+  
+      dataclass
+   (gmat_czml.styles.ContactStyle)" href="#gmat_czml.ContactStyle">ContactStyle</a></span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-internal" title="            ContactStyle
+
+
+  
+      dataclass
+   (gmat_czml.styles.ContactStyle)" href="#gmat_czml.ContactStyle">ContactStyle</a></span><span class="p">(),</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="n">attitude</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="            AttitudeStyle
+
+
+  
+      dataclass
+   (gmat_czml.styles.AttitudeStyle)" href="#gmat_czml.AttitudeStyle">AttitudeStyle</a></span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-internal" title="            AttitudeStyle
+
+
+  
+      dataclass
+   (gmat_czml.styles.AttitudeStyle)" href="#gmat_czml.AttitudeStyle">AttitudeStyle</a></span><span class="p">(),</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="p">)</span>
+</code></pre></div>
+
+    <div class="doc doc-contents first">
+
+
+
+        <p>The visual style applied to one rendered object and its annotation layers.</p>
+<p><code>name</code> is the style's identity (the preset name a <code>preset</code> lookup returns). The
+<strong>satellite-layer</strong> fields drive the object's own geometry:</p>
+<ul>
+<li><code>marker</code> — the object's glyph, either a coloured <code>PointStyle</code> (the default) or an
+  <code>ImageBillboard</code> image, exactly one of the two;</li>
+<li><code>label</code> — the name <code>LabelStyle</code>;</li>
+<li><code>path</code> — the orbit-trail <code>PathStyle</code>;</li>
+<li><code>track</code> — the ground-<code>TrackStyle</code>.</li>
+</ul>
+<p>The <strong>annotation-layer</strong> fields style the optional annotations, each with its own default look:</p>
+<ul>
+<li><code>maneuver</code> — the <code>ManeuverStyle</code> for burn markers and arcs (orange);</li>
+<li><code>contact</code> — the <code>ContactStyle</code> for observers and lines of sight (cyan);</li>
+<li><code>attitude</code> — the <code>AttitudeStyle</code> for the body-orientation box (translucent cyan).</li>
+</ul>
+<p>The defaults are <code>sat-default</code>, so <code>Style()</code> is the baked-in look <code>gmat_czml.to_czml</code>
+applies when given no <code>style</code>. Build a custom style by overriding any field —
+<code>Style(marker=PointStyle(color=(0, 255, 0, 255)), path=PathStyle(width=3.0))</code> — or resolve a
+named preset with <code>preset</code>. The palette presets recolour only the satellite layer; the
+annotation layers keep their semantic colours unless you override them.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="gmat_czml.PointStyle" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">PointStyle</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#gmat_czml.PointStyle" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">PointStyle</span><span class="p">(</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">color</span><span class="p">:</span> <span class="n"><span title="gmat_czml.styles.RGBA">RGBA</span></span> <span class="o">=</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">pixel_size</span><span class="p">:</span> <span class="n"><span title="float">float</span></span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">,</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">outline_color</span><span class="p">:</span> <span class="n"><span title="gmat_czml.styles.RGBA">RGBA</span></span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">outline_width</span><span class="p">:</span> <span class="n"><span title="float">float</span></span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="p">)</span>
+</code></pre></div>
+
+    <div class="doc doc-contents first">
+
+
+
+        <p>The marker glyph as a coloured point — a filled dot with an outline.</p>
+<p><code>color</code> fills the dot and <code>outline_color</code> / <code>outline_width</code> draw its border;
+<code>pixel_size</code> is the dot's screen size in pixels. Channels are 0-255. The defaults are the
+<code>sat-default</code> marker: a yellow dot with a thin black outline.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="gmat_czml.ImageBillboard" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">ImageBillboard</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#gmat_czml.ImageBillboard" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">ImageBillboard</span><span class="p">(</span><span class="n">image</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">scale</span><span class="p">:</span> <span class="n"><span title="float">float</span></span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">)</span>
+</code></pre></div>
+
+    <div class="doc doc-contents first">
+
+
+
+        <p>The marker glyph as an image billboard — a screen-facing image in place of the point.</p>
+<p><code>image</code> is the image source: any URI a Cesium client can load, including an <code>http(s)</code> URL or
+a <code>data:</code> URI with the image inlined (gmat-czml ships no asset pipeline, so the caller
+supplies the image). <code>scale</code> multiplies the image's native pixel size. Setting a <code>Style</code>'s
+<code>marker</code> to an <code>ImageBillboard</code> replaces the coloured point with the billboard.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="gmat_czml.LabelStyle" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">LabelStyle</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#gmat_czml.LabelStyle" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">LabelStyle</span><span class="p">(</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">color</span><span class="p">:</span> <span class="n"><span title="gmat_czml.styles.RGBA">RGBA</span></span> <span class="o">=</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">font</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">=</span> <span class="s2">&quot;11pt Lucida Console&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="p">)</span>
+</code></pre></div>
+
+    <div class="doc doc-contents first">
+
+
+
+        <p>The object's name label — its fill colour and font.</p>
+<p><code>color</code> is the text fill (channels 0-255) and <code>font</code> is a CSS-style font string. The label's
+layout (its offset clear of the marker and its anchoring) is fixed by the converter, not styled
+here. The defaults are the <code>sat-default</code> label: white text in a small monospace font.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="gmat_czml.PathStyle" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">PathStyle</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#gmat_czml.PathStyle" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">PathStyle</span><span class="p">(</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">color</span><span class="p">:</span> <span class="n"><span title="gmat_czml.styles.RGBA">RGBA</span></span> <span class="o">=</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span> <span class="n">width</span><span class="p">:</span> <span class="n"><span title="float">float</span></span> <span class="o">=</span> <span class="mf">1.5</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span>
+</code></pre></div>
+
+    <div class="doc doc-contents first">
+
+
+
+        <p>The orbit trail — its line colour and width.</p>
+<p><code>color</code> (channels 0-255) and <code>width</code> (pixels) draw the trailing orbit path behind the
+object. The defaults are the <code>sat-default</code> trail: a thin yellow line.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="gmat_czml.TrackStyle" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">TrackStyle</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#gmat_czml.TrackStyle" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">TrackStyle</span><span class="p">(</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">color</span><span class="p">:</span> <span class="n"><span title="gmat_czml.styles.RGBA">RGBA</span></span> <span class="o">=</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span> <span class="n">width</span><span class="p">:</span> <span class="n"><span title="float">float</span></span> <span class="o">=</span> <span class="mf">2.0</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span>
+</code></pre></div>
+
+    <div class="doc doc-contents first">
+
+
+
+        <p>The ground track — its line colour and width.</p>
+<p><code>color</code> (channels 0-255) and <code>width</code> (pixels) draw the sub-satellite ground-track polyline.
+The defaults are the <code>sat-default</code> track: the orbit trail's yellow, a touch heavier so it
+reads against the globe.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="gmat_czml.LineStyle" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">LineStyle</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#gmat_czml.LineStyle" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">LineStyle</span><span class="p">(</span><span class="n">color</span><span class="p">:</span> <span class="n"><span title="gmat_czml.styles.RGBA">RGBA</span></span><span class="p">,</span> <span class="n">width</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">)</span>
+</code></pre></div>
+
+    <div class="doc doc-contents first">
+
+
+
+        <p>A line — its colour and width.</p>
+<p><code>color</code> (channels 0-255) and <code>width</code> (pixels) draw a generic line: the maneuver burn arc and
+the contact line of sight. Unlike <code>PathStyle</code> / <code>TrackStyle</code>, which name the
+satellite's own orbit trail and ground track, this is the neutral line style the annotation
+layers reuse.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="gmat_czml.ManeuverStyle" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">ManeuverStyle</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#gmat_czml.ManeuverStyle" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">ManeuverStyle</span><span class="p">(</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">marker</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="            PointStyle
+
+
+  
+      dataclass
+   (gmat_czml.styles.PointStyle)" href="#gmat_czml.PointStyle">PointStyle</a></span> <span class="o">=</span> <span class="p">(</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        <span class="k">lambda</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="            PointStyle
+
+
+  
+      dataclass
+   (gmat_czml.styles.PointStyle)" href="#gmat_czml.PointStyle">PointStyle</a></span><span class="p">(</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>            <span class="n"><span title="gmat_czml.styles.PointStyle(color)">color</span></span><span class="o">=</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">140</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span> <span class="n"><span title="gmat_czml.styles.PointStyle(pixel_size)">pixel_size</span></span><span class="o">=</span><span class="mf">11.0</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>        <span class="p">)</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="p">)(),</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">label</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="            LabelStyle
+
+
+  
+      dataclass
+   (gmat_czml.styles.LabelStyle)" href="#gmat_czml.LabelStyle">LabelStyle</a></span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-internal" title="            LabelStyle
+
+
+  
+      dataclass
+   (gmat_czml.styles.LabelStyle)" href="#gmat_czml.LabelStyle">LabelStyle</a></span><span class="p">(),</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">arc</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="            LineStyle
+
+
+  
+      dataclass
+   (gmat_czml.styles.LineStyle)" href="#gmat_czml.LineStyle">LineStyle</a></span> <span class="o">=</span> <span class="p">(</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>        <span class="k">lambda</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="            LineStyle
+
+
+  
+      dataclass
+   (gmat_czml.styles.LineStyle)" href="#gmat_czml.LineStyle">LineStyle</a></span><span class="p">(</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>            <span class="n"><span title="gmat_czml.styles.LineStyle(color)">color</span></span><span class="o">=</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">140</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span> <span class="n"><span title="gmat_czml.styles.LineStyle(width)">width</span></span><span class="o">=</span><span class="mf">3.0</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>        <span class="p">)</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="p">)(),</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="p">)</span>
+</code></pre></div>
+
+    <div class="doc doc-contents first">
+
+
+
+        <p>The maneuver annotation layer — its marker, label, and burn-arc styles.</p>
+<p>A maneuver renders as a marker (a point + label, for an impulsive burn or a finite burn's
+companion) and, for a finite burn, a burn arc. <code>marker</code> styles the point, <code>label</code> the text,
+and <code>arc</code> the finite-burn line. The defaults are the baked-in maneuver look: an orange marker
+and arc with a white label, drawn as their own layer distinct from the satellite.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="gmat_czml.ContactStyle" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">ContactStyle</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#gmat_czml.ContactStyle" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">ContactStyle</span><span class="p">(</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">observer</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="            PointStyle
+
+
+  
+      dataclass
+   (gmat_czml.styles.PointStyle)" href="#gmat_czml.PointStyle">PointStyle</a></span> <span class="o">=</span> <span class="p">(</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        <span class="k">lambda</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="            PointStyle
+
+
+  
+      dataclass
+   (gmat_czml.styles.PointStyle)" href="#gmat_czml.PointStyle">PointStyle</a></span><span class="p">(</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>            <span class="n"><span title="gmat_czml.styles.PointStyle(color)">color</span></span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span> <span class="n"><span title="gmat_czml.styles.PointStyle(pixel_size)">pixel_size</span></span><span class="o">=</span><span class="mf">8.0</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>        <span class="p">)</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="p">)(),</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">label</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="            LabelStyle
+
+
+  
+      dataclass
+   (gmat_czml.styles.LabelStyle)" href="#gmat_czml.LabelStyle">LabelStyle</a></span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-internal" title="            LabelStyle
+
+
+  
+      dataclass
+   (gmat_czml.styles.LabelStyle)" href="#gmat_czml.LabelStyle">LabelStyle</a></span><span class="p">(),</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">link</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="            LineStyle
+
+
+  
+      dataclass
+   (gmat_czml.styles.LineStyle)" href="#gmat_czml.LineStyle">LineStyle</a></span> <span class="o">=</span> <span class="p">(</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>        <span class="k">lambda</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="            LineStyle
+
+
+  
+      dataclass
+   (gmat_czml.styles.LineStyle)" href="#gmat_czml.LineStyle">LineStyle</a></span><span class="p">(</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>            <span class="n"><span title="gmat_czml.styles.LineStyle(color)">color</span></span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span> <span class="n"><span title="gmat_czml.styles.LineStyle(width)">width</span></span><span class="o">=</span><span class="mf">1.0</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>        <span class="p">)</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="p">)(),</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="p">)</span>
+</code></pre></div>
+
+    <div class="doc doc-contents first">
+
+
+
+        <p>The contact annotation layer — its observer marker, label, and line-of-sight styles.</p>
+<p>A contact renders an observer entity (a point + label at the ground station) and an observer -&gt;
+satellite link. <code>observer</code> styles the point, <code>label</code> the text, and <code>link</code> the line of
+sight. The defaults are the baked-in contact look: a cyan observer and link with a white label,
+drawn as the ground / line-of-sight layer distinct from the satellite.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="gmat_czml.AttitudeStyle" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">AttitudeStyle</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#gmat_czml.AttitudeStyle" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">AttitudeStyle</span><span class="p">(</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">box_fill_color</span><span class="p">:</span> <span class="n"><span title="gmat_czml.styles.RGBA">RGBA</span></span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">110</span><span class="p">),</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">box_outline_color</span><span class="p">:</span> <span class="n"><span title="gmat_czml.styles.RGBA">RGBA</span></span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">box_outline_width</span><span class="p">:</span> <span class="n"><span title="float">float</span></span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="p">)</span>
+</code></pre></div>
+
+    <div class="doc doc-contents first">
+
+
+
+        <p>The attitude annotation layer — the body box's fill and outline colours.</p>
+<p>The attitude marker is a schematic body box; <code>box_fill_color</code> fills it (channels 0-255, with a
+translucent alpha by default) and <code>box_outline_color</code> / <code>box_outline_width</code> draw its edges.
+The box's dimensions are fixed by the converter (three distinct, exaggerated axes so the
+orientation reads), not styled here. The defaults are the baked-in translucent-cyan body box.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="gmat_czml.preset" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <span class="doc doc-object-name doc-function-name">preset</span>
+
+
+<a href="#gmat_czml.preset" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">preset</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="            Style
+
+
+  
+      dataclass
+   (gmat_czml.styles.Style)" href="#gmat_czml.Style">Style</a></span>
+</code></pre></div>
+
+    <div class="doc doc-contents first">
+
+        <p>The named preset <code>Style</code>, or raise <code>UnknownStyleError</code>.</p>
+<p><code>name</code> must be one of <code>PRESET_NAMES</code> (<code>sat-default</code> plus the colour palette). The
+preset is resolved, never guessed: an unrecognised name is rejected with the recognised set
+rather than silently falling back to the default.</p>
+
+
+    </div>
+
+</div><h2 id="errors">Errors<a class="headerlink" href="#errors" title="Permanent link">&para;</a></h2>
+<p>Every error gmat-czml raises on purpose descends from <code>GmatCzmlError</code>; the schema-validation
+failures additionally descend from <code>SchemaError</code>, which is also a <code>ValueError</code>.</p>
+
+
+<div class="doc doc-object doc-module">
+
+
+
+<h2 id="gmat_czml.errors" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-module"></code>            <span class="doc doc-object-name doc-module-name">errors</span>
+
+
+<a href="#gmat_czml.errors" class="headerlink" title="Permanent link">&para;</a></h2>
+
+    <div class="doc doc-contents first">
+
+        <p>The typed error hierarchy the public surface raises.</p>
+<p>Every error gmat-czml raises on purpose descends from <code>GmatCzmlError</code>, so a caller
+can catch the whole family with one <code>except</code>. The schema-validation failures all descend
+from <code>SchemaError</code>, which is also a <code>ValueError</code> — a malformed canonical input
+<em>is</em> a bad value, and existing <code>except ValueError</code> handlers keep working. Each subclass
+names exactly what is wrong (a missing column, an unrecognised frame, an absent time scale,
+malformed unit metadata) so a producer never has to read a bare <code>KeyError</code> traceback to
+learn what its DataFrame got wrong.</p>
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="gmat_czml.errors.GmatCzmlError" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">GmatCzmlError</span>
+
+
+<a href="#gmat_czml.errors.GmatCzmlError" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="Exception">Exception</span></code></p>
+
+
+
+        <p>Base class for every error gmat-czml raises deliberately.</p>
+
+
+
+
+
+
+
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="gmat_czml.errors.UnmappableFrameError" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">UnmappableFrameError</span>
+
+
+<a href="#gmat_czml.errors.UnmappableFrameError" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">UnmappableFrameError</span><span class="p">(</span><span class="n">frame</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">mappable</span><span class="p">:</span> <span class="n"><span title="collections.abc.Iterable">Iterable</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">])</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="            GmatCzmlError (gmat_czml.errors.GmatCzmlError)" href="#gmat_czml.errors.GmatCzmlError">GmatCzmlError</a></code></p>
+
+
+
+        <p>A recognised frame that has no CZML reference-frame mapping.</p>
+<p>Raised by the frame mapping for a canonical frame id that validation <em>recognised</em> but the
+converter cannot render in a CZML reference frame (<code>INERTIAL</code> / <code>FIXED</code>). Distinct from
+<code>UnknownFrameError</code>, which rejects a name outside the recognised set at the input
+boundary: the input here was valid, so this descends from <code>GmatCzmlError</code> directly rather
+than <code>SchemaError</code>. <code>frame</code> is the offending id and <code>mappable</code> the ids that do map.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="gmat_czml.errors.UnsupportedCentralBodyError" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">UnsupportedCentralBodyError</span>
+
+
+<a href="#gmat_czml.errors.UnsupportedCentralBodyError" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">UnsupportedCentralBodyError</span><span class="p">(</span><span class="n">central_body</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">)</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="            GmatCzmlError (gmat_czml.errors.GmatCzmlError)" href="#gmat_czml.errors.GmatCzmlError">GmatCzmlError</a></code></p>
+
+
+
+        <p>A ground track requested for a trajectory about a body other than Earth.</p>
+<p>The sub-satellite projection is WGS84 / Earth-fixed throughout (D1, D5), so the ground track is
+Earth-only. Raised by the ground-track converter when <code>attrs['central_body']</code> is <em>declared</em> as
+something other than Earth; an undeclared body is accepted, since every recognised frame is an
+Earth frame already. Like <code>UnmappableFrameError</code>, the input was a valid trajectory — the
+limitation is at render time — so this descends from <code>GmatCzmlError</code> directly rather than
+<code>SchemaError</code>. <code>central_body</code> is the offending value.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="gmat_czml.errors.UnknownInterpolationError" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">UnknownInterpolationError</span>
+
+
+<a href="#gmat_czml.errors.UnknownInterpolationError" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">UnknownInterpolationError</span><span class="p">(</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">algorithm</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">recognised</span><span class="p">:</span> <span class="n"><span title="collections.abc.Iterable">Iterable</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">]</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="            GmatCzmlError (gmat_czml.errors.GmatCzmlError)" href="#gmat_czml.errors.GmatCzmlError">GmatCzmlError</a></code></p>
+
+
+
+        <p>A declared interpolation algorithm with no CZML equivalent.</p>
+<p>Raised by the ephemeris converter when <code>attrs['interpolation']</code> carries a name outside the
+set CZML understands (<code>LAGRANGE</code> / <code>HERMITE</code> / <code>LINEAR</code>). The interpolation hint is read
+at the converter layer, not validated as part of the schema contract, so — like
+<code>UnmappableFrameError</code> — this descends from <code>GmatCzmlError</code> directly rather than
+<code>SchemaError</code>. The algorithm is mapped, never guessed: an undeclared algorithm defaults,
+but an <em>unrecognised</em> one is rejected. <code>algorithm</code> is the offending name and <code>recognised</code>
+the names that map.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="gmat_czml.errors.UnknownStyleError" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">UnknownStyleError</span>
+
+
+<a href="#gmat_czml.errors.UnknownStyleError" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">UnknownStyleError</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">recognised</span><span class="p">:</span> <span class="n"><span title="collections.abc.Iterable">Iterable</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">])</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="            GmatCzmlError (gmat_czml.errors.GmatCzmlError)" href="#gmat_czml.errors.GmatCzmlError">GmatCzmlError</a></code></p>
+
+
+
+        <p>A style preset name that is not in the recognised set.</p>
+<p>Raised by <code>gmat_czml.preset</code> when asked for a preset outside the registry
+(<code>sat-default</code> plus the colour palette). The preset is resolved, never guessed — an
+unrecognised name is rejected rather than silently falling back to the default — so this, like
+<code>UnknownInterpolationError</code>, is a render-time choice that descends from
+<code>GmatCzmlError</code> directly rather than <code>SchemaError</code>. <code>name</code> is the offending
+value and <code>recognised</code> the preset names that resolve.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="gmat_czml.errors.UnknownContactTargetError" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">UnknownContactTargetError</span>
+
+
+<a href="#gmat_czml.errors.UnknownContactTargetError" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">UnknownContactTargetError</span><span class="p">(</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">target</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">known</span><span class="p">:</span> <span class="n"><span title="collections.abc.Iterable">Iterable</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">]</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="            GmatCzmlError (gmat_czml.errors.GmatCzmlError)" href="#gmat_czml.errors.GmatCzmlError">GmatCzmlError</a></code></p>
+
+
+
+        <p>A contact names a target satellite that is not an object in the document.</p>
+<p>The observer → satellite link is a CZML polyline whose endpoints <em>reference</em> the observer's and
+the target's position properties, so the target must be one of the rendered objects (its entity
+id is the object's name, or its positional fallback). A contact naming a target no input
+trajectory provides would emit a link with a dangling reference a Cesium client cannot resolve,
+so it is rejected. Like <code>UnmappableFrameError</code>, the trajectory input was valid — the
+mismatch is in the <code>contacts</code> argument — so this descends from <code>GmatCzmlError</code> directly
+rather than <code>SchemaError</code>. <code>target</code> is the offending name and <code>known</code> the object ids
+a contact may target.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="gmat_czml.errors.ContactEntityCollisionError" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">ContactEntityCollisionError</span>
+
+
+<a href="#gmat_czml.errors.ContactEntityCollisionError" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">ContactEntityCollisionError</span><span class="p">(</span><span class="n">entity_id</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">)</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="            GmatCzmlError (gmat_czml.errors.GmatCzmlError)" href="#gmat_czml.errors.GmatCzmlError">GmatCzmlError</a></code></p>
+
+
+
+        <p>A contact would emit a CZML entity whose id collides with another entity.</p>
+<p>Contacts introduce their own entities — one observer per ground station and one
+observer-to-satellite link per contact — each with its own packet id (the observer's name, and
+<code>&lt;observer&gt;-to-&lt;target&gt;</code> for the link). That id must be unique across the whole document: a
+Cesium client silently merges two packets sharing an id into one entity. This is raised when an
+observer name collides with an object (satellite) id, when one observer name is declared with
+two different placements, or when two contacts share the same observer and target. Like
+<code>UnknownContactTargetError</code>, the trajectory input was valid, so this descends from
+<code>GmatCzmlError</code> directly. <code>entity_id</code> is the colliding id.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="gmat_czml.errors.ManeuverOutsideTrajectoryError" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">ManeuverOutsideTrajectoryError</span>
+
+
+<a href="#gmat_czml.errors.ManeuverOutsideTrajectoryError" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">ManeuverOutsideTrajectoryError</span><span class="p">(</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">epoch</span><span class="p">:</span> <span class="n"><span title="datetime.datetime">datetime</span></span><span class="p">,</span> <span class="n">span</span><span class="p">:</span> <span class="n"><span title="tuple">tuple</span></span><span class="p">[</span><span class="n"><span title="datetime.datetime">datetime</span></span><span class="p">,</span> <span class="n"><span title="datetime.datetime">datetime</span></span><span class="p">]</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="            GmatCzmlError (gmat_czml.errors.GmatCzmlError)" href="#gmat_czml.errors.GmatCzmlError">GmatCzmlError</a></code></p>
+
+
+
+        <p>A maneuver whose ignition (or finite-burn cut-off) falls outside the trajectory's time span.</p>
+<p>A maneuver carries no position of its own, so the converter interpolates the marker location
+from the trajectory at the burn epoch. A burn before the first state or after the last has no
+orbit beneath it to pin to, so it is rejected rather than clamped to an endpoint. Like
+<code>UnknownContactTargetError</code>, the trajectory input was valid — the mismatch is in the
+<code>maneuvers</code> argument — so this descends from <code>GmatCzmlError</code> directly rather than
+<code>SchemaError</code>. <code>epoch</code> is the offending ignition time (UTC) and <code>span</code> the
+trajectory's <code>(start, end)</code> it must fall within.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="gmat_czml.errors.AmbiguousManeuverTargetError" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">AmbiguousManeuverTargetError</span>
+
+
+<a href="#gmat_czml.errors.AmbiguousManeuverTargetError" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">AmbiguousManeuverTargetError</span><span class="p">(</span><span class="n">count</span><span class="p">:</span> <span class="n"><span title="int">int</span></span><span class="p">)</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="            GmatCzmlError (gmat_czml.errors.GmatCzmlError)" href="#gmat_czml.errors.GmatCzmlError">GmatCzmlError</a></code></p>
+
+
+
+        <p>Maneuvers were supplied for a document with more than one object.</p>
+<p>A <code>Maneuver</code> names neither a position nor a target craft, so gmat-czml
+attributes the maneuvers to the single rendered trajectory; with more than one object it cannot
+tell which craft each burn acts on, and refuses to guess. Like
+<code>ManeuverOutsideTrajectoryError</code>, the inputs were individually valid — the ambiguity is
+in pairing them with the <code>maneuvers</code> argument — so this descends from <code>GmatCzmlError</code>
+directly. <code>count</code> is the number of objects in the document.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="gmat_czml.errors.AmbiguousAttitudeTargetError" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">AmbiguousAttitudeTargetError</span>
+
+
+<a href="#gmat_czml.errors.AmbiguousAttitudeTargetError" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">AmbiguousAttitudeTargetError</span><span class="p">(</span><span class="n">count</span><span class="p">:</span> <span class="n"><span title="int">int</span></span><span class="p">)</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="            GmatCzmlError (gmat_czml.errors.GmatCzmlError)" href="#gmat_czml.errors.GmatCzmlError">GmatCzmlError</a></code></p>
+
+
+
+        <p>An attitude was supplied for a document with more than one object.</p>
+<p>An attitude history orients one object: its sampled <code>orientation</code> attaches to that object's
+position, so with more than one rendered object gmat-czml cannot tell which craft the attitude
+belongs to, and refuses to guess. Like <code>AmbiguousManeuverTargetError</code>, the inputs were
+individually valid — the ambiguity is in pairing them with the <code>attitude</code> argument — so this
+descends from <code>GmatCzmlError</code> directly. <code>count</code> is the number of objects in the
+document.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="gmat_czml.errors.UnsupportedAttitudeTypeError" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">UnsupportedAttitudeTypeError</span>
+
+
+<a href="#gmat_czml.errors.UnsupportedAttitudeTypeError" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">UnsupportedAttitudeTypeError</span><span class="p">(</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">attitude_type</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">supported</span><span class="p">:</span> <span class="n"><span title="collections.abc.Iterable">Iterable</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">]</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="            GmatCzmlError (gmat_czml.errors.GmatCzmlError)" href="#gmat_czml.errors.GmatCzmlError">GmatCzmlError</a></code></p>
+
+
+
+        <p>An attitude whose representation the converter does not render.</p>
+<p>The attitude converter emits a sampled <code>orientation</code> from a quaternion history; the canonical
+<code>Attitude</code> also models Euler-angle and spin attitudes, which are not
+rendered (rather than converted on a guess). Like <code>UnmappableFrameError</code>, the attitude
+was a valid canonical object — the limitation is at render time — so this descends from
+<code>GmatCzmlError</code> directly. <code>attitude_type</code> is the offending type and <code>supported</code> the
+types that render.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="gmat_czml.errors.AttitudeFrameError" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">AttitudeFrameError</span>
+
+
+<a href="#gmat_czml.errors.AttitudeFrameError" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">AttitudeFrameError</span><span class="p">(</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">frame_a</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">frame_b</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">|</span> <span class="kc">None</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="            GmatCzmlError (gmat_czml.errors.GmatCzmlError)" href="#gmat_czml.errors.GmatCzmlError">GmatCzmlError</a></code></p>
+
+
+
+        <p>An attitude whose two frames do not resolve to one external reference plus one body frame.</p>
+<p>An AEM names two frames; rendering the orientation requires exactly one to be a <em>recognised</em>
+external reference (e.g. <code>EME2000</code> / <code>ITRF</code>, which body→ECEF composition rotates through)
+and the other to be the body frame (e.g. <code>SC_BODY</code>, which is not a recognised external frame).
+This is raised when neither frame is recognised (no external reference to compose against) or
+both are (no identifiable body frame). Like <code>UnmappableFrameError</code>, the attitude was a
+valid canonical object — the limitation is at render time — so this descends from
+<code>GmatCzmlError</code> directly. <code>frame_a</code> and <code>frame_b</code> are the offending frame names.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="gmat_czml.errors.EmptyAttitudeError" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">EmptyAttitudeError</span>
+
+
+<a href="#gmat_czml.errors.EmptyAttitudeError" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="            GmatCzmlError (gmat_czml.errors.GmatCzmlError)" href="#gmat_czml.errors.GmatCzmlError">GmatCzmlError</a></code></p>
+
+
+
+        <p>An attitude history with no samples — there is no orientation to render.</p>
+
+
+
+
+
+
+
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="gmat_czml.errors.IonUploadError" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">IonUploadError</span>
+
+
+<a href="#gmat_czml.errors.IonUploadError" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">IonUploadError</span><span class="p">(</span><span class="n">detail</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">)</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="            GmatCzmlError (gmat_czml.errors.GmatCzmlError)" href="#gmat_czml.errors.GmatCzmlError">GmatCzmlError</a></code></p>
+
+
+
+        <p>A Cesium ion upload did not complete.</p>
+<p>Raised by the optional ion upload helper (<code>gmat_czml.CzmlDocument.upload_to_ion</code>) when ion
+rejects a step of the upload — an HTTP error from the REST API (e.g. a <code>401</code> from an invalid
+access token, which token passthrough leaves the caller to fix), an asset that finishes in an
+<code>ERROR</code> / <code>DATA_ERROR</code> state, or a wait that times out before it reaches <code>COMPLETE</code>.
+The trajectory and the assembled document were valid — the failure is on the ion side or in the
+supplied token — so this descends from <code>GmatCzmlError</code> directly rather than
+<code>SchemaError</code>. <code>detail</code> describes what went wrong.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="gmat_czml.errors.SchemaError" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">SchemaError</span>
+
+
+<a href="#gmat_czml.errors.SchemaError" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="            GmatCzmlError (gmat_czml.errors.GmatCzmlError)" href="#gmat_czml.errors.GmatCzmlError">GmatCzmlError</a></code>, <code><span title="ValueError">ValueError</span></code></p>
+
+
+
+        <p>A canonical input that does not satisfy the schema contract.</p>
+<p>Base for every validation failure. Also a <code>ValueError</code>, so the typed family
+stays catchable as the broad value error a malformed input naturally is.</p>
+
+
+
+
+
+
+
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="gmat_czml.errors.MissingColumnError" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">MissingColumnError</span>
+
+
+<a href="#gmat_czml.errors.MissingColumnError" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">MissingColumnError</span><span class="p">(</span><span class="n">columns</span><span class="p">:</span> <span class="n"><span title="collections.abc.Iterable">Iterable</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">])</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="            SchemaError (gmat_czml.errors.SchemaError)" href="#gmat_czml.errors.SchemaError">SchemaError</a></code></p>
+
+
+
+        <p>A required state column is absent from the DataFrame.</p>
+<p><code>columns</code> holds the missing column names. <code>Epoch, X, Y, Z</code> are always required;
+velocity is optional, but declaring it <em>partially</em> (some of <code>VX, VY, VZ</code> but not all
+three) is a malformed declaration and reported here too.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="gmat_czml.errors.MissingFrameError" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">MissingFrameError</span>
+
+
+<a href="#gmat_czml.errors.MissingFrameError" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">MissingFrameError</span><span class="p">()</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="            SchemaError (gmat_czml.errors.SchemaError)" href="#gmat_czml.errors.SchemaError">SchemaError</a></code></p>
+
+
+
+        <p>No <code>coordinate_system</code> is declared on <code>DataFrame.attrs</code>.</p>
+<p>The reference frame is load-bearing for the CZML reference frame, so it is required
+rather than guessed.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="gmat_czml.errors.UnknownFrameError" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">UnknownFrameError</span>
+
+
+<a href="#gmat_czml.errors.UnknownFrameError" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">UnknownFrameError</span><span class="p">(</span><span class="n">frame</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">recognised</span><span class="p">:</span> <span class="n"><span title="collections.abc.Iterable">Iterable</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">])</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="            SchemaError (gmat_czml.errors.SchemaError)" href="#gmat_czml.errors.SchemaError">SchemaError</a></code></p>
+
+
+
+        <p>A declared <code>coordinate_system</code> that is not in the recognised set.</p>
+<p><code>frame</code> is the offending value and <code>recognised</code> the names gmat-czml accepts.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="gmat_czml.errors.MissingTimeScaleError" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">MissingTimeScaleError</span>
+
+
+<a href="#gmat_czml.errors.MissingTimeScaleError" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">MissingTimeScaleError</span><span class="p">()</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="            SchemaError (gmat_czml.errors.SchemaError)" href="#gmat_czml.errors.SchemaError">SchemaError</a></code></p>
+
+
+
+        <p>No time scale is declared on <code>DataFrame.attrs</code>.</p>
+<p>Read from <code>time_scale</code>, falling back to <code>epoch_scales['Epoch']</code>; when neither is
+present the scale is required rather than assumed, since the CZML clock is built in UTC.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="gmat_czml.errors.UnknownTimeScaleError" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">UnknownTimeScaleError</span>
+
+
+<a href="#gmat_czml.errors.UnknownTimeScaleError" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">UnknownTimeScaleError</span><span class="p">(</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">time_scale</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">recognised</span><span class="p">:</span> <span class="n"><span title="collections.abc.Iterable">Iterable</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">]</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="            SchemaError (gmat_czml.errors.SchemaError)" href="#gmat_czml.errors.SchemaError">SchemaError</a></code></p>
+
+
+
+        <p>A declared time scale that is not one of the recognised scales.</p>
+<p><code>time_scale</code> is the offending value and <code>recognised</code> the scales gmat-czml accepts.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="gmat_czml.errors.InvalidUnitsError" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">InvalidUnitsError</span>
+
+
+<a href="#gmat_czml.errors.InvalidUnitsError" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">InvalidUnitsError</span><span class="p">(</span><span class="n">detail</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">)</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="            SchemaError (gmat_czml.errors.SchemaError)" href="#gmat_czml.errors.SchemaError">SchemaError</a></code></p>
+
+
+
+        <p>The <code>units</code> metadata is malformed.</p>
+<p><code>attrs['units']</code> must be a mapping whose recognised keys (<code>length</code> / <code>speed</code> /
+<code>angle</code> / <code>time</code>) carry non-empty unit strings. <code>detail</code> describes what was wrong.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="gmat_czml.errors.EmptyTrajectoryError" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">EmptyTrajectoryError</span>
+
+
+<a href="#gmat_czml.errors.EmptyTrajectoryError" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="            SchemaError (gmat_czml.errors.SchemaError)" href="#gmat_czml.errors.SchemaError">SchemaError</a></code></p>
+
+
+
+        <p>There is nothing to convert — a state series with no samples, or no inputs at all.</p>
+
+
+
+
+
+
+
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="gmat_czml.errors.DuplicateObjectNameError" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">DuplicateObjectNameError</span>
+
+
+<a href="#gmat_czml.errors.DuplicateObjectNameError" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">DuplicateObjectNameError</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">)</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="            SchemaError (gmat_czml.errors.SchemaError)" href="#gmat_czml.errors.SchemaError">SchemaError</a></code></p>
+
+
+
+        <p>Two inputs in a multi-object collection share the same <code>object_name</code>.</p>
+<p>Object identity comes from <code>attrs['object_name']</code>, so two trajectories carrying the
+same name are ambiguous. <code>name</code> is the colliding value.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="gmat_czml.errors.MalformedStateError" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">MalformedStateError</span>
+
+
+<a href="#gmat_czml.errors.MalformedStateError" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="            SchemaError (gmat_czml.errors.SchemaError)" href="#gmat_czml.errors.SchemaError">SchemaError</a></code></p>
+
+
+
+        <p>The state arrays could not be parsed.</p>
+<p>Non-numeric values, an unparseable epoch, or a shape the canonical layer rejects. Wraps
+the upstream <code>ValueError</code> (available as the exception <code>__cause__</code>) so the failure
+surfaces as a typed gmat-czml error rather than a bare parse error.</p>
+
+
+
+
+
+
+
+
+
+    </div>
+
+</div>
+
+
+
+
+  </div>
+
+    </div>
+
+</div><h2 id="gmat-run-adapter">gmat-run adapter<a class="headerlink" href="#gmat-run-adapter" title="Permanent link">&para;</a></h2>
+<p>The optional one-hop bridge from a gmat-run <code>Results</code> to a document — see the
+<a href="../conversion/gmat-run-adapter/">gmat-run adapter guide</a>. It lives in its own module because
+gmat-run is an optional dependency, imported only inside these functions.</p>
+
+
+<div class="doc doc-object doc-module">
+
+
+
+<h2 id="gmat_czml.adapters.gmat_run" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-module"></code>            <span class="doc doc-object-name doc-module-name">gmat_run</span>
+
+
+<a href="#gmat_czml.adapters.gmat_run" class="headerlink" title="Permanent link">&para;</a></h2>
+
+    <div class="doc doc-contents first">
+
+        <p>Turn a gmat-run <code>Results</code> into a CZML document, in one hop.</p>
+<p>gmat-run runs a GMAT mission headlessly and returns a <code>Results</code> whose <code>ephemerides</code> and
+<code>contacts</code> are already keyed <code>pandas.DataFrame</code> views over the run's output files. A GMAT
+ephemeris DataFrame <em>is</em> gmat-czml's canonical state series — same <code>Epoch, X, Y, Z[, VX, VY, VZ]</code>
+columns and the same <code>attrs</code> spine (<code>object_name</code> / <code>coordinate_system</code> / <code>central_body</code> /
+<code>time_scale</code> / <code>interpolation</code> …) — so a trajectory flows into <code>gmat_czml.to_czml</code> with no
+reshaping. This adapter is the thin convenience that bundles a whole <code>Results</code> into one document
+without the caller wiring each piece by hand.</p>
+<p><strong>gmat-run stays optional.</strong> It is imported <em>inside</em> these functions, never at module load, so
+importing gmat-czml (and the minimal install) never needs it; calling the adapter without it
+installed raises a clear, actionable <code>ImportError</code> naming the install. The type annotations
+reference <code>gmat_run.Results</code> only under <code>typing.TYPE_CHECKING</code>.</p>
+<p><strong>What maps, and what does not.</strong> A <code>Results</code> is the run's <em>output</em>, which bounds what the adapter
+can reach:</p>
+<ul>
+<li><strong>Ephemerides</strong> map directly — <code>results_to_trajectories</code> returns one canonical DataFrame per
+  <code>EphemerisFile</code> resource (naming the object after the resource when the source declared no
+  <code>OBJECT_NAME</code>), and <code>to_czml_from_results</code> renders them as a multi-object document.</li>
+<li><strong>Contacts</strong> map to gmat-czml <code>GroundStation</code> / <code>Contact</code>
+  records, but a GMAT <code>ContactLocator</code> report names its observer without its geodetic position —
+  that lives on the <code>GroundStation</code> resource in the mission <em>script</em>, not in the run output. So
+  the caller supplies each observer's placement via a <code>stations</code> mapping; the adapter pairs it
+  with the access windows it reads from the report (<code>results_to_contacts</code>).</li>
+<li><strong>Maneuvers and attitude are not reachable from a bare <code>Results</code>.</strong> gmat-run surfaces no
+  maneuver output at all, and attitude lives on <code>Mission.attitude_inputs</code>, not <code>Results</code>.
+  To annotate a document with either, read the source <code>.opm</code> / <code>.aem</code> through orbit-formats
+  and pass the resulting <code>Maneuver</code> / <code>Attitude</code> to <code>gmat_czml.to_czml</code> directly.</li>
+</ul>
+<p>The adapter's own typed errors (<code>MissingStationError</code>,
+<code>UnsupportedContactFormatError</code>) descend from <code>GmatCzmlError</code>, so they are
+catchable with the rest of the family, but live here rather than in the core error module — they are
+concepts only this optional adapter raises. Errors from the conversion itself (an unknown contact
+target, a duplicate object name, an empty trajectory) propagate from <code>gmat_czml.to_czml</code>
+unchanged.</p>
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="gmat_czml.adapters.gmat_run.MissingStationError" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">MissingStationError</span>
+
+
+<a href="#gmat_czml.adapters.gmat_run.MissingStationError" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">MissingStationError</span><span class="p">(</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">observers</span><span class="p">:</span> <span class="n"><span title="collections.abc.Iterable">Iterable</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">],</span> <span class="n">provided</span><span class="p">:</span> <span class="n"><span title="collections.abc.Iterable">Iterable</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">]</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="            GmatCzmlError (gmat_czml.errors.GmatCzmlError)" href="#gmat_czml.errors.GmatCzmlError">GmatCzmlError</a></code></p>
+
+
+
+        <p>A contact observer has no geodetic placement in the supplied <code>stations</code> mapping.</p>
+<p>A GMAT <code>ContactLocator</code> report names its observer but not its position — the observer's
+longitude / latitude / height live on the <code>GroundStation</code> resource in the mission script, not
+in the run output — so the adapter cannot place the observer without a caller-supplied
+placement. <code>observers</code> are the unplaced names and <code>provided</code> the station keys that were
+supplied.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="gmat_czml.adapters.gmat_run.UnsupportedContactFormatError" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">UnsupportedContactFormatError</span>
+
+
+<a href="#gmat_czml.adapters.gmat_run.UnsupportedContactFormatError" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">UnsupportedContactFormatError</span><span class="p">(</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">report_format</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">resource</span><span class="p">:</span> <span class="n"><span title="str">str</span></span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="            GmatCzmlError (gmat_czml.errors.GmatCzmlError)" href="#gmat_czml.errors.GmatCzmlError">GmatCzmlError</a></code></p>
+
+
+
+        <p>A contact resource whose <code>ReportFormat</code> carries no access-window columns.</p>
+<p>The adapter builds each contact's windows from the <code>Start</code> / <code>Stop</code> columns the
+window-bearing ContactLocator formats emit (Legacy, ContactRangeReport, the SiteView variants).
+The per-tick <code>AzimuthElevationRange</code> variants report one <code>Time</code> per sample rather than an
+interval, so there are no windows to map. <code>report_format</code> is the offending variant and
+<code>resource</code> the contact resource name.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="gmat_czml.adapters.gmat_run.to_czml_from_results" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <span class="doc doc-object-name doc-function-name">to_czml_from_results</span>
+
+
+<a href="#gmat_czml.adapters.gmat_run.to_czml_from_results" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">to_czml_from_results</span><span class="p">(</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">results</span><span class="p">:</span> <span class="n"><span title="gmat_run.Results">Results</span></span><span class="p">,</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="o">*</span><span class="p">,</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">ephemerides</span><span class="p">:</span> <span class="n"><span title="collections.abc.Sequence">Sequence</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">stations</span><span class="p">:</span> <span class="n"><span title="collections.abc.Mapping">Mapping</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-internal" title="            GroundStation
+
+
+  
+      dataclass
+   (gmat_czml.convert.contacts.GroundStation)" href="#gmat_czml.GroundStation">GroundStation</a></span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">contact_resources</span><span class="p">:</span> <span class="n"><span title="collections.abc.Sequence">Sequence</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">style</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="            Style
+
+
+  
+      dataclass
+   (gmat_czml.styles.Style)" href="#gmat_czml.Style">Style</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">playback_seconds</span><span class="p">:</span> <span class="n"><span title="float">float</span></span> <span class="o">=</span> <span class="mf">60.0</span><span class="p">,</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="n">ground_track</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="            CzmlDocument (gmat_czml.document.CzmlDocument)" href="#gmat_czml.CzmlDocument">CzmlDocument</a></span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Convert a gmat-run <code>Results</code> into a <code>CzmlDocument</code> in one hop.</p>
+<p>Every <code>EphemerisFile</code> resource becomes one object in the document; pass <code>ephemerides</code> to
+render a subset (a sequence of resource names, in the order given) instead of all of them.
+<code>style</code>, <code>playback_seconds</code>, and <code>ground_track</code> are forwarded to
+<code>gmat_czml.to_czml</code> unchanged.</p>
+<p>When <code>stations</code> is given (<code>{observer name: GroundStation}</code>), the run's <code>ContactLocator</code>
+resources are mapped to observer entities and per-window links; <code>contact_resources</code> selects a
+subset of them (default: all). Every observer named in a mapped report must have a placement in
+<code>stations</code> — the report does not carry one (see <code>MissingStationError</code>). Without
+<code>stations</code> no contacts are rendered, and passing <code>contact_resources</code> without <code>stations</code> is
+an error.</p>
+<p>Maneuvers and attitude are not rendered here: a <code>Results</code> carries no maneuver output, and
+attitude lives on <code>Mission</code>, not <code>Results</code> — read the source <code>.opm</code> / <code>.aem</code> through
+orbit-formats and pass the result to <code>gmat_czml.to_czml</code> directly.</p>
+<p>Raises <code>ImportError</code> if gmat-run is not installed,
+<code>EmptyTrajectoryError</code> if the <code>Results</code> has no ephemerides,
+<code>MissingStationError</code> /
+<code>UnsupportedContactFormatError</code> for the contact-mapping failures, and whatever
+<code>gmat_czml.to_czml</code> raises for the conversion itself (e.g. a duplicate object name, or a
+contact targeting an object not in the document).</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="gmat_czml.adapters.gmat_run.results_to_trajectories" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <span class="doc doc-object-name doc-function-name">results_to_trajectories</span>
+
+
+<a href="#gmat_czml.adapters.gmat_run.results_to_trajectories" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">results_to_trajectories</span><span class="p">(</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">results</span><span class="p">:</span> <span class="n"><span title="gmat_run.Results">Results</span></span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">names</span><span class="p">:</span> <span class="n"><span title="collections.abc.Sequence">Sequence</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="list">list</span></span><span class="p">[</span><span class="n"><span title="pandas.DataFrame">DataFrame</span></span><span class="p">]</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>The <code>Results</code> ephemerides as canonical state-series DataFrames, one per resource.</p>
+<p><code>names</code> selects a subset of <code>EphemerisFile</code> resources (in the order given); the default is
+every ephemeris in the run, in its insertion order. Each DataFrame is the gmat-run-parsed
+canonical frame, returned as-is when the source declared an <code>OBJECT_NAME</code> and otherwise with
+the resource name set as <code>attrs['object_name']</code> (so the object has a stable, unique id). The
+caller's DataFrames are never mutated — the fallback is applied on a shallow copy.</p>
+<p>Raises <code>ImportError</code> if gmat-run is absent, <code>KeyError</code> if <code>names</code> references an
+unknown resource, and <code>EmptyTrajectoryError</code> if the selection is empty.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="gmat_czml.adapters.gmat_run.results_to_contacts" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <span class="doc doc-object-name doc-function-name">results_to_contacts</span>
+
+
+<a href="#gmat_czml.adapters.gmat_run.results_to_contacts" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">results_to_contacts</span><span class="p">(</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">results</span><span class="p">:</span> <span class="n"><span title="gmat_run.Results">Results</span></span><span class="p">,</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">stations</span><span class="p">:</span> <span class="n"><span title="collections.abc.Mapping">Mapping</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-internal" title="            GroundStation
+
+
+  
+      dataclass
+   (gmat_czml.convert.contacts.GroundStation)" href="#gmat_czml.GroundStation">GroundStation</a></span><span class="p">],</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="o">*</span><span class="p">,</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">names</span><span class="p">:</span> <span class="n"><span title="collections.abc.Sequence">Sequence</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="list">list</span></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="            Contact
+
+
+  
+      dataclass
+   (gmat_czml.convert.contacts.Contact)" href="#gmat_czml.Contact">Contact</a></span><span class="p">]</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>The <code>Results</code> contacts as gmat-czml <code>Contact</code> records.</p>
+<p><code>stations</code> places each observer (<code>{observer name: GroundStation}</code>); <code>names</code> selects a
+subset of <code>ContactLocator</code> resources (default: all). For each mapped report, the target
+satellite is read from the report and one <code>Contact</code> is produced per observer,
+its windows the report's <code>(Start, Stop)</code> access intervals (UTC). The returned contacts are in
+resource order, then observer order within each resource.</p>
+<p>Raises <code>ImportError</code> if gmat-run is absent, <code>KeyError</code> if <code>names</code> references an
+unknown resource, <code>UnsupportedContactFormatError</code> for a report with no window columns,
+and <code>MissingStationError</code> for an observer with no placement in <code>stations</code>.</p>
+
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/astro-tools/gmat-czml" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["content.code.copy", "navigation.indexes", "navigation.instant", "navigation.sections", "navigation.top", "search.highlight", "search.suggest", "toc.follow"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
